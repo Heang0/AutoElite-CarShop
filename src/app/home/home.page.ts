@@ -524,4 +524,12 @@ export class HomePage implements OnInit, OnDestroy {
     // In a real app, this would navigate to notifications page or show a popup
     alert('Notifications would show here');
   }
+
+  scrollToCarCards() {
+    // Scroll to the car cards section
+    const carSection = document.querySelector('.popular-cars-section');
+    if (carSection) {
+      carSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  }
 }
