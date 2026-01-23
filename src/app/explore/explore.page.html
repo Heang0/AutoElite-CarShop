@@ -1,0 +1,100 @@
+<ion-content [fullscreen]="true" [scrollY]="true">
+  <div class="app-container">
+    <!-- Clean Header with Hamburger, Store Name, and Notification -->
+    <ion-header class="clean-header">
+      <ion-toolbar class="header-toolbar">
+        <ion-buttons slot="start">
+          <ion-button fill="clear" size="large" class="menu-btn">
+            <ion-icon name="menu-outline"></ion-icon>
+          </ion-button>
+        </ion-buttons>
+
+        <ion-title class="store-name">AutoElite</ion-title>
+
+        <ion-buttons slot="end">
+          <ion-button fill="clear" size="large" class="notification-btn">
+            <ion-icon name="notifications-outline"></ion-icon>
+          </ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+
+    <!-- Search Bar Below Header -->
+    <div class="search-section">
+      <ion-searchbar
+        [(ngModel)]="searchQuery"
+        (ionInput)="onSearch($event)"
+        placeholder="Search cars..."
+        [debounce]="500"
+        class="search-bar"
+      >
+      </ion-searchbar>
+      <ion-button fill="clear" class="filter-btn">
+        <ion-icon name="filter-outline"></ion-icon>
+      </ion-button>
+    </div>
+
+    <!-- All Cars Section -->
+    <div class="popular-cars-section">
+      <h3 class="section-title">All Cars</h3>
+      <div class="cars-grid">
+        <ion-card
+          class="car-card"
+          *ngFor="let car of cars; let i = index"
+          (click)="onCarClick(car)"
+          [style.animation-delay]="i * 0.1 + 's'"
+        >
+          <div class="car-image-container">
+            <ion-img
+              [src]="car.image"
+              alt="{{ car.name }}"
+              class="car-image"
+            ></ion-img>
+
+            <ion-button
+              fill="clear"
+              class="favorite-btn"
+              [class.active]="car.isFavorite"
+              (click)="toggleFavorite(car, $event)"
+            >
+              <ion-icon
+                slot="icon-only"
+                [name]="car.isFavorite ? 'heart' : 'heart-outline'"
+              ></ion-icon>
+            </ion-button>
+
+            <div class="image-overlay">
+              <ion-button
+                size="small"
+                fill="solid"
+                color="primary"
+                class="quick-view-btn"
+              >
+                Details
+              </ion-button>
+            </div>
+          </div>
+
+          <ion-card-content class="car-info">
+            <div class="car-name">{{ car.brand }} {{ car.model }}</div>
+            <div class="car-details">
+              <span class="year">{{ car.year }}</span>
+              <span class="mileage">{{ car.mileage | number }} miles</span>
+            </div>
+            <div class="rating">
+              <ion-icon
+                *ngFor="let star of getStars(car.rating); let j = index"
+                [name]="star ? 'star' : 'star-outline'"
+                [class.filled]="star"
+                [style.animation-delay]="j * 0.05 + 's'"
+              ></ion-icon>
+            </div>
+            <div class="price-section">
+              <div class="current-price">${{ car.price | number:'1.0':'en-US' }}</div>
+            </div>
+          </ion-card-content>
+        </ion-card>
+      </div>
+    </div>
+  </div>
+</ion-content>

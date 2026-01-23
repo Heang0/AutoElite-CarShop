@@ -1,25 +1,26 @@
-<ion-header>
-  <ion-toolbar color="primary">
-    <ion-buttons slot="start">
-      <ion-back-button text="Back" defaultHref="/home"></ion-back-button>
-    </ion-buttons>
-    <ion-title>{{ car?.name }}</ion-title>
-    <ion-buttons slot="end">
-      <ion-button (click)="toggleFavorite()">
-        <ion-icon [name]="isFavorite ? 'heart' : 'heart-outline'" color="danger"></ion-icon>
-      </ion-button>
-      <ion-button>
-        <ion-icon name="share-social-outline"></ion-icon>
-      </ion-button>
-    </ion-buttons>
-  </ion-toolbar>
-</ion-header>
-
 <ion-content [fullscreen]="true">
   <div class="car-detail-container">
     <!-- Hero Image -->
     <div class="hero-image">
       <ion-img [src]="car?.image" [alt]="car?.name"></ion-img>
+
+      <!-- Semi-transparent header overlay -->
+      <ion-header class="overlay-header">
+        <ion-toolbar>
+          <ion-buttons slot="start">
+            <ion-back-button text="Back" defaultHref="/home"></ion-back-button>
+          </ion-buttons>
+          <ion-title class="center-title">{{ car?.name }}</ion-title>
+          <ion-buttons slot="end">
+            <ion-button (click)="toggleFavorite()">
+              <ion-icon [name]="isFavorite ? 'heart' : 'heart-outline'" color="danger"></ion-icon>
+            </ion-button>
+            <ion-button>
+              <ion-icon name="share-social-outline"></ion-icon>
+            </ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
     </div>
 
     <!-- Price Section -->

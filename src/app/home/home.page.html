@@ -1,17 +1,25 @@
 <ion-content [fullscreen]="true" [scrollY]="true">
   <div class="app-container">
-    <!-- Top Bar -->
-    <div class="top-bar">
-      <ion-button fill="clear" size="large" class="menu-btn" (click)="openMenu()">
-        <ion-icon name="menu-outline" color="dark"></ion-icon>
-      </ion-button>
-      <ion-title class="page-title">AutoElite</ion-title>
-      <ion-button fill="clear" size="large" class="notification-btn" (click)="showNotifications()">
-        <ion-icon name="notifications-outline" color="dark"></ion-icon>
-      </ion-button>
-    </div>
+    <!-- Clean Header with Hamburger, Store Name, and Notification -->
+    <ion-header class="clean-header">
+      <ion-toolbar class="header-toolbar">
+        <ion-buttons slot="start">
+          <ion-button fill="clear" size="large" class="menu-btn" (click)="openMenu()">
+            <ion-icon name="menu-outline"></ion-icon>
+          </ion-button>
+        </ion-buttons>
 
-    <!-- Search Bar -->
+        <ion-title class="store-name">AutoElite</ion-title>
+
+        <ion-buttons slot="end">
+          <ion-button fill="clear" size="large" class="notification-btn" (click)="showNotifications()">
+            <ion-icon name="notifications-outline"></ion-icon>
+          </ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+
+    <!-- Search Bar Below Header -->
     <div class="search-section">
       <ion-searchbar
         [(ngModel)]="searchQuery"
@@ -75,16 +83,16 @@
         <ion-button fill="clear" class="see-more-btn" (click)="toggleBrands()">
           <span *ngIf="!showAllBrands">See More</span>
           <span *ngIf="showAllBrands">Show Less</span>
-          <ion-icon 
-            name="chevron-down-outline" 
+          <ion-icon
+            name="chevron-down-outline"
             [class.rotated]="showAllBrands"
           ></ion-icon>
         </ion-button>
       </div>
       <div class="brand-grid">
-        <div 
-          class="brand-card" 
-          *ngFor="let brand of displayedBrands" 
+        <div
+          class="brand-card"
+          *ngFor="let brand of displayedBrands"
           (click)="onBrandClick(brand.name)"
         >
           <div class="brand-logo">

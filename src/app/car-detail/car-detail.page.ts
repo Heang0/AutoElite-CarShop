@@ -30,6 +30,7 @@ import {
   checkmarkCircleOutline,
   closeCircleOutline
 } from 'ionicons/icons';
+import { FavoriteService } from '../services/favorite.service';
 
 interface CarFeature {
   icon: string;
@@ -80,7 +81,7 @@ export class CarDetailPage implements OnInit {
     message: ''
   };
 
-  constructor(private route: ActivatedRoute) {
+  constructor(private route: ActivatedRoute, private favoriteService: FavoriteService) {
     addIcons({
       'share-social-outline': shareSocialOutline,
       'heart-outline': heartOutline,
@@ -98,55 +99,82 @@ export class CarDetailPage implements OnInit {
   }
 
   ngOnInit() {
-    // Get car ID from route params
-    const carId = this.route.snapshot.paramMap.get('id');
+    // Get car data from route state (passed from home page)
+    const navigation = window.history.state;
+    if (navigation && navigation.car) {
+      this.car = navigation.car;
 
-    // For demo purposes, we'll use mock data
-    // In a real app, you would fetch from a service
-    this.car = {
-      id: 1,
-      name: 'BMW M5 Competition',
-      brand: 'BMW',
-      model: 'M5 Competition',
-      year: 2023,
-      price: 115900,
-      mileage: 15000,
-      fuelType: 'Gasoline',
-      transmission: 'Automatic',
-      engine: '4.4L V8 Twin-Turbo',
-      horsepower: 617,
-      torque: 553,
-      acceleration: '3.1 sec 0-60 mph',
-      topSpeed: '189 mph',
-      color: 'Alpine White',
-      interiorColor: 'Black Merino Leather',
-      doors: 4,
-      seats: 5,
-      image: 'assets/products/nike_red.png', // Placeholder - will replace with actual car image
-      gallery: [
-        'assets/products/nike_red.png',
-        'assets/products/purple_sneaker.png',
-        'assets/products/red_handbag.png',
-        'assets/products/nike_run_defy.avif'
-      ],
-      features: [
-        { icon: 'car-sport-outline', label: 'Engine', value: '4.4L V8 Twin-Turbo' },
-        { icon: 'speedometer-outline', label: 'HP', value: '617 HP' },
-        { icon: 'calendar-number-outline', label: 'Year', value: '2023' },
-        { icon: 'navigate-outline', label: 'Mileage', value: '15,000 mi' }
-      ],
-      description: 'The BMW M5 Competition combines luxury with high-performance capabilities. Featuring a twin-turbocharged V8 engine, this sedan delivers exhilarating acceleration and refined driving dynamics.',
-      specifications: [
-        { label: 'Engine', value: '4.4L V8 Twin-Turbo' },
-        { label: 'Transmission', value: '8-Speed Automatic' },
-        { label: 'Drivetrain', value: 'Rear-Wheel Drive' },
-        { label: 'Fuel Economy', value: '15 city / 21 highway' },
-        { label: 'Seating Capacity', value: '5 passengers' },
-        { label: 'Cargo Space', value: '19.4 cu ft' }
-      ]
-    };
+      // Create features array based on the car data
+      this.features = [
+        { icon: 'car-sport-outline', label: 'Brand', value: this.car.brand },
+        { icon: 'calendar-number-outline', label: 'Year', value: this.car.year.toString() },
+        { icon: 'navigate-outline', label: 'Mileage', value: `${this.car.mileage.toLocaleString()} mi` },
+        { icon: 'speedometer-outline', label: 'Transmission', value: this.car.transmission }
+      ];
+    } else {
+      // Fallback to getting car ID from route params
+      const carId = this.route.snapshot.paramMap.get('id');
 
-    this.features = this.car.features;
+      // For demo purposes, we'll use mock data if no car is passed
+      // In a real app, you would fetch from a service based on the ID
+      this.car = {
+        id: parseInt(carId || '1'),
+        name: 'BMW M5 Competition',
+        brand: 'BMW',
+        model: 'M5 Competition',
+        year: 2023,
+        price: 115900,
+        mileage: 15000,
+        fuelType: 'Gasoline',
+        transmission: 'Automatic',
+        engine: '4.4L V8 Twin-Turbo',
+        horsepower: 617,
+        torque: 553,
+        acceleration: '3.1 sec 0-60 mph',
+        topSpeed: '189 mph',
+        color: 'Alpine White',
+        interiorColor: 'Black Merino Leather',
+        doors: 4,
+        seats: 5,
+        image: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80', // Matching car image
+        gallery: [
+          'https://images.unsplash.com/photo-1503376780353-7e6692767b70?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80',
+          'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80',
+          'https://images.unsplash.com/photo-1542362567-b07e54358753?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80',
+          'https://images.unsplash.com/photo-1544636331-e26879cd4d9b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80'
+        ],
+        features: [
+          { icon: 'car-sport-outline', label: 'Engine', value: '4.4L V8 Twin-Turbo' },
+          { icon: 'speedometer-outline', label: 'HP', value: '617 HP' },
+          { icon: 'calendar-number-outline', label: 'Year', value: '2023' },
+          { icon: 'navigate-outline', label: 'Mileage', value: '15,000 mi' }
+        ],
+        description: 'The BMW M5 Competition combines luxury with high-performance capabilities. Featuring a twin-turbocharged V8 engine, this sedan delivers exhilarating acceleration and refined driving dynamics.',
+        specifications: [
+          { label: 'Engine', value: '4.4L V8 Twin-Turbo' },
+          { label: 'Transmission', value: '8-Speed Automatic' },
+          { label: 'Drivetrain', value: 'Rear-Wheel Drive' },
+          { label: 'Fuel Economy', value: '15 city / 21 highway' },
+          { label: 'Seating Capacity', value: '5 passengers' },
+          { label: 'Cargo Space', value: '19.4 cu ft' }
+        ],
+        isFavorite: false // Initialize as not favorite
+      };
+    }
+
+    // Initialize favorite status based on service
+    this.isFavorite = this.favoriteService.isFavorite(this.car.id);
+    this.car.isFavorite = this.isFavorite;
+
+    // If features weren't set from the passed car data, use the default features
+    if (!this.features || this.features.length === 0) {
+      this.features = this.car.features || [
+        { icon: 'car-sport-outline', label: 'Engine', value: this.car.engine || 'N/A' },
+        { icon: 'speedometer-outline', label: 'HP', value: `${this.car.horsepower || 'N/A'} HP` },
+        { icon: 'calendar-number-outline', label: 'Year', value: this.car.year.toString() },
+        { icon: 'navigate-outline', label: 'Mileage', value: `${this.car.mileage?.toLocaleString() || 'N/A'} mi` }
+      ];
+    }
 
     // Initialize finance options
     this.calculateFinanceOptions();
@@ -188,7 +216,10 @@ export class CarDetailPage implements OnInit {
   }
 
   toggleFavorite() {
-    this.isFavorite = !this.isFavorite;
+    if (this.car) {
+      this.favoriteService.toggleFavorite(this.car);
+      this.isFavorite = this.car.isFavorite;
+    }
     // Add haptic feedback
     if ('vibrate' in navigator) {
       navigator.vibrate(10);

@@ -45,310 +45,6 @@
   }
 }
 
-/* Search Section */
-.search-section {
-  display: flex;
-  align-items: center;
-  margin: 16px 0 24px 0;
-
-  .search-bar {
-    flex: 1;
-    --background: #ffffff;
-    --border-radius: 16px;
-    --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    --placeholder-color: #94a3b8;
-    --color: #000000;
-    --padding-start: 16px;
-    --padding-end: 16px;
-    margin-right: 12px;
-    min-height: 60px; /* Increased height to match filter button */
-
-    &::part(native) {
-      padding: 0;
-    }
-  }
-
-  .filter-btn {
-    --padding-start: 16px;
-    --padding-end: 16px;
-    --min-height: 60px;
-    --color: #000000;
-    --icon-color: #000000;
-    background: #ffffff;
-    border-radius: 16px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  }
-
-  .search-section .filter-btn ion-icon {
-    color: #000000 !important;
-    --color: #000000 !important;
-  }
-
-  .search-section .filter-btn ion-icon[color="dark"] {
-    color: #000000 !important;
-    --color: #000000 !important;
-  }
-}
-
-/* Slideshow */
-.slideshow {
-  margin-bottom: 32px;
-  border-radius: 20px;
-  overflow: hidden;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-
-  .slide-container {
-    position: relative;
-    height: 200px;
-  }
-
-  .slide-image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  .slide-overlay {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
-    padding: 24px;
-    color: white;
-    text-align: center;
-
-    .slide-title {
-      font-size: 22px;
-      font-weight: 800;
-      margin: 0 0 8px 0;
-    }
-
-    .slide-subtitle {
-      font-size: 16px;
-      margin: 0 0 16px 0;
-      opacity: 0.9;
-    }
-
-    .slide-cta {
-      --border-radius: 24px;
-      --padding-start: 24px;
-      --padding-end: 24px;
-      height: 44px;
-    }
-  }
-}
-
-/* Custom Slideshow Container */
-.slideshow-container {
-  position: relative;
-  margin-bottom: 32px;
-  border-radius: 20px;
-  overflow: hidden;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-  height: 200px;
-
-  .slideshow-track {
-    display: flex;
-    transition: transform 0.5s ease-in-out;
-    height: 100%;
-  }
-
-  .slide {
-    min-width: 100%;
-    height: 100%;
-
-    .slide-container {
-      position: relative;
-      height: 100%;
-      width: 100%;
-    }
-
-    .slide-image {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    .slide-overlay {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
-      padding: 24px;
-      color: white;
-      text-align: center;
-
-      .slide-title {
-        font-size: 22px;
-        font-weight: 600; /* Medium-Bold */
-        margin: 0 0 8px 0;
-      }
-
-      .slide-subtitle {
-        font-size: 16px;
-        margin: 0 0 16px 0;
-        opacity: 0.9;
-      }
-
-      .slide-cta {
-        --border-radius: 24px;
-        --padding-start: 24px;
-        --padding-end: 24px;
-        height: 44px;
-      }
-    }
-  }
-
-  .slide-indicators {
-    position: absolute;
-    bottom: 16px;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    gap: 8px;
-    z-index: 10;
-
-    .indicator {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.5);
-      cursor: pointer;
-      transition: all 0.3s ease;
-
-      &.active {
-        background: white;
-        transform: scale(1.2);
-      }
-    }
-  }
-
-  .slide-nav {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    background: rgba(255, 255, 255, 0.2);
-    border: none;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    z-index: 10;
-    backdrop-filter: blur(10px);
-    transition: all 0.3s ease;
-    color: white;
-
-    &:hover {
-      background: rgba(255, 255, 255, 0.3);
-    }
-
-    &.prev {
-      left: 16px;
-    }
-
-    &.next {
-      right: 16px;
-    }
-
-    ion-icon {
-      font-size: 20px;
-    }
-  }
-}
-
-/* Brand Section */
-.brand-section {
-  margin-bottom: 32px;
-
-  .section-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 16px;
-
-    .section-title {
-      font-size: 18px;
-      font-weight: 600; /* Medium-Bold */
-      color: #000000;
-      margin: 0;
-    }
-
-    .see-more-btn {
-      --color: #000000;
-      --padding-start: 8px;
-      --padding-end: 8px;
-      --min-height: 32px;
-      font-size: 14px;
-      font-weight: 600; /* Medium */
-
-      ion-icon {
-        transition: transform 0.3s ease;
-      }
-
-      &.rotated {
-        ion-icon {
-          transform: rotate(180deg);
-        }
-      }
-    }
-  }
-
-  .brand-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 16px;
-  }
-
-  .brand-card {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 16px 8px;
-    background: #f8fafc;
-    border-radius: 16px;
-    text-align: center;
-    transition: all 0.3s ease;
-    cursor: pointer;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-
-    &:active {
-      transform: scale(0.95);
-      background: #e2e8f0;
-    }
-
-    .brand-logo {
-      width: 48px;
-      height: 48px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: white;
-      border-radius: 12px;
-      margin-bottom: 8px;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      overflow: hidden;
-
-      .brand-logo-img {
-        width: 80%;
-        height: 80%;
-        object-fit: contain;
-      }
-    }
-
-    .brand-name {
-      font-size: 12px;
-      font-weight: 600; /* Medium */
-      color: #000000;
-    }
-  }
-}
-
 /* Popular Cars Section */
 .popular-cars-section {
   .section-title {
@@ -440,7 +136,7 @@
 
       .quick-view-btn {
         --background: white;
-        --color: var(--ion-color-primary);
+        --color: #000000;
         --border-radius: 20px;
         --padding-start: 16px;
         --padding-end: 16px;
@@ -520,6 +216,36 @@
   }
 }
 
+/* No Favorites Message */
+.no-favorites {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 40px 20px;
+  min-height: 300px;
+
+  .empty-icon {
+    font-size: 64px;
+    color: #cbd5e0;
+    margin-bottom: 16px;
+  }
+
+  h3 {
+    font-size: 20px;
+    font-weight: 600;
+    color: #000000;
+    margin: 0 0 8px 0;
+  }
+
+  p {
+    font-size: 16px;
+    color: #64748b;
+    margin: 0;
+  }
+}
+
 /* Bottom Navigation */
 .bottom-navigation {
   position: fixed;
@@ -527,15 +253,15 @@
   left: 0;
   right: 0;
   background: white;
-  padding: 8px 0 calc(8px + env(safe-area-inset-bottom));
-  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.08);
-  border-radius: 20px 20px 0 0;
+  padding: 12px 0 calc(16px + env(safe-area-inset-bottom));
+  box-shadow: 0 -6px 30px rgba(0, 0, 0, 0.1);
+  border-radius: 30px 30px 0 0;
   display: flex;
   justify-content: space-around;
   align-items: center;
   z-index: 1000;
   height: auto;
-  min-height: 50px;
+  min-height: 75px;
   animation: navSlideIn 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
   transform-origin: bottom;
   margin: 0 16px;
@@ -617,7 +343,7 @@
 }
 
 /* Dark mode styles - COMMENTED OUT TO ENFORCE LIGHT MODE */
-/*
+/* 
 @media (prefers-color-scheme: dark) {
   .app-container {
     background: #0f172a;
@@ -635,37 +361,6 @@
       .menu-btn,
       .notification-btn {
         --color: #ffffff;
-      }
-    }
-  }
-
-  .search-section {
-    .search-bar {
-      --background: #1e293b;
-      --placeholder-color: #94a3b8;
-      --color: #f1f5f9;
-    }
-
-    .filter-btn {
-      background: #1e293b;
-      --color: #f1f5f9;
-    }
-  }
-
-  .brand-section {
-    .section-title {
-      color: #f1f5f9;
-    }
-
-    .brand-card {
-      background: #1e293b;
-
-      .brand-name {
-        color: #e2e8f0;
-      }
-
-      &:active {
-        background: #334155;
       }
     }
   }

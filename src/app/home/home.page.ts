@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, NavigationEnd } from '@angular/router';
 import {
   IonContent,
   IonButton,
@@ -10,7 +10,10 @@ import {
   IonCardContent,
   IonSearchbar,
   IonImg,
-  IonTitle
+  IonTitle,
+  IonHeader,
+  IonToolbar,
+  IonButtons
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
@@ -40,6 +43,24 @@ import {
   chevronBackOutline,
   chevronForwardOutline
 } from 'ionicons/icons';
+import { FavoriteService } from '../services/favorite.service';
+import { filter } from 'rxjs/operators';
+
+interface Car {
+  id: number;
+  name: string;
+  brand: string;
+  model: string;
+  year: number;
+  price: number;
+  mileage: number;
+  fuelType: string;
+  transmission: string;
+  rating: number;
+  image: string;
+  isFavorite: boolean;
+  features: string[];
+}
 
 interface Brand {
   name: string;
@@ -85,7 +106,10 @@ interface Slide {
     IonCardContent,
     IonSearchbar,
     IonImg,
-    IonTitle
+    IonTitle,
+    IonHeader,
+    IonToolbar,
+    IonButtons
   ]
 })
 export class HomePage implements OnInit, OnDestroy {
@@ -395,7 +419,7 @@ export class HomePage implements OnInit, OnDestroy {
   currentSlideIndex: number = 0;
   autoSlideInterval: any;
 
-  constructor(private router: Router) {
+  constructor(private router: Router, private favoriteService: FavoriteService) {
     // Register all icons
     addIcons({
       'search-outline': searchOutline,
@@ -424,6 +448,7 @@ export class HomePage implements OnInit, OnDestroy {
       'chevron-back-outline': chevronBackOutline,
       'chevron-forward-outline': chevronForwardOutline
     });
+
   }
 
   toggleBrands() {
@@ -442,12 +467,12 @@ export class HomePage implements OnInit, OnDestroy {
   }
 
   onCarClick(car: Car) {
-    this.router.navigate(['/car', car.id]);
+    this.router.navigate(['/car', car.id], { state: { car: car } });
   }
 
   toggleFavorite(car: Car, event: Event) {
     event.stopPropagation();
-    car.isFavorite = !car.isFavorite;
+    this.favoriteService.toggleFavorite(car);
 
     // Add haptic feedback on favorite
     if ('vibrate' in navigator) {
@@ -463,7 +488,26 @@ export class HomePage implements OnInit, OnDestroy {
   onTabChange(tabName: string) {
     this.activeTab = tabName;
     console.log('Active tab changed to:', tabName);
+
+    switch(tabName) {
+      case 'home':
+        this.router.navigate(['/tabs/home']);
+        break;
+      case 'explore':
+        this.router.navigate(['/tabs/explore']);
+        break;
+      case 'favorites':
+        this.router.navigate(['/tabs/favorites']);
+        break;
+      case 'account':
+        this.router.navigate(['/tabs/account']);
+        break;
+      default:
+        this.router.navigate(['/tabs/home']);
+        break;
+    }
   }
+
 
   addToCart(car: Car) {
     this.cartItemCount++;

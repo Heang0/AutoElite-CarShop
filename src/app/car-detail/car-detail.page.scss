@@ -1,10 +1,25 @@
 .car-detail-container {
   padding: 0;
   background: #ffffff;
+  min-height: 100%;
+  color: #000000;
+}
+
+ion-content {
+  --background: #ffffff;
+  background: #ffffff;
+  color: #000000;
+}
+
+/* Ensure all text elements are black */
+.car-detail-container *,
+ion-content *,
+.overlay-header * {
+  color: #000000 !important;
 }
 
 .hero-image {
-  height: 300px;
+  height: 350px;
   overflow: hidden;
   position: relative;
 
@@ -23,15 +38,15 @@
   z-index: 10;
 
   .price {
-    font-size: 32px;
+    font-size: 36px;
     font-weight: 800;
-    color: var(--ion-color-primary);
+    color: #000000; /* Black */
     margin-bottom: 4px;
   }
 
   .mileage {
     font-size: 16px;
-    color: var(--ion-color-medium);
+    color: #000000; /* Black */
   }
 }
 
@@ -56,13 +71,13 @@
 
     ion-icon {
       font-size: 24px;
-      color: var(--ion-color-primary);
+      color: #000000; /* Black */
       margin-bottom: 8px;
     }
 
     span {
       font-size: 14px;
-      color: var(--ion-color-dark);
+      color: #000000; /* Black */
       text-align: center;
     }
   }
@@ -71,20 +86,20 @@
 .section {
   background: white;
   margin: 16px 16px 0;
-  padding: 20px;
+  padding: 24px;
   border-radius: 16px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 
   h2 {
-    font-size: 20px;
+    font-size: 22px;
     font-weight: 700;
-    color: var(--ion-color-dark);
+    color: #000000; /* Black */
     margin: 0 0 16px 0;
   }
 
   p {
     font-size: 16px;
-    color: var(--ion-color-medium);
+    color: #475569; /* Professional grey */
     line-height: 1.6;
     margin: 0;
   }
@@ -100,6 +115,7 @@
     --padding-start: 8px;
     --padding-end: 8px;
     --min-height: 32px;
+    --color: #000000; /* Black */
   }
 }
 
@@ -114,25 +130,26 @@
     align-items: center;
     text-align: center;
     padding: 16px;
-    background: #f8f9fa;
+    background: #f8fafc; /* Light background */
     border-radius: 12px;
+    border: 1px solid #e2e8f0; /* Light border */
 
     ion-icon {
       font-size: 28px;
-      color: var(--ion-color-primary);
+      color: #000000; /* Black */
       margin-bottom: 8px;
     }
 
     .feature-label {
       font-size: 12px;
-      color: var(--ion-color-medium);
+      color: #000000; /* Black */
       margin-bottom: 4px;
     }
 
     .feature-value {
       font-size: 14px;
       font-weight: 600;
-      color: var(--ion-color-dark);
+      color: #000000; /* Black */
     }
   }
 }
@@ -142,7 +159,7 @@
     display: flex;
     justify-content: space-between;
     padding: 12px 0;
-    border-bottom: 1px solid #f0f0f0;
+    border-bottom: 1px solid #e2e8f0; /* Professional border color */
 
     &:last-child {
       border-bottom: none;
@@ -150,13 +167,13 @@
 
     .spec-label {
       font-size: 15px;
-      color: var(--ion-color-medium);
+      color: #64748b; /* Professional grey */
     }
 
     .spec-value {
       font-size: 15px;
       font-weight: 600;
-      color: var(--ion-color-dark);
+      color: #000000; /* Black */
     }
   }
 }
@@ -167,14 +184,15 @@
   gap: 16px;
 
   .finance-option {
-    background: #f8f9fa;
+    background: #ffffff; /* Pure white background */
     border-radius: 12px;
     padding: 16px;
+    border: 1px solid #000000; /* Black border */
 
     .option-title {
       font-size: 16px;
       font-weight: 600;
-      color: var(--ion-color-dark);
+      color: #000000; /* Black */
       margin-bottom: 12px;
     }
 
@@ -191,12 +209,12 @@
 
         ion-icon {
           font-size: 18px;
-          color: var(--ion-color-primary);
+          color: #000000; /* Black */
         }
 
         span {
           font-size: 14px;
-          color: var(--ion-color-medium);
+          color: #000000; /* Black */
         }
       }
     }
@@ -212,6 +230,7 @@
     height: 120px;
     border-radius: 12px;
     overflow: hidden;
+    border: 1px solid #e2e8f0; /* Subtle border */
 
     img {
       width: 100%;
@@ -221,10 +240,11 @@
   }
 }
 
-// Dark mode styles
+// Dark mode styles - COMMENTED OUT TO ENFORCE LIGHT MODE
+/*
 @media (prefers-color-scheme: dark) {
   .car-detail-container {
-    background: linear-gradient(135deg, #1a1a1a 0%, #0d0d0d 100%);
+    background: #0f172a;
   }
 
   .hero-image {
@@ -247,15 +267,55 @@
     }
   }
 
+  .price-section {
+    background: #1e293b;
+    border-color: #334155;
+
+    .price {
+      color: #86efac;
+    }
+
+    .mileage {
+      color: #94a3b8;
+    }
+  }
+
+  .car-info {
+    border-color: #334155;
+  }
+
+  .car-info .info-item {
+    ion-icon {
+      color: #86efac;
+    }
+
+    span {
+      color: #e2e8f0;
+    }
+  }
+
+  .section {
+    background: #1e293b;
+  }
+
+  .section-header ion-button {
+    --color: #86efac;
+  }
+
   .features-grid .feature-item {
     background: #334155;
+    border-color: #475569;
+
+    ion-icon {
+      color: #86efac;
+    }
 
     .feature-label {
       color: #94a3b8;
     }
 
     .feature-value {
-      color: #f1f5f9;
+      color: #e2e8f0;
     }
   }
 
@@ -267,21 +327,84 @@
     }
 
     .spec-value {
-      color: #f1f5f9;
+      color: #e2e8f0;
     }
   }
 
   .finance-options .finance-option {
     background: #334155;
+    border-color: #475569;
 
     .option-title {
-      color: #f1f5f9;
+      color: #e2e8f0;
+    }
+
+    .detail ion-icon {
+      color: #86efac;
     }
 
     .detail span {
       color: #94a3b8;
     }
   }
+
+  .gallery .gallery-item {
+    border-color: #334155;
+  }
+} */
+
+/* Header styling to match home page */
+.hero-image {
+  position: relative;
+}
+
+.overlay-header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  padding: 16px 0;
+}
+
+.overlay-header ion-toolbar {
+  --background: #ffffff !important;
+  background: #ffffff !important;
+  --color: #000000 !important;
+  color: #000000 !important;
+  border-radius: 16px;
+  margin: 0 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e2e8f0;
+  --padding-start: 16px;
+  --padding-end: 16px;
+  --min-height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+}
+
+.overlay-header ion-title {
+  --color: #000000 !important;
+  color: #000000 !important;
+  font-weight: 600;
+  font-size: 16px;
+  text-align: center !important;
+  flex: 1;
+  margin: 0 auto;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: calc(100% - 120px); /* Account for buttons on both sides */
+}
+
+.overlay-header ion-back-button,
+.overlay-header ion-button {
+  --color: #000000 !important;
+  color: #000000 !important;
+  --padding-start: 8px !important;
+  --padding-end: 8px !important;
 }
 
 /* Modal Overlay Styles */
@@ -305,19 +428,20 @@
   max-width: 500px;
   max-height: 90vh;
   overflow-y: auto;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
 
   .modal-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 20px;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid #e2e8f0; /* Professional border color */
 
     h2 {
       margin: 0;
       font-size: 18px;
       font-weight: 600;
+      color: #000000; /* Black */
     }
   }
 
@@ -325,10 +449,11 @@
     padding: 20px;
 
     .finance-option-full {
-      background: #f8f9fa;
+      background: #ffffff; /* Pure white background */
       border-radius: 12px;
       padding: 16px;
       margin-bottom: 16px;
+      border: 1px solid #000000; /* Black border */
 
       .option-header {
         margin-bottom: 12px;
@@ -337,12 +462,13 @@
           margin: 0 0 4px 0;
           font-size: 16px;
           font-weight: 600;
+          color: #000000; /* Black */
         }
 
         p {
           margin: 0;
           font-size: 14px;
-          color: var(--ion-color-medium);
+          color: #000000; /* Black */
         }
       }
 
@@ -353,8 +479,17 @@
           margin: 0;
           font-size: 18px;
           font-weight: 700;
-          color: var(--ion-color-primary);
+          color: #000000; /* Black */
         }
+      }
+
+      ion-button {
+        --color: #000000; /* Black text */
+        --border-color: #000000; /* Black border */
+        --background: #ffffff; /* White background */
+        color: #000000; /* Ensure black text */
+        border: 1px solid #000000; /* Black border */
+        background: #ffffff; /* White background */
       }
     }
 
@@ -365,21 +500,25 @@
         display: block;
         margin-bottom: 6px;
         font-weight: 500;
-        color: var(--ion-color-dark);
+        color: #000000; /* Black */
       }
 
       input,
       textarea {
         width: 100%;
         padding: 12px;
-        border: 1px solid #ddd;
+        border: 1px solid #000000; /* Black border */
         border-radius: 8px;
         font-size: 16px;
+        background: #ffffff; /* White background */
+        color: #000000; /* Black text */
       }
 
       textarea {
         min-height: 100px;
         resize: vertical;
+        background: #ffffff; /* White background */
+        color: #000000; /* Black text */
       }
     }
   }

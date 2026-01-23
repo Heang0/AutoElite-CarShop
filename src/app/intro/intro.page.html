@@ -1,17 +1,23 @@
 <ion-content [fullscreen]="true">
-  <div class="intro-container" [style.background-color]="slides[currentSlide].backgroundColor">
+  <div class="intro-container">
+    <!-- Full-screen background image -->
+    <div
+      class="slide-background"
+      [style.background-image]="'url(' + slides[currentSlide].imageUrl + ')'"
+    ></div>
+
+    <!-- Overlay for better text readability -->
+    <div class="overlay"></div>
+
     <!-- Skip Button -->
     <div class="skip-section">
-      <ion-button fill="clear" color="light" (click)="skipIntro()">
+      <ion-button fill="clear" (click)="skipIntro()">
         Skip
       </ion-button>
     </div>
 
     <!-- Slide Content -->
     <div class="slide-content">
-      <div class="slide-image">
-        <img [src]="slides[currentSlide].imageUrl" alt="{{ slides[currentSlide].title }}" />
-      </div>
       <h1 class="slide-title">{{ slides[currentSlide].title }}</h1>
       <p class="slide-description">{{ slides[currentSlide].description }}</p>
     </div>
@@ -31,7 +37,6 @@
       <ion-button
         *ngIf="currentSlide > 0"
         fill="clear"
-        color="light"
         (click)="prevSlide()"
         class="nav-button"
       >
@@ -40,7 +45,6 @@
 
       <ion-button
         fill="solid"
-        color="light"
         (click)="nextSlide()"
         class="nav-button"
         expand="block"
