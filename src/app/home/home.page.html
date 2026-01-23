@@ -1,0 +1,197 @@
+<ion-content [fullscreen]="true" [scrollY]="true">
+  <div class="app-container">
+    <!-- Top Bar -->
+    <div class="top-bar">
+      <ion-button fill="clear" size="large" class="menu-btn" (click)="openMenu()">
+        <ion-icon name="menu-outline" color="dark"></ion-icon>
+      </ion-button>
+      <ion-title class="page-title">AutoElite</ion-title>
+      <ion-button fill="clear" size="large" class="notification-btn" (click)="showNotifications()">
+        <ion-icon name="notifications-outline" color="dark"></ion-icon>
+      </ion-button>
+    </div>
+
+    <!-- Search Bar -->
+    <div class="search-section">
+      <ion-searchbar
+        [(ngModel)]="searchQuery"
+        (ionInput)="onSearch($event)"
+        placeholder="Search cars..."
+        [debounce]="500"
+        class="search-bar"
+      >
+      </ion-searchbar>
+      <ion-button fill="clear" class="filter-btn">
+        <ion-icon name="filter-outline" color="dark"></ion-icon>
+      </ion-button>
+    </div>
+
+    <!-- Slideshow -->
+    <div class="slideshow-container">
+      <div
+        class="slideshow-track"
+        [style.transform]="'translateX(-' + (currentSlideIndex * 100) + '%)'"
+      >
+        <div
+          class="slide"
+          *ngFor="let slide of slides; let i = index"
+        >
+          <div class="slide-container">
+            <ion-img [src]="slide.image" [alt]="slide.title" class="slide-image"></ion-img>
+            <div class="slide-overlay">
+              <h2 class="slide-title">{{ slide.title }}</h2>
+              <p class="slide-subtitle">{{ slide.subtitle }}</p>
+              <ion-button fill="solid" color="primary" class="slide-cta">
+                {{ slide.ctaText }}
+              </ion-button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide Indicators -->
+      <div class="slide-indicators">
+        <span
+          *ngFor="let slide of slides; let i = index"
+          class="indicator"
+          [class.active]="i === currentSlideIndex"
+          (click)="goToSlide(i)"
+        ></span>
+      </div>
+
+      <!-- Navigation Arrows -->
+      <button class="slide-nav prev" (click)="prevSlide()" *ngIf="slides.length > 1">
+        <ion-icon name="chevron-back-outline"></ion-icon>
+      </button>
+      <button class="slide-nav next" (click)="nextSlide()" *ngIf="slides.length > 1">
+        <ion-icon name="chevron-forward-outline"></ion-icon>
+      </button>
+    </div>
+
+    <!-- Brand Section -->
+    <div class="brand-section">
+      <div class="section-header">
+        <h3 class="section-title">Brands</h3>
+        <ion-button fill="clear" class="see-more-btn" (click)="toggleBrands()">
+          <span *ngIf="!showAllBrands">See More</span>
+          <span *ngIf="showAllBrands">Show Less</span>
+          <ion-icon 
+            name="chevron-down-outline" 
+            [class.rotated]="showAllBrands"
+          ></ion-icon>
+        </ion-button>
+      </div>
+      <div class="brand-grid">
+        <div 
+          class="brand-card" 
+          *ngFor="let brand of displayedBrands" 
+          (click)="onBrandClick(brand.name)"
+        >
+          <div class="brand-logo">
+            <img [src]="brand.logoUrl" [alt]="brand.name" class="brand-logo-img">
+          </div>
+          <span class="brand-name">{{ brand.name }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Popular Cars Section -->
+    <div class="popular-cars-section">
+      <h3 class="section-title">Popular Cars</h3>
+      <div class="cars-grid">
+        <ion-card
+          class="car-card"
+          *ngFor="let car of cars; let i = index"
+          (click)="onCarClick(car)"
+          [style.animation-delay]="i * 0.1 + 's'"
+        >
+          <div class="car-image-container">
+            <ion-img
+              [src]="car.image"
+              alt="{{ car.name }}"
+              class="car-image"
+            ></ion-img>
+
+            <ion-button
+              fill="clear"
+              class="favorite-btn"
+              [class.active]="car.isFavorite"
+              (click)="toggleFavorite(car, $event)"
+            >
+              <ion-icon
+                slot="icon-only"
+                [name]="car.isFavorite ? 'heart' : 'heart-outline'"
+              ></ion-icon>
+            </ion-button>
+
+            <div class="image-overlay">
+              <ion-button
+                size="small"
+                fill="solid"
+                color="primary"
+                class="quick-view-btn"
+              >
+                Details
+              </ion-button>
+            </div>
+          </div>
+
+          <ion-card-content class="car-info">
+            <div class="car-name">{{ car.brand }} {{ car.model }}</div>
+            <div class="car-details">
+              <span class="year">{{ car.year }}</span>
+              <span class="mileage">{{ car.mileage | number }} miles</span>
+            </div>
+            <div class="rating">
+              <ion-icon
+                *ngFor="let star of getStars(car.rating); let j = index"
+                [name]="star ? 'star' : 'star-outline'"
+                [class.filled]="star"
+                [style.animation-delay]="j * 0.05 + 's'"
+              ></ion-icon>
+            </div>
+            <div class="price-section">
+              <div class="current-price">${{ car.price | number:'1.0':'en-US' }}</div>
+            </div>
+          </ion-card-content>
+        </ion-card>
+      </div>
+    </div>
+  </div>
+</ion-content>
+
+<!-- Bottom Navigation -->
+<div class="bottom-navigation">
+  <div
+    class="nav-item"
+    [class.active]="activeTab === 'home'"
+    (click)="onTabChange('home')"
+  >
+    <ion-icon name="home"></ion-icon>
+    <span>Home</span>
+  </div>
+  <div
+    class="nav-item"
+    [class.active]="activeTab === 'explore'"
+    (click)="onTabChange('explore')"
+  >
+    <ion-icon name="compass-outline"></ion-icon>
+    <span>Explore</span>
+  </div>
+  <div
+    class="nav-item"
+    [class.active]="activeTab === 'favorites'"
+    (click)="onTabChange('favorites')"
+  >
+    <ion-icon name="heart-outline"></ion-icon>
+    <span>Favorites</span>
+  </div>
+  <div
+    class="nav-item"
+    [class.active]="activeTab === 'account'"
+    (click)="onTabChange('account')"
+  >
+    <ion-icon name="person-outline"></ion-icon>
+    <span>Account</span>
+  </div>
+</div>

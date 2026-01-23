@@ -1,0 +1,198 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button text="Back" defaultHref="/home"></ion-back-button>
+    </ion-buttons>
+    <ion-title>{{ car?.name }}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="toggleFavorite()">
+        <ion-icon [name]="isFavorite ? 'heart' : 'heart-outline'" color="danger"></ion-icon>
+      </ion-button>
+      <ion-button>
+        <ion-icon name="share-social-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <div class="car-detail-container">
+    <!-- Hero Image -->
+    <div class="hero-image">
+      <ion-img [src]="car?.image" [alt]="car?.name"></ion-img>
+    </div>
+
+    <!-- Price Section -->
+    <div class="price-section">
+      <div class="price">${{ car?.price | number:'1.0':'en-US' }}</div>
+      <div class="mileage">{{ car?.year }} • {{ car?.mileage | number }} miles</div>
+    </div>
+
+    <!-- Car Info -->
+    <div class="car-info">
+      <div class="info-row">
+        <div class="info-item">
+          <ion-icon name="calendar-number-outline"></ion-icon>
+          <span>{{ car?.year }}</span>
+        </div>
+        <div class="info-item">
+          <ion-icon name="navigate-outline"></ion-icon>
+          <span>{{ car?.mileage | number }} miles</span>
+        </div>
+        <div class="info-item">
+          <ion-icon name="speedometer-outline"></ion-icon>
+          <span>{{ car?.transmission }}</span>
+        </div>
+        <div class="info-item">
+          <ion-icon name="car-sport-outline"></ion-icon>
+          <span>{{ car?.fuelType }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Description -->
+    <div class="section">
+      <h2>About this car</h2>
+      <p>{{ car?.description }}</p>
+    </div>
+
+    <!-- Features -->
+    <div class="section">
+      <h2>Key Features</h2>
+      <div class="features-grid">
+        <div class="feature-item" *ngFor="let feature of features">
+          <ion-icon [name]="feature.icon"></ion-icon>
+          <div class="feature-label">{{ feature.label }}</div>
+          <div class="feature-value">{{ feature.value }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Specifications -->
+    <div class="section">
+      <h2>Specifications</h2>
+      <div class="specs-list">
+        <div class="spec-item" *ngFor="let spec of car?.specifications">
+          <span class="spec-label">{{ spec.label }}</span>
+          <span class="spec-value">{{ spec.value }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Financing Options -->
+    <div class="section">
+      <div class="section-header">
+        <h2>Financing Options</h2>
+        <ion-button fill="clear" (click)="openFinanceCalculator()">View All</ion-button>
+      </div>
+      <div class="finance-options">
+        <div class="finance-option" *ngFor="let option of financeOptions.slice(0, 2)">
+          <div class="option-title">{{ option.name }}</div>
+          <div class="option-details">
+            <div class="detail">
+              <ion-icon name="cash-outline"></ion-icon>
+              <span>{{ option.apr }}% APR</span>
+            </div>
+            <div class="detail">
+              <ion-icon name="calendar-number-outline"></ion-icon>
+              <span>{{ option.term }} mo</span>
+            </div>
+            <div class="detail">
+              <ion-icon name="speedometer-outline"></ion-icon>
+              <span>${{ option.monthlyPayment }}/mo</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Image Gallery -->
+    <div class="section">
+      <h2>Gallery</h2>
+      <div class="gallery">
+        <ion-img
+          *ngFor="let img of car?.gallery"
+          [src]="img"
+          class="gallery-item"
+        ></ion-img>
+      </div>
+    </div>
+  </div>
+</ion-content>
+
+<!-- Action Buttons -->
+<ion-fab vertical="bottom" horizontal="end" slot="fixed">
+  <ion-fab-button color="success" (click)="reserveCar()">
+    <ion-icon name="checkmark-circle-outline"></ion-icon>
+  </ion-fab-button>
+  <ion-fab-button color="tertiary" (click)="scheduleTestDrive()">
+    <ion-icon name="calendar-number-outline"></ion-icon>
+  </ion-fab-button>
+</ion-fab>
+
+<ion-fab vertical="bottom" horizontal="start" slot="fixed">
+  <ion-fab-button color="secondary" (click)="contactDealer()">
+    <ion-icon name="call-outline"></ion-icon>
+  </ion-fab-button>
+</ion-fab>
+
+<!-- Finance Calculator Modal (using inline div instead of ion-modal) -->
+<div class="modal-overlay" *ngIf="isFinanceModalOpen">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Financing Options</h2>
+      <ion-button (click)="isFinanceModalOpen = false">
+        <ion-icon name="close-circle-outline"></ion-icon>
+      </ion-button>
+    </div>
+    <div class="modal-body">
+      <div class="finance-option-full" *ngFor="let option of financeOptions">
+        <div class="option-header">
+          <h3>{{ option.name }}</h3>
+          <p>{{ option.apr }}% APR for {{ option.term }} months</p>
+        </div>
+        <div class="monthly-payment">
+          <h4>${{ option.monthlyPayment }} per month</h4>
+        </div>
+        <ion-button expand="block" fill="outline">Select</ion-button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Contact Dealer Modal (using inline div instead of ion-modal) -->
+<div class="modal-overlay" *ngIf="isContactModalOpen">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Contact Dealer</h2>
+      <ion-button (click)="isContactModalOpen = false">
+        <ion-icon name="close-circle-outline"></ion-icon>
+      </ion-button>
+    </div>
+    <div class="modal-body">
+      <form (ngSubmit)="submitContactForm()">
+        <div class="input-group">
+          <label>Name</label>
+          <input [(ngModel)]="contactForm.name" name="name" placeholder="Enter your name" />
+        </div>
+
+        <div class="input-group">
+          <label>Email</label>
+          <input [(ngModel)]="contactForm.email" name="email" type="email" placeholder="Enter your email" />
+        </div>
+
+        <div class="input-group">
+          <label>Phone</label>
+          <input [(ngModel)]="contactForm.phone" name="phone" type="tel" placeholder="Enter your phone number" />
+        </div>
+
+        <div class="input-group">
+          <label>Message</label>
+          <textarea [(ngModel)]="contactForm.message" name="message" placeholder="How can we help you?"></textarea>
+        </div>
+
+        <ion-button expand="block" type="submit">Send Message</ion-button>
+      </form>
+    </div>
+  </div>
+</div>

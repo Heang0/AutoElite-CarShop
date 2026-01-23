@@ -1,0 +1,52 @@
+<ion-content [fullscreen]="true">
+  <div class="intro-container" [style.background-color]="slides[currentSlide].backgroundColor">
+    <!-- Skip Button -->
+    <div class="skip-section">
+      <ion-button fill="clear" color="light" (click)="skipIntro()">
+        Skip
+      </ion-button>
+    </div>
+
+    <!-- Slide Content -->
+    <div class="slide-content">
+      <div class="slide-image">
+        <img [src]="slides[currentSlide].imageUrl" alt="{{ slides[currentSlide].title }}" />
+      </div>
+      <h1 class="slide-title">{{ slides[currentSlide].title }}</h1>
+      <p class="slide-description">{{ slides[currentSlide].description }}</p>
+    </div>
+
+    <!-- Progress Indicators -->
+    <div class="indicators">
+      <div
+        *ngFor="let slide of slides; let i = index"
+        class="indicator"
+        [class.active]="i === currentSlide"
+        (click)="goToSlide(i)"
+      ></div>
+    </div>
+
+    <!-- Navigation Controls -->
+    <div class="navigation-controls">
+      <ion-button
+        *ngIf="currentSlide > 0"
+        fill="clear"
+        color="light"
+        (click)="prevSlide()"
+        class="nav-button"
+      >
+        Previous
+      </ion-button>
+
+      <ion-button
+        fill="solid"
+        color="light"
+        (click)="nextSlide()"
+        class="nav-button"
+        expand="block"
+      >
+        {{ currentSlide === slides.length - 1 ? 'Get Started' : 'Next' }}
+      </ion-button>
+    </div>
+  </div>
+</ion-content>

@@ -1,0 +1,428 @@
+.car-detail-container {
+  padding: 0;
+  background: #ffffff;
+}
+
+.hero-image {
+  height: 300px;
+  overflow: hidden;
+  position: relative;
+
+  ion-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.price-section {
+  padding: 20px;
+  background: white;
+  border-bottom: 1px solid #eee;
+  position: relative;
+  z-index: 10;
+
+  .price {
+    font-size: 32px;
+    font-weight: 800;
+    color: var(--ion-color-primary);
+    margin-bottom: 4px;
+  }
+
+  .mileage {
+    font-size: 16px;
+    color: var(--ion-color-medium);
+  }
+}
+
+.car-info {
+  background: white;
+  padding: 16px 20px;
+  border-bottom: 1px solid #eee;
+
+  .info-row {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .info-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    min-width: 70px;
+
+    ion-icon {
+      font-size: 24px;
+      color: var(--ion-color-primary);
+      margin-bottom: 8px;
+    }
+
+    span {
+      font-size: 14px;
+      color: var(--ion-color-dark);
+      text-align: center;
+    }
+  }
+}
+
+.section {
+  background: white;
+  margin: 16px 16px 0;
+  padding: 20px;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+
+  h2 {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--ion-color-dark);
+    margin: 0 0 16px 0;
+  }
+
+  p {
+    font-size: 16px;
+    color: var(--ion-color-medium);
+    line-height: 1.6;
+    margin: 0;
+  }
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+
+  ion-button {
+    --padding-start: 8px;
+    --padding-end: 8px;
+    --min-height: 32px;
+  }
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 16px;
+
+  .feature-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 16px;
+    background: #f8f9fa;
+    border-radius: 12px;
+
+    ion-icon {
+      font-size: 28px;
+      color: var(--ion-color-primary);
+      margin-bottom: 8px;
+    }
+
+    .feature-label {
+      font-size: 12px;
+      color: var(--ion-color-medium);
+      margin-bottom: 4px;
+    }
+
+    .feature-value {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--ion-color-dark);
+    }
+  }
+}
+
+.specs-list {
+  .spec-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid #f0f0f0;
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    .spec-label {
+      font-size: 15px;
+      color: var(--ion-color-medium);
+    }
+
+    .spec-value {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--ion-color-dark);
+    }
+  }
+}
+
+.finance-options {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  .finance-option {
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 16px;
+
+    .option-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--ion-color-dark);
+      margin-bottom: 12px;
+    }
+
+    .option-details {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+
+      .detail {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex: 1;
+
+        ion-icon {
+          font-size: 18px;
+          color: var(--ion-color-primary);
+        }
+
+        span {
+          font-size: 14px;
+          color: var(--ion-color-medium);
+        }
+      }
+    }
+  }
+}
+
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+
+  .gallery-item {
+    height: 120px;
+    border-radius: 12px;
+    overflow: hidden;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+}
+
+// Dark mode styles
+@media (prefers-color-scheme: dark) {
+  .car-detail-container {
+    background: linear-gradient(135deg, #1a1a1a 0%, #0d0d0d 100%);
+  }
+
+  .hero-image {
+    ion-img {
+      filter: brightness(0.8);
+    }
+  }
+
+  .car-info,
+  .section {
+    background: #1e293b;
+    border-color: #334155;
+
+    h2 {
+      color: #f1f5f9;
+    }
+
+    p {
+      color: #cbd5e1;
+    }
+  }
+
+  .features-grid .feature-item {
+    background: #334155;
+
+    .feature-label {
+      color: #94a3b8;
+    }
+
+    .feature-value {
+      color: #f1f5f9;
+    }
+  }
+
+  .specs-list .spec-item {
+    border-bottom-color: #334155;
+
+    .spec-label {
+      color: #94a3b8;
+    }
+
+    .spec-value {
+      color: #f1f5f9;
+    }
+  }
+
+  .finance-options .finance-option {
+    background: #334155;
+
+    .option-title {
+      color: #f1f5f9;
+    }
+
+    .detail span {
+      color: #94a3b8;
+    }
+  }
+}
+
+/* Modal Overlay Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 16px;
+  width: 90%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 1px solid #eee;
+
+    h2 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 600;
+    }
+  }
+
+  .modal-body {
+    padding: 20px;
+
+    .finance-option-full {
+      background: #f8f9fa;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 16px;
+
+      .option-header {
+        margin-bottom: 12px;
+
+        h3 {
+          margin: 0 0 4px 0;
+          font-size: 16px;
+          font-weight: 600;
+        }
+
+        p {
+          margin: 0;
+          font-size: 14px;
+          color: var(--ion-color-medium);
+        }
+      }
+
+      .monthly-payment {
+        margin-bottom: 16px;
+
+        h4 {
+          margin: 0;
+          font-size: 18px;
+          font-weight: 700;
+          color: var(--ion-color-primary);
+        }
+      }
+    }
+
+    .input-group {
+      margin-bottom: 16px;
+
+      label {
+        display: block;
+        margin-bottom: 6px;
+        font-weight: 500;
+        color: var(--ion-color-dark);
+      }
+
+      input,
+      textarea {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-size: 16px;
+      }
+
+      textarea {
+        min-height: 100px;
+        resize: vertical;
+      }
+    }
+  }
+}
+
+// Dark mode for modals
+@media (prefers-color-scheme: dark) {
+  .modal-content {
+    background: #1e293b;
+
+    .modal-header {
+      border-bottom: 1px solid #334155;
+
+      h2 {
+        color: #f1f5f9;
+      }
+    }
+
+    .modal-body {
+      .finance-option-full {
+        background: #334155;
+
+        .option-header p {
+          color: #94a3b8;
+        }
+
+        .monthly-payment h4 {
+          color: #86efac;
+        }
+      }
+
+      .input-group {
+        label {
+          color: #f1f5f9;
+        }
+
+        input,
+        textarea {
+          background: #334155;
+          border: 1px solid #475569;
+          color: #f1f5f9;
+        }
+      }
+    }
+  }
+}
