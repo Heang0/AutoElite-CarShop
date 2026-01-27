@@ -27,9 +27,13 @@ import {
   home,
   compassOutline,
   cartOutline,
-  personOutline
+  personOutline,
+  menuOutline,
+  notificationsOutline,
+  filterOutline
 } from 'ionicons/icons';
 import { FavoriteService, Car } from '../services/favorite.service';
+import { CAR_DATABASE } from '../services/car-data';
 
 @Component({
   selector: 'app-explore',
@@ -74,111 +78,23 @@ export class ExplorePage {
       'home': home,
       'compass-outline': compassOutline,
       'cart-outline': cartOutline,
-      'person-outline': personOutline
+      'person-outline': personOutline,
+      'menu-outline': menuOutline,
+      'notifications-outline': notificationsOutline,
+      'filter-outline': filterOutline
     });
 
     // Initialize with sample data
-    this.allCars = [
-      {
-        id: 1,
-        name: 'BMW M5 Competition',
-        brand: 'BMW',
-        model: 'M5 Competition',
-        year: 2023,
-        price: 115900,
-        mileage: 15000,
-        fuelType: 'Gasoline',
-        transmission: 'Automatic',
-        rating: 5,
-        image: 'https://images.unsplash.com/photo-1542362567-b07e54358753?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80',
-        isFavorite: false,
-        features: ['Leather Seats', 'Sunroof', 'Navigation', 'Premium Sound']
-      },
-      {
-        id: 2,
-        name: 'BMW X6 M Competition',
-        brand: 'BMW',
-        model: 'X6 M Competition',
-        year: 2023,
-        price: 108900,
-        mileage: 12000,
-        fuelType: 'Gasoline',
-        transmission: 'Automatic',
-        rating: 4,
-        image: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80',
-        isFavorite: false,
-        features: ['360 Camera', 'Heated Seats', 'Panoramic Sunroof', 'Air Suspension']
-      },
-      {
-        id: 3,
-        name: 'Mercedes-Benz GLE 450',
-        brand: 'Mercedes-Benz',
-        model: 'GLE 450',
-        year: 2023,
-        price: 63500,
-        mileage: 12000,
-        fuelType: 'Hybrid',
-        transmission: 'Automatic',
-        rating: 4,
-        image: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80',
-        isFavorite: false,
-        features: ['360 Camera', 'Heated Seats', 'Panoramic Sunroof', 'Air Suspension']
-      },
-      {
-        id: 4,
-        name: 'Mercedes-Benz S-Class',
-        brand: 'Mercedes-Benz',
-        model: 'S 580',
-        year: 2023,
-        price: 116500,
-        mileage: 8000,
-        fuelType: 'Hybrid',
-        transmission: 'Automatic',
-        rating: 5,
-        image: 'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80',
-        isFavorite: false,
-        features: ['Massaging Seats', 'Air Purification', 'Burmester Sound', 'Magic Sky Control']
-      },
-      {
-        id: 5,
-        name: 'Audi RS7 Sportback',
-        brand: 'Audi',
-        model: 'RS7 Sportback',
-        year: 2023,
-        price: 119900,
-        mileage: 8500,
-        fuelType: 'Gasoline',
-        transmission: 'Automatic',
-        rating: 5,
-        image: 'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80',
-        isFavorite: false,
-        features: ['Quattro AWD', 'Virtual Cockpit', 'Matrix LED Headlights', 'Bang & Olufsen Sound']
-      },
-      {
-        id: 6,
-        name: 'Audi Q8',
-        brand: 'Audi',
-        model: 'Q8',
-        year: 2023,
-        price: 84700,
-        mileage: 10000,
-        fuelType: 'Gasoline',
-        transmission: 'Automatic',
-        rating: 4,
-        image: 'https://images.unsplash.com/photo-1553440569-bcc63803a83d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80',
-        isFavorite: false,
-        features: ['Virtual Cockpit Plus', 'Matrix LED Headlights', 'Panoramic Sunroof', 'Valcona Leather']
-      }
-    ];
+    this.allCars = [...CAR_DATABASE];
+    this.rebuildCarList();
 
-    this.cars = [...this.allCars];
   }
 
   toggleFavorite(car: Car, event: Event) {
     event.stopPropagation();
     this.favoriteService.toggleFavorite(car);
+    this.rebuildCarList();
 
-    // Add haptic feedback on favorite
     if ('vibrate' in navigator) {
       navigator.vibrate(10);
     }
@@ -192,13 +108,20 @@ export class ExplorePage {
   filterCars() {
     if (this.searchQuery.trim() === '') {
       this.cars = [...this.allCars];
-    } else {
-      this.cars = this.allCars.filter(car =>
-        car.name.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
-        car.brand.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
-        car.model.toLowerCase().includes(this.searchQuery.toLowerCase())
-      );
+      return;
     }
+
+    const query = this.searchQuery.toLowerCase();
+    this.cars = this.allCars.filter(car =>
+      car.name.toLowerCase().includes(query) ||
+      car.brand.toLowerCase().includes(query) ||
+      car.model.toLowerCase().includes(query)
+    );
+  }
+
+  private rebuildCarList() {
+    this.favoriteService.syncFavorites(this.allCars);
+    this.filterCars();
   }
 
   onCarClick(car: Car) {
@@ -226,6 +149,16 @@ export class ExplorePage {
         this.router.navigate(['/home']);
         break;
     }
+  }
+
+  openMenu() {
+    console.log('Menu button clicked');
+    alert('Menu functionality would open here');
+  }
+
+  showNotifications() {
+    console.log('Notifications button clicked');
+    alert('Notifications would show here');
   }
 
   getStars(rating: number): boolean[] {

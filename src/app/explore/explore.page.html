@@ -1,24 +1,23 @@
+<ion-header class="clean-header">
+  <ion-toolbar class="header-toolbar">
+    <ion-buttons slot="start">
+      <ion-button fill="clear" size="large" class="menu-btn" (click)="openMenu()">
+        <ion-icon name="menu-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+
+    <ion-title class="store-name">AutoElite</ion-title>
+
+    <ion-buttons slot="end">
+      <ion-button fill="clear" size="large" class="notification-btn" (click)="showNotifications()">
+        <ion-icon name="notifications-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
 <ion-content [fullscreen]="true" [scrollY]="true">
   <div class="app-container">
-    <!-- Clean Header with Hamburger, Store Name, and Notification -->
-    <ion-header class="clean-header">
-      <ion-toolbar class="header-toolbar">
-        <ion-buttons slot="start">
-          <ion-button fill="clear" size="large" class="menu-btn">
-            <ion-icon name="menu-outline"></ion-icon>
-          </ion-button>
-        </ion-buttons>
-
-        <ion-title class="store-name">AutoElite</ion-title>
-
-        <ion-buttons slot="end">
-          <ion-button fill="clear" size="large" class="notification-btn">
-            <ion-icon name="notifications-outline"></ion-icon>
-          </ion-button>
-        </ion-buttons>
-      </ion-toolbar>
-    </ion-header>
-
     <!-- Search Bar Below Header -->
     <div class="search-section">
       <ion-searchbar

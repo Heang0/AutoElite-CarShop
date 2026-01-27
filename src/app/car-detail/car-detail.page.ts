@@ -207,6 +207,21 @@ export class CarDetailPage implements OnInit {
     return Math.round(payment);
   }
 
+  get headerTitle(): string {
+    if (!this.car) {
+      return 'Vehicle Details';
+    }
+    const parts = [];
+    if (this.car.brand) {
+      parts.push(this.car.brand);
+    }
+    if (this.car.model) {
+      parts.push(this.car.model);
+    }
+    const title = parts.join(' ');
+    return title || this.car.name || 'Vehicle Details';
+  }
+
   toggleFavorite() {
     if (this.car) {
       this.favoriteService.toggleFavorite(this.car);

@@ -1,9 +1,9 @@
 <ion-header class="car-detail-header" translucent>
   <ion-toolbar class="car-detail-toolbar">
     <ion-buttons slot="start">
-      <ion-back-button icon="chevron-back-outline" text="" defaultHref="/tabs/home"></ion-back-button>
+      <ion-back-button icon="chevron-back-outline" text="Back" defaultHref="/tabs/home"></ion-back-button>
     </ion-buttons>
-    <ion-title class="center-title">{{ car?.name }}</ion-title>
+    <ion-title class="car-detail-title">{{ headerTitle }}</ion-title>
     <ion-buttons slot="end">
       <ion-button (click)="toggleFavorite()">
         <ion-icon [name]="isFavorite ? 'heart' : 'heart-outline'" color="danger"></ion-icon>

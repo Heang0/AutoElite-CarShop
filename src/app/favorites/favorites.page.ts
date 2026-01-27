@@ -96,6 +96,16 @@ export class FavoritesPage {
     this.router.navigate(['/car', car.id], { state: { car: car } });
   }
 
+  openMenu() {
+    console.log('Menu button clicked');
+    alert('Menu functionality would open here');
+  }
+
+  showNotifications() {
+    console.log('Notifications button clicked');
+    alert('Notifications would show here');
+  }
+
   onTabChange(tabName: string) {
     this.activeTab = tabName;
     console.log('Active tab changed to:', tabName);

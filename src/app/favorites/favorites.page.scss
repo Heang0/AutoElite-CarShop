@@ -1,8 +1,14 @@
+:host {
+  ion-content {
+    --background: #f3f4f6;
+  }
+}
+
 .app-container {
   min-height: 100%;
-  background: white;
+  background: transparent;
   padding: 16px;
-  padding-bottom: 80px;
+  padding-bottom: 96px;
   animation: pageSlideIn 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
@@ -20,25 +26,31 @@
 
 /* Clean Header */
 .clean-header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: #ffffff;
+  box-shadow: 0 6px 20px rgba(15, 23, 42, 0.08);
+
   ion-toolbar {
-    --background: #ffffff;
+    --background: transparent;
     --color: #000000;
     --padding-start: 16px;
     --padding-end: 16px;
-    --min-height: 60px;
+    --min-height: 64px;
 
     .store-name {
       font-size: 18px;
       font-weight: 600;
-      color: #000000;
       text-align: center;
       margin: 0;
+      letter-spacing: 0.02em;
     }
 
     .menu-btn,
     .notification-btn {
-      --padding-start: 8px;
-      --padding-end: 8px;
+      --padding-start: 10px;
+      --padding-end: 10px;
       --min-height: 40px;
       --color: #000000;
     }
