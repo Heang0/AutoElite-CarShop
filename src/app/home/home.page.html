@@ -89,10 +89,22 @@
           ></ion-icon>
         </ion-button>
       </div>
+      <div class="brand-filter-summary" *ngIf="activeBrand">
+        <span>Showing {{ activeBrand }} models</span>
+        <ion-button
+          size="small"
+          fill="clear"
+          class="clear-filter-btn"
+          (click)="clearBrandFilter()"
+        >
+          Show all cars
+        </ion-button>
+      </div>
       <div class="brand-grid">
         <div
           class="brand-card"
           *ngFor="let brand of displayedBrands"
+          [class.active]="activeBrand === brand.name"
           (click)="onBrandClick(brand.name)"
         >
           <div class="brand-logo">
@@ -168,38 +180,3 @@
   </div>
 </ion-content>
 
-<!-- Bottom Navigation -->
-<div class="bottom-navigation">
-  <div
-    class="nav-item"
-    [class.active]="activeTab === 'home'"
-    (click)="onTabChange('home')"
-  >
-    <ion-icon name="home"></ion-icon>
-    <span>Home</span>
-  </div>
-  <div
-    class="nav-item"
-    [class.active]="activeTab === 'explore'"
-    (click)="onTabChange('explore')"
-  >
-    <ion-icon name="compass-outline"></ion-icon>
-    <span>Explore</span>
-  </div>
-  <div
-    class="nav-item"
-    [class.active]="activeTab === 'favorites'"
-    (click)="onTabChange('favorites')"
-  >
-    <ion-icon name="heart-outline"></ion-icon>
-    <span>Favorites</span>
-  </div>
-  <div
-    class="nav-item"
-    [class.active]="activeTab === 'account'"
-    (click)="onTabChange('account')"
-  >
-    <ion-icon name="person-outline"></ion-icon>
-    <span>Account</span>
-  </div>
-</div>

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -52,13 +52,16 @@ import { FavoriteService, Car } from '../services/favorite.service';
     IonButtons
   ]
 })
-export class ExplorePage implements OnInit {
+export class ExplorePage {
   allCars: Car[] = [];
   cars: Car[] = [];
   searchQuery: string = '';
   activeTab: string = 'explore';
 
-  constructor(private router: Router, private favoriteService: FavoriteService) {
+  private router = inject(Router);
+  private favoriteService = inject(FavoriteService);
+
+  constructor() {
     // Register icons
     addIcons({
       'heart-outline': heartOutline,
@@ -170,8 +173,6 @@ export class ExplorePage implements OnInit {
 
     this.cars = [...this.allCars];
   }
-
-  ngOnInit() {}
 
   toggleFavorite(car: Car, event: Event) {
     event.stopPropagation();

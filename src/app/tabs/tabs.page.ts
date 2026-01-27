@@ -1,28 +1,12 @@
 import { Component } from '@angular/core';
-import {
-  IonTabs,
-  IonTab,
-  IonRouterOutlet,
-  IonTabBar,
-  IonTabButton,
-  IonIcon,
-  IonLabel
-} from '@ionic/angular/standalone';
+import { IonicModule } from '@ionic/angular';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-tabs',
   template: `
     <ion-tabs>
-      <ion-tab tab="home" component="HomePage">
-        <ion-router-outlet name="home"></ion-router-outlet>
-      </ion-tab>
-      <ion-tab tab="explore" component="ExplorePage">
-        <ion-router-outlet name="explore"></ion-router-outlet>
-      </ion-tab>
-      <ion-tab tab="favorites" component="FavoritesPage">
-        <ion-router-outlet name="favorites"></ion-router-outlet>
-      </ion-tab>
-
+      <ion-router-outlet></ion-router-outlet>
       <ion-tab-bar slot="bottom">
         <ion-tab-button tab="home" href="/tabs/home">
           <ion-icon name="home"></ion-icon>
@@ -47,6 +31,7 @@ import {
     </ion-tabs>
   `,
   standalone: true,
-  imports: [IonTabs, IonTab, IonRouterOutlet, IonTabBar, IonTabButton, IonIcon, IonLabel]
+  imports: [IonicModule, RouterModule],
+  styleUrls: ['./tabs.page.scss']
 })
 export class TabsPage {}

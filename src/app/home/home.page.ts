@@ -1,7 +1,7 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router, NavigationEnd } from '@angular/router';
+import { Router } from '@angular/router';
 import {
   IonContent,
   IonButton,
@@ -118,7 +118,7 @@ export class HomePage implements OnInit, OnDestroy {
     { name: 'BMW', logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/BMW.svg/200px-BMW.svg.png' },
     { name: 'Toyota', logoUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSnG49Ht9722p0eCdIwm0YoZj0IGBzmI5D49Q&s' },
     { name: 'Tesla', logoUrl: 'https://images.seeklogo.com/logo-png/32/2/tesla-logo-png_seeklogo-329764.png' },
-    { name: 'Mercedes', logoUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT3sQrhXzGVXL4p6E2E2N5EGzs6w2xt0jV4qg&s' },
+    { name: 'Mercedes-Benz', logoUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT3sQrhXzGVXL4p6E2E2N5EGzs6w2xt0jV4qg&s' },
     { name: 'Audi', logoUrl: 'https://di-uploads-pod3.dealerinspire.com/vindeversautohausofsylvania/uploads/2018/10/Audi-Logo-Banner.png' },
     { name: 'Honda', logoUrl: 'https://live.staticflickr.com/3453/3747525628_5f0fab0ba0_b.jpg' },
     { name: 'Ford', logoUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTh4GLoB0Iij4pTRbqc_hurShO4h4JV4Lr4jQ&s' },
@@ -407,7 +407,10 @@ export class HomePage implements OnInit, OnDestroy {
   ];
 
   // Current cars to display
-  cars: Car[] = [...this.allCars];
+  cars: Car[] = [];
+
+  // Currently selected brand filter
+  activeBrand: string | null = null;
 
   selectedCategory: number | null = null;
   isSearching: boolean = false;
@@ -419,7 +422,10 @@ export class HomePage implements OnInit, OnDestroy {
   currentSlideIndex: number = 0;
   autoSlideInterval: any;
 
-  constructor(private router: Router, private favoriteService: FavoriteService) {
+  private router = inject(Router);
+  private favoriteService = inject(FavoriteService);
+
+  constructor() {
     // Register all icons
     addIcons({
       'search-outline': searchOutline,
@@ -461,9 +467,12 @@ export class HomePage implements OnInit, OnDestroy {
   }
 
   onBrandClick(brand: string) {
-    console.log('Brand clicked:', brand);
-    // Filter cars by brand
-    this.cars = this.allCars.filter(car => car.brand === brand);
+    const nextBrand = this.activeBrand === brand ? null : brand;
+    this.applyCarFilter(nextBrand);
+  }
+
+  clearBrandFilter() {
+    this.applyCarFilter(null);
   }
 
   onCarClick(car: Car) {
@@ -473,6 +482,7 @@ export class HomePage implements OnInit, OnDestroy {
   toggleFavorite(car: Car, event: Event) {
     event.stopPropagation();
     this.favoriteService.toggleFavorite(car);
+    this.rebuildCarList();
 
     // Add haptic feedback on favorite
     if ('vibrate' in navigator) {
@@ -521,6 +531,7 @@ export class HomePage implements OnInit, OnDestroy {
 
   // Slideshow methods
   ngOnInit() {
+    this.rebuildCarList();
     this.startAutoSlide();
   }
 
@@ -567,6 +578,19 @@ export class HomePage implements OnInit, OnDestroy {
     console.log('Notifications button clicked');
     // In a real app, this would navigate to notifications page or show a popup
     alert('Notifications would show here');
+  }
+
+  private applyCarFilter(brand: string | null) {
+    this.activeBrand = brand;
+    this.rebuildCarList();
+  }
+
+  private rebuildCarList() {
+    this.favoriteService.syncFavorites(this.allCars);
+    this.cars =
+      this.activeBrand && this.activeBrand.length
+        ? this.allCars.filter(car => car.brand === this.activeBrand)
+        : [...this.allCars];
   }
 
   scrollToCarCards() {

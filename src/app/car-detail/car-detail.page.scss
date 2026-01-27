@@ -13,8 +13,7 @@ ion-content {
 
 /* Ensure all text elements are black */
 .car-detail-container *,
-ion-content *,
-.overlay-header * {
+ion-content * {
   color: #000000 !important;
 }
 
@@ -353,58 +352,43 @@ ion-content *,
   }
 } */
 
-/* Header styling to match home page */
-.hero-image {
-  position: relative;
-}
-
-.overlay-header {
-  position: absolute;
+.car-detail-header {
+  position: sticky;
   top: 0;
-  left: 0;
-  right: 0;
-  z-index: 10;
-  padding: 16px 0;
+  z-index: 20;
+  background: #ffffff;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
 }
 
-.overlay-header ion-toolbar {
-  --background: #ffffff !important;
-  background: #ffffff !important;
-  --color: #000000 !important;
-  color: #000000 !important;
-  border-radius: 16px;
-  margin: 0 16px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  border: 1px solid #e2e8f0;
-  --padding-start: 16px;
-  --padding-end: 16px;
-  --min-height: 60px;
+.car-detail-toolbar {
+  --background: transparent;
+  --ion-safe-area-top: env(safe-area-inset-top);
+  padding: 0 16px;
+  min-height: 64px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 8px;
   position: relative;
 }
 
-.overlay-header ion-title {
-  --color: #000000 !important;
-  color: #000000 !important;
-  font-weight: 600;
-  font-size: 16px;
-  text-align: center !important;
-  flex: 1;
-  margin: 0 auto;
+.car-detail-header ion-buttons {
+  --padding-start: 0;
+  --padding-end: 0;
+}
+
+.center-title {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  max-width: calc(100% - 30px);
+  text-align: center;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: calc(100% - 120px); /* Account for buttons on both sides */
-}
-
-.overlay-header ion-back-button,
-.overlay-header ion-button {
-  --color: #000000 !important;
-  color: #000000 !important;
-  --padding-start: 8px !important;
-  --padding-end: 8px !important;
+  font-size: 16px;
+  font-weight: 600;
+  color: #000000;
 }
 
 /* Modal Overlay Styles */

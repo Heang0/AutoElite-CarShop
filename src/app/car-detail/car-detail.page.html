@@ -1,26 +1,25 @@
+<ion-header class="car-detail-header" translucent>
+  <ion-toolbar class="car-detail-toolbar">
+    <ion-buttons slot="start">
+      <ion-back-button icon="chevron-back-outline" text="" defaultHref="/tabs/home"></ion-back-button>
+    </ion-buttons>
+    <ion-title class="center-title">{{ car?.name }}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="toggleFavorite()">
+        <ion-icon [name]="isFavorite ? 'heart' : 'heart-outline'" color="danger"></ion-icon>
+      </ion-button>
+      <ion-button>
+        <ion-icon name="share-social-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
 <ion-content [fullscreen]="true">
   <div class="car-detail-container">
     <!-- Hero Image -->
     <div class="hero-image">
       <ion-img [src]="car?.image" [alt]="car?.name"></ion-img>
-
-      <!-- Semi-transparent header overlay -->
-      <ion-header class="overlay-header">
-        <ion-toolbar>
-          <ion-buttons slot="start">
-            <ion-back-button text="Back" defaultHref="/home"></ion-back-button>
-          </ion-buttons>
-          <ion-title class="center-title">{{ car?.name }}</ion-title>
-          <ion-buttons slot="end">
-            <ion-button (click)="toggleFavorite()">
-              <ion-icon [name]="isFavorite ? 'heart' : 'heart-outline'" color="danger"></ion-icon>
-            </ion-button>
-            <ion-button>
-              <ion-icon name="share-social-outline"></ion-icon>
-            </ion-button>
-          </ion-buttons>
-        </ion-toolbar>
-      </ion-header>
     </div>
 
     <!-- Price Section -->
@@ -52,13 +51,13 @@
     </div>
 
     <!-- Description -->
-    <div class="section">
+    <div class="section" *ngIf="car?.description">
       <h2>About this car</h2>
       <p>{{ car?.description }}</p>
     </div>
 
     <!-- Features -->
-    <div class="section">
+    <div class="section" *ngIf="features && features.length > 0">
       <h2>Key Features</h2>
       <div class="features-grid">
         <div class="feature-item" *ngFor="let feature of features">
@@ -70,7 +69,7 @@
     </div>
 
     <!-- Specifications -->
-    <div class="section">
+    <div class="section" *ngIf="car?.specifications?.length">
       <h2>Specifications</h2>
       <div class="specs-list">
         <div class="spec-item" *ngFor="let spec of car?.specifications">
@@ -108,7 +107,7 @@
     </div>
 
     <!-- Image Gallery -->
-    <div class="section">
+    <div class="section" *ngIf="car?.gallery?.length">
       <h2>Gallery</h2>
       <div class="gallery">
         <ion-img

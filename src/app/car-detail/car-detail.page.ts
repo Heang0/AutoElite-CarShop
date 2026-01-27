@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
@@ -81,21 +81,11 @@ export class CarDetailPage implements OnInit {
     message: ''
   };
 
-  constructor(private route: ActivatedRoute, private favoriteService: FavoriteService) {
-    addIcons({
-      'share-social-outline': shareSocialOutline,
-      'heart-outline': heartOutline,
-      'heart': heart,
-      'navigate-outline': navigateOutline,
-      'call-outline': callOutline,
-      'calendar-number-outline': calendarNumberOutline,
-      'speedometer-outline': speedometerOutline,
-      'car-sport-outline': carSportOutline,
-      'mail-outline': mailOutline,
-      'cash-outline': cashOutline,
-      'checkmark-circle-outline': checkmarkCircleOutline,
-      'close-circle-outline': closeCircleOutline
-    });
+  private route = inject(ActivatedRoute);
+  private favoriteService = inject(FavoriteService);
+
+  constructor() {
+    addIcons({ shareSocialOutline, heartOutline, heart, navigateOutline, callOutline, calendarNumberOutline, speedometerOutline, carSportOutline, mailOutline, cashOutline, checkmarkCircleOutline, closeCircleOutline });
   }
 
   ngOnInit() {
@@ -107,9 +97,9 @@ export class CarDetailPage implements OnInit {
       // Create features array based on the car data
       this.features = [
         { icon: 'car-sport-outline', label: 'Brand', value: this.car.brand },
-        { icon: 'calendar-number-outline', label: 'Year', value: this.car.year.toString() },
-        { icon: 'navigate-outline', label: 'Mileage', value: `${this.car.mileage.toLocaleString()} mi` },
-        { icon: 'speedometer-outline', label: 'Transmission', value: this.car.transmission }
+        { icon: 'calendar-number-outline', label: 'Year', value: this.car.year?.toString() ?? 'N/A' },
+        { icon: 'navigate-outline', label: 'Mileage', value: `${this.car.mileage?.toLocaleString() ?? 'N/A'} mi` },
+        { icon: 'speedometer-outline', label: 'Transmission', value: this.car.transmission ?? 'N/A' }
       ];
     } else {
       // Fallback to getting car ID from route params
@@ -162,6 +152,8 @@ export class CarDetailPage implements OnInit {
       };
     }
 
+    this.ensureOptionalDetails();
+
     // Initialize favorite status based on service
     this.isFavorite = this.favoriteService.isFavorite(this.car.id);
     this.car.isFavorite = this.isFavorite;
@@ -211,7 +203,7 @@ export class CarDetailPage implements OnInit {
   calculateMonthlyPayment(principal: number, apr: number, term: number): number {
     const monthlyRate = apr / 100 / 12;
     const payment = principal * monthlyRate * Math.pow(1 + monthlyRate, term) /
-                   (Math.pow(1 + monthlyRate, term) - 1);
+      (Math.pow(1 + monthlyRate, term) - 1);
     return Math.round(payment);
   }
 
@@ -254,5 +246,41 @@ export class CarDetailPage implements OnInit {
 
   reserveCar() {
     alert(`Reservation confirmed for ${this.car.name}! A representative will contact you shortly.`);
+  }
+
+  private ensureOptionalDetails() {
+    if (!this.car) {
+      return;
+    }
+
+    const gallerySource =
+      Array.isArray(this.car.gallery) && this.car.gallery.length
+        ? this.car.gallery
+        : this.car.image
+          ? [this.car.image]
+          : [];
+    this.car.gallery = gallerySource;
+
+    const brandModel = `${this.car.brand ?? ''} ${this.car.model ?? ''}`.trim();
+    this.car.description =
+      this.car.description ||
+      (brandModel
+        ? `${brandModel} is styled for premium comfort and performance tailored to your lifestyle.`
+        : 'Explore this vehicle to see if it matches your driving needs.');
+
+    const mileageText =
+      typeof this.car.mileage === 'number'
+        ? `${this.car.mileage.toLocaleString()} mi`
+        : 'N/A';
+
+    this.car.specifications =
+      this.car.specifications && this.car.specifications.length
+        ? this.car.specifications
+        : [
+            { label: 'Year', value: this.car.year ? this.car.year.toString() : 'N/A' },
+            { label: 'Mileage', value: mileageText },
+            { label: 'Fuel Type', value: this.car.fuelType || 'N/A' },
+            { label: 'Transmission', value: this.car.transmission || 'N/A' }
+          ];
   }
 }

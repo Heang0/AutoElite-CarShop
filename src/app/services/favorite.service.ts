@@ -79,4 +79,14 @@ export class FavoriteService {
     this.favorites = [];
     this.saveFavorites();
   }
+
+  /**
+   * Synchronize the favorite flag on a batch of cars so UI reflects persisted state.
+   */
+  syncFavorites(cars: Car[]): void {
+    const favoriteIds = new Set(this.favorites.map(fav => fav.id));
+    cars.forEach(car => {
+      car.isFavorite = favoriteIds.has(car.id);
+    });
+  }
 }

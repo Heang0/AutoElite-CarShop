@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
@@ -6,6 +6,7 @@ import {
   IonButton
 } from '@ionic/angular/standalone';
 import { Router } from '@angular/router';
+import { IntroService } from '../services/intro.service';
 import { addIcons } from 'ionicons';
 import {
   carSportOutline,
@@ -35,7 +36,7 @@ interface IntroSlide {
     IonButton
   ]
 })
-export class IntroPage implements OnInit {
+export class IntroPage {
   currentSlide = 0;
   slides: IntroSlide[] = [
     {
@@ -72,9 +73,10 @@ export class IntroPage implements OnInit {
     }
   ];
 
-  constructor(
-    private router: Router
-  ) {
+  private router = inject(Router);
+  private introService = inject(IntroService);
+
+  constructor() {
     addIcons({
       'car-sport-outline': carSportOutline,
       'speedometer-outline': speedometerOutline,
@@ -82,8 +84,6 @@ export class IntroPage implements OnInit {
       'checkmark-done-outline': checkmarkDoneOutline
     });
   }
-
-  ngOnInit() {}
 
   nextSlide() {
     if (this.currentSlide < this.slides.length - 1) {
@@ -100,11 +100,32 @@ export class IntroPage implements OnInit {
   }
 
   goToHome() {
-    this.router.navigate(['/home']);
+    console.log('goToHome called, current slide:', this.currentSlide, 'total slides:', this.slides.length);
+
+    // Mark intro as completed
+    this.introService.markIntroCompleted();
+
+    // Navigate to the tabs home page
+    this.router.navigate(['/tabs/home']).then((success) => {
+      console.log('Navigation successful:', success);
+    }).catch(error => {
+      console.error('Navigation error:', error);
+      // Ultimate fallback
+      window.location.href = '/tabs/home';
+    });
   }
 
   skipIntro() {
-    this.router.navigate(['/home']);
+    console.log('skipIntro called');
+    // Mark intro as completed
+    this.introService.markIntroCompleted();
+    this.router.navigate(['/tabs/home']).then(() => {
+      console.log('Skipped intro and navigated to home tab');
+    }).catch(error => {
+      console.error('Navigation error on skip:', error);
+      // Ultimate fallback
+      window.location.href = '/tabs/home';
+    });
   }
 
   goToSlide(index: number) {

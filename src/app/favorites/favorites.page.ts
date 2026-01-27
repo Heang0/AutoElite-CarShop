@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -48,12 +48,15 @@ import { FavoriteService, Car } from '../services/favorite.service';
     IonButtons
   ]
 })
-export class FavoritesPage implements OnInit {
+export class FavoritesPage {
   allCars: Car[] = [];
   favoriteCars: Car[] = [];
   activeTab: string = 'favorites';
 
-  constructor(private router: Router, private favoriteService: FavoriteService) {
+  private router = inject(Router);
+  private favoriteService = inject(FavoriteService);
+
+  constructor() {
     // Register icons
     addIcons({
       'heart': heart,
@@ -75,8 +78,6 @@ export class FavoritesPage implements OnInit {
     // Get actual favorites from service
     this.favoriteCars = this.favoriteService.getFavorites();
   }
-
-  ngOnInit() {}
 
   toggleFavorite(car: Car, event: Event) {
     event.stopPropagation();

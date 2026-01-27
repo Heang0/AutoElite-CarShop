@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
 
@@ -107,7 +107,7 @@ import { IonicModule } from '@ionic/angular';
   imports: [IonicModule]
 })
 export class MainTabsComponent {
-  constructor(private router: Router) {}
+  private router = inject(Router);
 
   navigateTo(path: string) {
     this.router.navigate([path]);
