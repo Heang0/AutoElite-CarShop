@@ -139,6 +139,7 @@ export class CarDetailPage implements OnInit {
           { icon: 'calendar-number-outline', label: 'Year', value: '2023' },
           { icon: 'navigate-outline', label: 'Mileage', value: '15,000 mi' }
         ],
+        type: 'Sedan',
         description: 'The BMW M5 Competition combines luxury with high-performance capabilities. Featuring a twin-turbocharged V8 engine, this sedan delivers exhilarating acceleration and refined driving dynamics.',
         specifications: [
           { label: 'Engine', value: '4.4L V8 Twin-Turbo' },

@@ -9,12 +9,48 @@
     <ion-title class="store-name">AutoElite</ion-title>
 
     <ion-buttons slot="end">
-      <ion-button fill="clear" size="large" class="notification-btn" (click)="showNotifications()">
+      <ion-button fill="clear" size="large" class="notification-btn" (click)="showNotifications($event)">
         <ion-icon name="notifications-outline"></ion-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
+
+<div class="notification-drawer-backdrop" [class.visible]="isNotificationsOpen" (click)="dismissNotifications()"></div>
+<aside class="notification-drawer" [class.open]="isNotificationsOpen">
+  <div class="notification-drawer__panel">
+    <div class="notification-drawer__header">
+      <div>
+        <p class="notification-drawer__eyebrow">Your alerts</p>
+        <h3>Notifications</h3>
+      </div>
+      <ion-button fill="clear" size="small" (click)="clearNotifications()">Clear all</ion-button>
+    </div>
+
+    <ion-list lines="none">
+      <ion-item
+        lines="none"
+        button
+        *ngFor="let notification of notificationItems"
+        (click)="handleNotificationClick(notification)"
+        [class.active]="selectedNotification?.id === notification.id"
+      >
+        <ion-icon slot="start" [name]="notification.icon" class="notification-icon"></ion-icon>
+        <div class="notification-popover__text">
+          <span class="notification-popover__title">{{ notification.title }}</span>
+          <span class="notification-popover__description">{{ notification.description }}</span>
+        </div>
+        <ion-note slot="end" class="notification-popover__time">{{ notification.time }}</ion-note>
+      </ion-item>
+    </ion-list>
+
+    <div class="notification-drawer__detail" *ngIf="selectedNotification">
+      <h3>{{ selectedNotification.title }}</h3>
+      <p>{{ selectedNotification.details }}</p>
+      <span>{{ selectedNotification.time }} · AutoElite</span>
+    </div>
+  </div>
+</aside>
 
 <ion-content [fullscreen]="true" [scrollY]="true">
   <div class="app-container">

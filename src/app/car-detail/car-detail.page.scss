@@ -363,13 +363,12 @@ ion-content * {
 
 .car-detail-toolbar {
   --background: transparent;
-  --ion-safe-area-top: env(safe-area-inset-top);
   padding: 0 12px;
-  min-height: 64px;
+  min-height: 56px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 10px;
 }
 
 .car-detail-header ion-buttons {
@@ -382,11 +381,12 @@ ion-content * {
   text-align: center;
   font-size: 18px;
   font-weight: 600;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
   color: #000000;
   margin: 0;
+  padding: 0 12px;
+  line-height: 1.2;
+  white-space: normal;
+  word-break: break-word;
 }
 
 /* Modal Overlay Styles */

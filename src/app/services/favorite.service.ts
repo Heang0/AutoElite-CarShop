@@ -14,6 +14,7 @@ export interface Car {
   image: string;
   isFavorite: boolean;
   features: string[];
+  type: string;
 }
 
 @Injectable({

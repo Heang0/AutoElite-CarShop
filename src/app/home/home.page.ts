@@ -13,7 +13,15 @@ import {
   IonTitle,
   IonHeader,
   IonToolbar,
-  IonButtons
+  IonButtons,
+  IonList,
+  IonItem,
+  IonNote,
+  IonLabel,
+  IonRange,
+  IonCheckbox,
+  IonInput,
+  IonChip
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
@@ -43,8 +51,9 @@ import {
   chevronBackOutline,
   chevronForwardOutline
 } from 'ionicons/icons';
+import type { RangeValue } from '@ionic/core';
 import { FavoriteService } from '../services/favorite.service';
-import { filter } from 'rxjs/operators';
+import { NOTIFICATION_ITEMS, NotificationItem } from '../data/notifications.data';
 
 interface Car {
   id: number;
@@ -60,27 +69,12 @@ interface Car {
   image: string;
   isFavorite: boolean;
   features: string[];
+  type: string;
 }
 
 interface Brand {
   name: string;
   logoUrl: string;
-}
-
-interface Car {
-  id: number;
-  name: string;
-  brand: string;
-  model: string;
-  year: number;
-  price: number;
-  mileage: number;
-  fuelType: string;
-  transmission: string;
-  rating: number;
-  image: string;
-  isFavorite: boolean;
-  features: string[];
 }
 
 interface Slide {
@@ -109,7 +103,15 @@ interface Slide {
     IonTitle,
     IonHeader,
     IonToolbar,
-    IonButtons
+    IonButtons,
+    IonList,
+    IonItem,
+    IonNote,
+    IonLabel,
+    IonCheckbox,
+    IonInput,
+    IonRange,
+    IonChip,
   ]
 })
 export class HomePage implements OnInit, OnDestroy {
@@ -170,7 +172,8 @@ export class HomePage implements OnInit, OnDestroy {
       rating: 5,
       image: 'https://images.unsplash.com/photo-1542362567-b07e54358753?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80',
       isFavorite: false,
-      features: ['Leather Seats', 'Sunroof', 'Navigation', 'Premium Sound']
+      features: ['Leather Seats', 'Sunroof', 'Navigation', 'Premium Sound'],
+      type: 'Sedan'
     },
     {
       id: 2,
@@ -185,7 +188,8 @@ export class HomePage implements OnInit, OnDestroy {
       rating: 4,
       image: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80',
       isFavorite: true,
-      features: ['360 Camera', 'Heated Seats', 'Panoramic Sunroof', 'Air Suspension']
+      features: ['360 Camera', 'Heated Seats', 'Panoramic Sunroof', 'Air Suspension'],
+      type: 'SUV'
     },
     // Mercedes Cars
     {
@@ -201,7 +205,8 @@ export class HomePage implements OnInit, OnDestroy {
       rating: 4,
       image: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80',
       isFavorite: true,
-      features: ['360 Camera', 'Heated Seats', 'Panoramic Sunroof', 'Air Suspension']
+      features: ['360 Camera', 'Heated Seats', 'Panoramic Sunroof', 'Air Suspension'],
+      type: 'SUV'
     },
     {
       id: 4,
@@ -216,7 +221,8 @@ export class HomePage implements OnInit, OnDestroy {
       rating: 5,
       image: 'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80',
       isFavorite: false,
-      features: ['Massaging Seats', 'Air Purification', 'Burmester Sound', 'Magic Sky Control']
+      features: ['Massaging Seats', 'Air Purification', 'Burmester Sound', 'Magic Sky Control'],
+      type: 'Sedan'
     },
     // Audi Cars
     {
@@ -232,7 +238,8 @@ export class HomePage implements OnInit, OnDestroy {
       rating: 5,
       image: 'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80',
       isFavorite: false,
-      features: ['Quattro AWD', 'Virtual Cockpit', 'Matrix LED Headlights', 'Bang & Olufsen Sound']
+      features: ['Quattro AWD', 'Virtual Cockpit', 'Matrix LED Headlights', 'Bang & Olufsen Sound'],
+      type: 'Coupe'
     },
     {
       id: 6,
@@ -247,7 +254,8 @@ export class HomePage implements OnInit, OnDestroy {
       rating: 4,
       image: 'https://images.unsplash.com/photo-1553440569-bcc63803a83d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80',
       isFavorite: false,
-      features: ['Virtual Cockpit Plus', 'Matrix LED Headlights', 'Panoramic Sunroof', 'Valcona Leather']
+      features: ['Virtual Cockpit Plus', 'Matrix LED Headlights', 'Panoramic Sunroof', 'Valcona Leather'],
+      type: 'SUV'
     },
     // Tesla Cars
     {
@@ -263,7 +271,8 @@ export class HomePage implements OnInit, OnDestroy {
       rating: 5,
       image: 'https://images.unsplash.com/photo-1553440569-bcc63803a83d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80',
       isFavorite: false,
-      features: ['Autopilot', '17-inch Touchscreen', 'Premium Interior', 'Ludicrous Mode']
+      features: ['Autopilot', '17-inch Touchscreen', 'Premium Interior', 'Ludicrous Mode'],
+      type: 'Sedan'
     },
     {
       id: 8,
@@ -278,7 +287,8 @@ export class HomePage implements OnInit, OnDestroy {
       rating: 4,
       image: 'https://images.unsplash.com/photo-1542362567-b07e54358753?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80',
       isFavorite: true,
-      features: ['Autopilot', 'Premium Interior', 'Supercharging', 'OTA Updates']
+      features: ['Autopilot', 'Premium Interior', 'Supercharging', 'OTA Updates'],
+      type: 'Sedan'
     },
     // Toyota Cars
     {
@@ -294,7 +304,8 @@ export class HomePage implements OnInit, OnDestroy {
       rating: 4,
       image: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80',
       isFavorite: false,
-      features: ['TRD Sport Suspension', '19-inch Wheels', 'Unique Styling', '8-inch Touchscreen']
+      features: ['TRD Sport Suspension', '19-inch Wheels', 'Unique Styling', '8-inch Touchscreen'],
+      type: 'Sedan'
     },
     {
       id: 10,
@@ -309,7 +320,8 @@ export class HomePage implements OnInit, OnDestroy {
       rating: 5,
       image: 'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80',
       isFavorite: false,
-      features: ['Hybrid System', 'Apple CarPlay', 'Safety Sense 2.0', 'Power Liftgate']
+      features: ['Hybrid System', 'Apple CarPlay', 'Safety Sense 2.0', 'Power Liftgate'],
+      type: 'SUV'
     },
     // Honda Cars
     {
@@ -325,7 +337,8 @@ export class HomePage implements OnInit, OnDestroy {
       rating: 5,
       image: 'https://images.unsplash.com/photo-1553440569-bcc63803a83d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80',
       isFavorite: true,
-      features: ['Turbo Engine', 'Recaro Seats', 'Brembo Brakes', 'Adaptive Damper System']
+      features: ['Turbo Engine', 'Recaro Seats', 'Brembo Brakes', 'Adaptive Damper System'],
+      type: 'Sedan'
     },
     {
       id: 12,
@@ -340,7 +353,8 @@ export class HomePage implements OnInit, OnDestroy {
       rating: 4,
       image: 'https://images.unsplash.com/photo-1542362567-b07e54358753?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80',
       isFavorite: false,
-      features: ['Honda Sensing Suite', 'Wireless Charging', 'Apple CarPlay', 'LaneWatch']
+      features: ['Honda Sensing Suite', 'Wireless Charging', 'Apple CarPlay', 'LaneWatch'],
+      type: 'Sedan'
     },
     // Ford Cars
     {
@@ -356,7 +370,8 @@ export class HomePage implements OnInit, OnDestroy {
       rating: 5,
       image: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80',
       isFavorite: false,
-      features: ['5.0L V8 Engine', 'MagneRide Damping', 'Track Apps', '12-Speaker Audio']
+      features: ['5.0L V8 Engine', 'MagneRide Damping', 'Track Apps', '12-Speaker Audio'],
+      type: 'Coupe'
     },
     {
       id: 14,
@@ -371,7 +386,8 @@ export class HomePage implements OnInit, OnDestroy {
       rating: 5,
       image: 'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80',
       isFavorite: true,
-      features: ['High-Performance Off-Road', 'FOX Shocks', 'Terrain Management', '12.4-inch Touchscreen']
+      features: ['High-Performance Off-Road', 'FOX Shocks', 'Terrain Management', '12.4-inch Touchscreen'],
+      type: 'Pickup'
     },
     // Nissan Cars
     {
@@ -387,7 +403,8 @@ export class HomePage implements OnInit, OnDestroy {
       rating: 5,
       image: 'https://images.unsplash.com/photo-1553440569-bcc63803a83d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80',
       isFavorite: false,
-      features: ['All-Wheel Drive', 'Premium Interior', 'Premium Sound', 'Advanced Climate']
+      features: ['All-Wheel Drive', 'Premium Interior', 'Premium Sound', 'Advanced Climate'],
+      type: 'Coupe'
     },
     {
       id: 16,
@@ -402,21 +419,33 @@ export class HomePage implements OnInit, OnDestroy {
       rating: 4,
       image: 'https://images.unsplash.com/photo-1542362567-b07e54358753?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80',
       isFavorite: false,
-      features: ['ProPILOT Assist', 'NissanConnect', 'Apple CarPlay', 'Wireless Charging']
+      features: ['ProPILOT Assist', 'NissanConnect', 'Apple CarPlay', 'Wireless Charging'],
+      type: 'Sedan'
     }
   ];
 
   // Current cars to display
   cars: Car[] = [];
 
-  // Currently selected brand filter
-  activeBrand: string | null = null;
-
   selectedCategory: number | null = null;
   isSearching: boolean = false;
   searchQuery: string = '';
   activeTab: string = 'home';
   cartItemCount: number = 0;
+  isNotificationsOpen: boolean = false;
+  notificationItems: NotificationItem[] = NOTIFICATION_ITEMS;
+  selectedNotification: NotificationItem | null = null;
+  isFilterOpen: boolean = false;
+  brandSearchQuery: string = '';
+  selectedBrands: string[] = [];
+  activeBrands: string[] = [];
+  carTypeOptions: string[] = ['Sedan', 'SUV', 'Hatchback', 'Pickup', 'Coupe', 'Van'];
+  selectedCarTypes: string[] = [];
+  activeCarTypes: string[] = [];
+  priceBounds = { min: 20000, max: 200000 };
+  private readonly defaultPriceRange = { lower: 20000, upper: 140000 };
+  activePriceRange = { ...this.defaultPriceRange };
+  pendingPriceRange = { ...this.defaultPriceRange };
 
   // Slideshow properties
   currentSlideIndex: number = 0;
@@ -467,12 +496,12 @@ export class HomePage implements OnInit, OnDestroy {
   }
 
   onBrandClick(brand: string) {
-    const nextBrand = this.activeBrand === brand ? null : brand;
-    this.applyCarFilter(nextBrand);
-  }
-
-  clearBrandFilter() {
-    this.applyCarFilter(null);
+    const isAlreadyActive = this.activeBrands.includes(brand);
+    this.activeBrands = isAlreadyActive ? [] : [brand];
+    this.selectedBrands = [...this.activeBrands];
+    this.activeCarTypes = [];
+    this.selectedCarTypes = [];
+    this.rebuildCarList();
   }
 
   onCarClick(car: Car) {
@@ -574,23 +603,161 @@ export class HomePage implements OnInit, OnDestroy {
     alert('Menu functionality would open here');
   }
 
-  showNotifications() {
+  showNotifications(event?: Event) {
+    event?.stopPropagation();
     console.log('Notifications button clicked');
-    // In a real app, this would navigate to notifications page or show a popup
-    alert('Notifications would show here');
+    this.isNotificationsOpen = true;
+    if (!this.selectedNotification && this.notificationItems.length) {
+      this.selectedNotification = this.notificationItems[0];
+    }
   }
 
-  private applyCarFilter(brand: string | null) {
-    this.activeBrand = brand;
+  clearNotifications() {
+    this.isNotificationsOpen = false;
+    this.selectedNotification = null;
+    console.log('Cleared notification list');
+  }
+
+  dismissNotifications() {
+    this.isNotificationsOpen = false;
+  }
+
+  handleNotificationClick(notification: NotificationItem) {
+    this.selectedNotification = notification;
+  }
+
+  toggleFilterPanel(event?: Event) {
+    event?.stopPropagation();
+    if (this.isFilterOpen) {
+      this.dismissFilterPanel();
+    } else {
+      this.openFilterPanel();
+    }
+  }
+
+  openFilterPanel() {
+    this.brandSearchQuery = '';
+    this.selectedBrands = [...this.activeBrands];
+    this.selectedCarTypes = [...this.activeCarTypes];
+    this.pendingPriceRange = { ...this.activePriceRange };
+    this.isFilterOpen = true;
+  }
+
+  dismissFilterPanel() {
+    this.isFilterOpen = false;
+  }
+
+  updatePriceRange(value: RangeValue) {
+    if (!value || typeof value === 'number') {
+      return;
+    }
+
+    const { lower, upper } = value;
+    if (typeof lower === 'number' && typeof upper === 'number') {
+      this.pendingPriceRange = { lower, upper };
+    }
+  }
+
+  applyFilterChanges() {
+    this.activeBrands = [...this.selectedBrands];
+    this.activeCarTypes = [...this.selectedCarTypes];
+    this.activePriceRange = { ...this.pendingPriceRange };
+    this.isFilterOpen = false;
     this.rebuildCarList();
+  }
+
+  resetFilters(event?: Event) {
+    event?.stopPropagation();
+    this.brandSearchQuery = '';
+    this.selectedBrands = [];
+    this.activeBrands = [];
+    this.selectedCarTypes = [];
+    this.activeCarTypes = [];
+    this.pendingPriceRange = { ...this.defaultPriceRange };
+    this.activePriceRange = { ...this.defaultPriceRange };
+    this.rebuildCarList();
+  }
+
+  toggleBrandSelection(brand: string) {
+    const index = this.selectedBrands.indexOf(brand);
+    if (index > -1) {
+      this.selectedBrands = this.selectedBrands.filter(b => b !== brand);
+    } else {
+      this.selectedBrands = [...this.selectedBrands, brand];
+    }
+  }
+
+  isBrandSelected(brand: string): boolean {
+    return this.selectedBrands.includes(brand);
+  }
+
+  get filteredBrandOptions(): string[] {
+    const query = this.brandSearchQuery.trim().toLowerCase();
+    const names = Array.from(new Set(this.allBrands.map(brand => brand.name)));
+    if (!query) {
+      return names;
+    }
+    return names.filter(name => name.toLowerCase().includes(query));
+  }
+
+  toggleCarTypeSelection(type: string) {
+    const index = this.selectedCarTypes.indexOf(type);
+    if (index > -1) {
+      this.selectedCarTypes = this.selectedCarTypes.filter(t => t !== type);
+    } else {
+      this.selectedCarTypes = [...this.selectedCarTypes, type];
+    }
+  }
+
+  isCarTypeSelected(type: string): boolean {
+    return this.selectedCarTypes.includes(type);
+  }
+
+  updatePendingPrice(field: 'lower' | 'upper', value: string | number | null | undefined) {
+    const parsed = Number(value);
+    if (isNaN(parsed)) {
+      return;
+    }
+
+    const clampedLower = Math.max(this.priceBounds.min, Math.min(parsed, this.priceBounds.max));
+    const clampedUpper = Math.max(this.priceBounds.min, Math.min(parsed, this.priceBounds.max));
+
+    if (field === 'lower') {
+      const lower = Math.min(clampedLower, this.pendingPriceRange.upper);
+      this.pendingPriceRange = { ...this.pendingPriceRange, lower };
+    } else {
+      const upper = Math.max(clampedUpper, this.pendingPriceRange.lower);
+      this.pendingPriceRange = { ...this.pendingPriceRange, upper };
+    }
+  }
+
+  get hasActiveFilters(): boolean {
+    return this.activeBrands.length > 0 || this.activeCarTypes.length > 0 || this.isPriceFilterActive;
+  }
+
+  get isPriceFilterActive(): boolean {
+    return (
+      this.activePriceRange.lower > this.priceBounds.min ||
+      this.activePriceRange.upper < this.priceBounds.max
+    );
   }
 
   private rebuildCarList() {
     this.favoriteService.syncFavorites(this.allCars);
-    this.cars =
-      this.activeBrand && this.activeBrand.length
-        ? this.allCars.filter(car => car.brand === this.activeBrand)
-        : [...this.allCars];
+    let filtered = [...this.allCars];
+
+    if (this.activeBrands.length) {
+      filtered = filtered.filter(car => this.activeBrands.includes(car.brand));
+    }
+
+    if (this.activeCarTypes.length) {
+      filtered = filtered.filter(car => this.activeCarTypes.includes(car.type));
+    }
+
+    this.cars = filtered.filter(
+      car =>
+        car.price >= this.activePriceRange.lower && car.price <= this.activePriceRange.upper
+    );
   }
 
   scrollToCarCards() {

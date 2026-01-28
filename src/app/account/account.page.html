@@ -1,0 +1,96 @@
+<ion-header class="clean-header">
+  <ion-toolbar class="header-toolbar">
+    <ion-buttons slot="start">
+      <ion-button fill="clear" size="large" class="menu-btn" (click)="openMenu()">
+        <ion-icon name="menu-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+
+    <ion-title class="store-name">AutoElite</ion-title>
+
+    <ion-buttons slot="end">
+      <ion-button fill="clear" size="large" class="notification-btn" (click)="showNotifications($event)">
+        <ion-icon name="notifications-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<div class="notification-drawer-backdrop" [class.visible]="isNotificationsOpen" (click)="dismissNotifications()"></div>
+<aside class="notification-drawer" [class.open]="isNotificationsOpen">
+  <div class="notification-drawer__panel">
+    <div class="notification-drawer__header">
+      <div>
+        <p class="notification-drawer__eyebrow">Your alerts</p>
+        <h3>Notifications</h3>
+      </div>
+      <ion-button fill="clear" size="small" (click)="clearNotifications()">Clear all</ion-button>
+    </div>
+
+    <ion-list lines="none">
+      <ion-item
+        lines="none"
+        button
+        *ngFor="let notification of notificationItems"
+        (click)="handleNotificationClick(notification)"
+        [class.active]="selectedNotification?.id === notification.id"
+      >
+        <ion-icon slot="start" [name]="notification.icon" class="notification-icon"></ion-icon>
+        <div class="notification-popover__text">
+          <span class="notification-popover__title">{{ notification.title }}</span>
+          <span class="notification-popover__description">{{ notification.description }}</span>
+        </div>
+        <ion-note slot="end" class="notification-popover__time">{{ notification.time }}</ion-note>
+      </ion-item>
+    </ion-list>
+
+    <div class="notification-drawer__detail" *ngIf="selectedNotification">
+      <h3>{{ selectedNotification.title }}</h3>
+      <p>{{ selectedNotification.details }}</p>
+      <span>{{ selectedNotification.time }} · AutoElite</span>
+    </div>
+  </div>
+</aside>
+
+<ion-content [fullscreen]="true">
+  <div class="account-container">
+    <div class="profile-card">
+      <div class="profile-pill">PF</div>
+      <div class="profile-avatar">
+        <img src="https://chhaiheang.onrender.com/img/pf-pic.png" alt="Hak Chhaiheang" />
+      </div>
+      <div class="profile-info">
+        <h2>Hak Chhaiheang</h2>
+        <p>Premium Member</p>
+      </div>
+    </div>
+
+    <div class="settings-card">
+      <ion-item button>
+        <ion-icon name="person-outline" slot="start"></ion-icon>
+        <ion-label>Profile settings</ion-label>
+        <ion-icon name="chevron-forward-outline" slot="end"></ion-icon>
+      </ion-item>
+      <ion-item button>
+        <ion-icon name="shield-checkmark-outline" slot="start"></ion-icon>
+        <ion-label>Security</ion-label>
+        <ion-icon name="chevron-forward-outline" slot="end"></ion-icon>
+      </ion-item>
+      <ion-item button>
+        <ion-icon name="notifications-outline" slot="start"></ion-icon>
+        <ion-label>Notifications</ion-label>
+        <ion-icon name="chevron-forward-outline" slot="end"></ion-icon>
+      </ion-item>
+      <ion-item button>
+        <ion-icon name="wallet-outline" slot="start"></ion-icon>
+        <ion-label>Preferences</ion-label>
+        <ion-icon name="chevron-forward-outline" slot="end"></ion-icon>
+      </ion-item>
+      <ion-item button>
+        <ion-icon name="help-circle-outline" slot="start"></ion-icon>
+        <ion-label>Support</ion-label>
+        <ion-icon name="chevron-forward-outline" slot="end"></ion-icon>
+      </ion-item>
+    </div>
+  </div>
+</ion-content>

@@ -9,12 +9,48 @@
     <ion-title class="store-name">AutoElite</ion-title>
 
     <ion-buttons slot="end">
-      <ion-button fill="clear" size="large" class="notification-btn" (click)="showNotifications()">
+      <ion-button fill="clear" size="large" class="notification-btn" (click)="showNotifications($event)">
         <ion-icon name="notifications-outline"></ion-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
+
+<div class="notification-drawer-backdrop" [class.visible]="isNotificationsOpen" (click)="dismissNotifications()"></div>
+<aside class="notification-drawer" [class.open]="isNotificationsOpen">
+  <div class="notification-drawer__panel">
+    <div class="notification-drawer__header">
+      <div>
+        <p class="notification-drawer__eyebrow">Your alerts</p>
+        <h3>Notifications</h3>
+      </div>
+      <ion-button fill="clear" size="small" (click)="clearNotifications()">Clear all</ion-button>
+    </div>
+
+    <ion-list lines="none">
+      <ion-item
+        lines="none"
+        button
+        *ngFor="let notification of notificationItems"
+        (click)="handleNotificationClick(notification)"
+        [class.active]="selectedNotification?.id === notification.id"
+      >
+        <ion-icon slot="start" [name]="notification.icon" class="notification-icon"></ion-icon>
+        <div class="notification-popover__text">
+          <span class="notification-popover__title">{{ notification.title }}</span>
+          <span class="notification-popover__description">{{ notification.description }}</span>
+        </div>
+        <ion-note slot="end" class="notification-popover__time">{{ notification.time }}</ion-note>
+      </ion-item>
+    </ion-list>
+
+    <div class="notification-drawer__detail" *ngIf="selectedNotification">
+      <h3>{{ selectedNotification.title }}</h3>
+      <p>{{ selectedNotification.details }}</p>
+      <span>{{ selectedNotification.time }} · AutoElite</span>
+    </div>
+  </div>
+</aside>
 
 <ion-content [fullscreen]="true" [scrollY]="true">
   <div class="app-container">
@@ -28,10 +64,105 @@
         class="search-bar"
       >
       </ion-searchbar>
-      <ion-button fill="clear" class="filter-btn">
+      <ion-button fill="clear" class="filter-btn" (click)="toggleFilterPanel($event)">
         <ion-icon name="filter-outline" color="dark"></ion-icon>
       </ion-button>
     </div>
+
+    <div class="filter-overlay" *ngIf="isFilterOpen" (click)="dismissFilterPanel()">
+      <section class="filter-sheet" role="dialog" aria-label="Filter cars" (click)="$event.stopPropagation()">
+        <header class="filter-sheet__header">
+          <div>
+            <p class="filter-sheet__eyebrow">Filters</p>
+            <h3>Filter Cars</h3>
+          </div>
+          <ion-button fill="clear" size="small" (click)="dismissFilterPanel()" class="filter-close">
+            <ion-icon name="close-outline"></ion-icon>
+          </ion-button>
+        </header>
+
+        <div class="filter-sheet__content">
+          <section class="filter-section">
+            <div class="filter-section__heading">
+              <h4>Brand</h4>
+              <p>Search and multi-select</p>
+            </div>
+            <ion-searchbar
+              [(ngModel)]="brandSearchQuery"
+              placeholder="Search brands..."
+              [debounce]="250"
+              show-cancel-button="never"
+            ></ion-searchbar>
+            <ion-list lines="full" class="brand-selection-list">
+              <ion-item
+                button
+                detail="false"
+                *ngFor="let brand of filteredBrandOptions"
+                (click)="toggleBrandSelection(brand)"
+                [class.selected]="isBrandSelected(brand)"
+              >
+                <ion-checkbox slot="start" [checked]="isBrandSelected(brand)"></ion-checkbox>
+                <ion-label>{{ brand }}</ion-label>
+              </ion-item>
+            </ion-list>
+          </section>
+
+          <section class="filter-section">
+            <div class="filter-section__heading">
+              <h4>Car Type</h4>
+              <p>Tap to select one or more</p>
+            </div>
+            <div class="type-chip-row">
+              <ion-chip
+                *ngFor="let type of carTypeOptions"
+                [class.active]="isCarTypeSelected(type)"
+                (click)="toggleCarTypeSelection(type)"
+              >
+                <ion-label>{{ type }}</ion-label>
+              </ion-chip>
+            </div>
+          </section>
+
+          <section class="filter-section">
+            <div class="filter-section__heading">
+              <h4>Price Range</h4>
+            </div>
+            <ion-range
+              dualKnobs="true"
+              [min]="priceBounds.min"
+              [max]="priceBounds.max"
+              [pin]="true"
+              [value]="pendingPriceRange"
+              (ionChange)="updatePriceRange($event.detail.value)"
+            ></ion-range>
+            <div class="range-inputs">
+              <ion-item lines="none">
+                <ion-label position="stacked">Min</ion-label>
+                <ion-input
+                  type="number"
+                  [value]="pendingPriceRange.lower"
+                  (ionInput)="updatePendingPrice('lower', $event.detail.value)"
+                ></ion-input>
+              </ion-item>
+              <ion-item lines="none">
+                <ion-label position="stacked">Max</ion-label>
+                <ion-input
+                  type="number"
+                  [value]="pendingPriceRange.upper"
+                  (ionInput)="updatePendingPrice('upper', $event.detail.value)"
+                ></ion-input>
+              </ion-item>
+            </div>
+          </section>
+        </div>
+
+        <footer class="filter-sheet__footer">
+          <ion-button fill="outline" size="small" (click)="resetFilters($event)">Reset</ion-button>
+          <ion-button expand="block" (click)="applyFilterChanges()">Apply Filters</ion-button>
+        </footer>
+      </section>
+    </div>
+
 
     <!-- Slideshow -->
     <div class="slideshow-container">
@@ -88,22 +219,35 @@
           ></ion-icon>
         </ion-button>
       </div>
-      <div class="brand-filter-summary" *ngIf="activeBrand">
-        <span>Showing {{ activeBrand }} models</span>
+      <div class="brand-filter-summary" *ngIf="hasActiveFilters">
+        <span>
+          <ng-container *ngIf="activeBrands.length">
+            Showing {{ activeBrands.join(', ') }} models
+          </ng-container>
+          <ng-container *ngIf="!activeBrands.length && activeCarTypes.length">
+            Showing selected {{ activeCarTypes.join(', ') }} body types
+          </ng-container>
+          <ng-container
+            *ngIf="!activeBrands.length && !activeCarTypes.length && isPriceFilterActive"
+          >
+            Showing cars between ${{ activePriceRange.lower | number }} and
+            ${{ activePriceRange.upper | number }}
+          </ng-container>
+        </span>
         <ion-button
           size="small"
           fill="clear"
           class="clear-filter-btn"
-          (click)="clearBrandFilter()"
+          (click)="resetFilters($event)"
         >
-          Show all cars
+          Reset filters
         </ion-button>
       </div>
       <div class="brand-grid">
         <div
           class="brand-card"
           *ngFor="let brand of displayedBrands"
-          [class.active]="activeBrand === brand.name"
+          [class.active]="activeBrands.includes(brand.name)"
           (click)="onBrandClick(brand.name)"
         >
           <div class="brand-logo">

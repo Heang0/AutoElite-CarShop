@@ -12,7 +12,10 @@ import {
   IonButton,
   IonIcon,
   IonImg,
-  IonButtons
+  IonButtons,
+  IonList,
+  IonItem,
+  IonNote
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
@@ -27,6 +30,7 @@ import {
   personOutline
 } from 'ionicons/icons';
 import { FavoriteService, Car } from '../services/favorite.service';
+import { NotificationItem, NOTIFICATION_ITEMS } from '../data/notifications.data';
 
 @Component({
   selector: 'app-favorites',
@@ -45,13 +49,19 @@ import { FavoriteService, Car } from '../services/favorite.service';
     IonButton,
     IonIcon,
     IonImg,
-    IonButtons
+    IonButtons,
+    IonList,
+    IonItem,
+    IonNote
   ]
 })
 export class FavoritesPage {
   allCars: Car[] = [];
   favoriteCars: Car[] = [];
   activeTab: string = 'favorites';
+  isNotificationsOpen: boolean = false;
+  notificationItems: NotificationItem[] = NOTIFICATION_ITEMS;
+  selectedNotification: NotificationItem | null = null;
 
   private router = inject(Router);
   private favoriteService = inject(FavoriteService);
@@ -101,9 +111,25 @@ export class FavoritesPage {
     alert('Menu functionality would open here');
   }
 
-  showNotifications() {
-    console.log('Notifications button clicked');
-    alert('Notifications would show here');
+  showNotifications(event?: Event) {
+    event?.stopPropagation();
+    this.isNotificationsOpen = true;
+    if (!this.selectedNotification && this.notificationItems.length) {
+      this.selectedNotification = this.notificationItems[0];
+    }
+  }
+
+  dismissNotifications() {
+    this.isNotificationsOpen = false;
+  }
+
+  handleNotificationClick(notification: NotificationItem) {
+    this.selectedNotification = notification;
+  }
+
+  clearNotifications() {
+    this.isNotificationsOpen = false;
+    this.selectedNotification = null;
   }
 
   onTabChange(tabName: string) {
