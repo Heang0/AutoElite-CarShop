@@ -26,8 +26,9 @@ export const environment = {
   // ⚠️ WARNING: Admin credentials should NEVER be in client-side code for production!
   // This is for development/demo purposes only.
   // For production, implement proper backend authentication with Firebase Admin SDK.
-  adminEmail: 'hakchhaiheang0@gmail.com',
-  adminPassword: 'CHANGE_THIS_IN_PRODUCTION', // Placeholder - use environment.local.ts for real value
+  // For local development with real credentials, use environment.local.ts (gitignored)
+  adminEmail: 'admin@example.com',
+  adminPassword: 'CHANGE_THIS_IN_PRODUCTION', // Use environment.local.ts for real value
   cloudinary: {
     cloudName: 'dpaq3ova2',
     uploadPreset: 'car-app-preset'
