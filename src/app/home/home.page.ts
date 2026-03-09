@@ -224,7 +224,11 @@ export class HomePage implements OnInit, OnDestroy {
       'flash-outline': flashOutline,
       'chevron-down-outline': chevronDownOutline,
       'chevron-back-outline': chevronBackOutline,
-      'chevron-forward-outline': chevronForwardOutline
+      'chevron-forward-outline': chevronForwardOutline,
+      'time-outline': timeOutline,
+      'cash-outline': cashOutline,
+      'settings-outline': settingsOutline,
+      'help-circle-outline': helpCircleOutline
     });
   }
 
