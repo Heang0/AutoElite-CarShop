@@ -142,9 +142,25 @@ export class CarApiService {
       image:
         raw.image?.trim() ||
         'https://images.unsplash.com/photo-1542362567-b07e54358753?auto=format&fit=crop&w=1000&q=80',
+      gallery: raw.gallery || [],
       isFavorite: Boolean(raw.isFavorite),
       features,
-      type: raw.type?.trim() || 'Sedan'
+      type: raw.type?.trim() || 'Sedan',
+      // Additional details
+      exteriorColor: raw.exteriorColor?.trim() || '',
+      interiorColor: raw.interiorColor?.trim() || '',
+      engine: raw.engine?.trim() || '',
+      drivetrain: raw.drivetrain?.trim() || '',
+      horsepower: Number(raw.horsepower ?? 0),
+      seats: Number(raw.seats ?? 5),
+      vin: raw.vin?.trim() || '',
+      stockNumber: raw.stockNumber?.trim() || '',
+      condition: raw.condition?.trim() || 'Used',
+      bodyStyle: raw.bodyStyle?.trim() || '',
+      doors: Number(raw.doors ?? 4),
+      mpgCity: raw.mpgCity || 0,
+      mpgHighway: raw.mpgHighway || 0,
+      mpgCombined: raw.mpgCombined || 0
     };
   }
 }
