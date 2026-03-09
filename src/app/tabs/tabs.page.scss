@@ -1,7 +1,57 @@
-ion-tabs > ion-router-outlet {
-  pointer-events: none;
+:host {
+  display: block;
+  min-height: 100%;
 }
 
-ion-tabs > ion-router-outlet > * {
-  pointer-events: auto;
+.tabs-shell {
+  min-height: 100%;
+}
+
+.tabs-nav {
+  position: fixed;
+  left: 14px;
+  right: 14px;
+  bottom: calc(10px + env(safe-area-inset-bottom));
+  z-index: 200;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 4px;
+  padding: 6px 4px;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  box-shadow: 0 14px 28px rgba(15, 23, 42, 0.18);
+  backdrop-filter: blur(12px);
+}
+
+.tabs-nav__item {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  border-radius: 16px;
+  min-height: 52px;
+  padding: 6px 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  color: #5b6472;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.tabs-nav__item ion-icon {
+  font-size: 22px;
+}
+
+.tabs-nav__item.is-active {
+  background: rgba(17, 24, 39, 0.08);
+  color: #111827;
+}
+
+.tabs-nav__item:active {
+  transform: scale(0.98);
 }

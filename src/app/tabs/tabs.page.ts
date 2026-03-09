@@ -1,37 +1,78 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { IonicModule } from '@ionic/angular';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
+import { addIcons } from 'ionicons';
+import { home, compassOutline, heartOutline, personOutline } from 'ionicons/icons';
 
 @Component({
   selector: 'app-tabs',
   template: `
-    <ion-tabs>
+    <div class="tabs-shell">
       <ion-router-outlet></ion-router-outlet>
-      <ion-tab-bar slot="bottom">
-        <ion-tab-button tab="home" href="/tabs/home">
+    </div>
+
+    <nav class="tabs-nav" aria-label="Primary">
+      <button
+        type="button"
+        class="tabs-nav__item"
+        [class.is-active]="isActive('/tabs/home')"
+        (click)="navigate('/tabs/home')"
+      >
           <ion-icon name="home"></ion-icon>
-          <ion-label>Home</ion-label>
-        </ion-tab-button>
+          <span>Home</span>
+      </button>
 
-        <ion-tab-button tab="explore" href="/tabs/explore">
+      <button
+        type="button"
+        class="tabs-nav__item"
+        [class.is-active]="isActive('/tabs/explore')"
+        (click)="navigate('/tabs/explore')"
+      >
           <ion-icon name="compass-outline"></ion-icon>
-          <ion-label>Explore</ion-label>
-        </ion-tab-button>
+          <span>Explore</span>
+      </button>
 
-        <ion-tab-button tab="favorites" href="/tabs/favorites">
+      <button
+        type="button"
+        class="tabs-nav__item"
+        [class.is-active]="isActive('/tabs/favorites')"
+        (click)="navigate('/tabs/favorites')"
+      >
           <ion-icon name="heart-outline"></ion-icon>
-          <ion-label>Favorites</ion-label>
-        </ion-tab-button>
+          <span>Favorites</span>
+      </button>
 
-        <ion-tab-button tab="account" href="/tabs/account">
+      <button
+        type="button"
+        class="tabs-nav__item"
+        [class.is-active]="isActive('/tabs/account')"
+        (click)="navigate('/tabs/account')"
+      >
           <ion-icon name="person-outline"></ion-icon>
-          <ion-label>Account</ion-label>
-        </ion-tab-button>
-      </ion-tab-bar>
-    </ion-tabs>
+          <span>Account</span>
+      </button>
+    </nav>
   `,
+  styleUrls: ['./tabs.page.scss'],
   standalone: true,
-  imports: [IonicModule, RouterModule],
-  styleUrls: ['./tabs.page.scss']
+  imports: [IonicModule, RouterModule]
 })
-export class TabsPage {}
+export class TabsPage {
+  private readonly router = inject(Router);
+
+  constructor() {
+    addIcons({ home, compassOutline, heartOutline, personOutline });
+  }
+
+  navigate(path: string): void {
+    if (this.router.url === path) {
+      return;
+    }
+
+    void this.router.navigateByUrl(path);
+  }
+
+  isActive(path: string): boolean {
+    return this.router.url === path;
+  }
+}

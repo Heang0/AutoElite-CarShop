@@ -16,16 +16,19 @@
 </ion-header>
 
 <ion-content [fullscreen]="true">
-  <div class="car-detail-container">
+  <div class="detail-state" *ngIf="isLoading">Loading vehicle details...</div>
+  <div class="detail-state error" *ngIf="!isLoading && loadError">{{ loadError }}</div>
+
+  <div class="car-detail-container" *ngIf="car">
     <!-- Hero Image -->
     <div class="hero-image">
-      <ion-img [src]="car?.image" [alt]="car?.name"></ion-img>
+      <ion-img [src]="car.image" [alt]="car.name"></ion-img>
     </div>
 
     <!-- Price Section -->
     <div class="price-section">
-      <div class="price">${{ car?.price | number:'1.0':'en-US' }}</div>
-      <div class="mileage">{{ car?.year }} • {{ car?.mileage | number }} miles</div>
+      <div class="price">${{ car.price | number:'1.0':'en-US' }}</div>
+      <div class="mileage">{{ car.year }} • {{ car.mileage | number }} miles</div>
     </div>
 
     <!-- Car Info -->
@@ -33,27 +36,27 @@
       <div class="info-row">
         <div class="info-item">
           <ion-icon name="calendar-number-outline"></ion-icon>
-          <span>{{ car?.year }}</span>
+          <span>{{ car.year }}</span>
         </div>
         <div class="info-item">
           <ion-icon name="navigate-outline"></ion-icon>
-          <span>{{ car?.mileage | number }} miles</span>
+          <span>{{ car.mileage | number }} miles</span>
         </div>
         <div class="info-item">
           <ion-icon name="speedometer-outline"></ion-icon>
-          <span>{{ car?.transmission }}</span>
+          <span>{{ car.transmission }}</span>
         </div>
         <div class="info-item">
           <ion-icon name="car-sport-outline"></ion-icon>
-          <span>{{ car?.fuelType }}</span>
+          <span>{{ car.fuelType }}</span>
         </div>
       </div>
     </div>
 
     <!-- Description -->
-    <div class="section" *ngIf="car?.description">
+    <div class="section" *ngIf="car.description">
       <h2>About this car</h2>
-      <p>{{ car?.description }}</p>
+      <p>{{ car.description }}</p>
     </div>
 
     <!-- Features -->
@@ -69,10 +72,10 @@
     </div>
 
     <!-- Specifications -->
-    <div class="section" *ngIf="car?.specifications?.length">
+    <div class="section" *ngIf="car.specifications?.length">
       <h2>Specifications</h2>
       <div class="specs-list">
-        <div class="spec-item" *ngFor="let spec of car?.specifications">
+        <div class="spec-item" *ngFor="let spec of car.specifications">
           <span class="spec-label">{{ spec.label }}</span>
           <span class="spec-value">{{ spec.value }}</span>
         </div>
@@ -107,11 +110,11 @@
     </div>
 
     <!-- Image Gallery -->
-    <div class="section" *ngIf="car?.gallery?.length">
+    <div class="section" *ngIf="car.gallery?.length">
       <h2>Gallery</h2>
       <div class="gallery">
         <ion-img
-          *ngFor="let img of car?.gallery"
+          *ngFor="let img of car.gallery"
           [src]="img"
           class="gallery-item"
         ></ion-img>

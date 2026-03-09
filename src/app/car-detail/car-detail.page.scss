@@ -5,6 +5,20 @@
   color: #000000;
 }
 
+.detail-state {
+  margin: 20px 16px 0;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: #e2e8f0;
+  color: #0f172a;
+  font-weight: 600;
+}
+
+.detail-state.error {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
 ion-content {
   --background: #ffffff;
   background: #ffffff;

@@ -20,6 +20,7 @@ import {
 import { addIcons } from 'ionicons';
 import {
   heart,
+  heartOutline,
   shareSocialOutline,
   navigateOutline,
   star,
@@ -29,8 +30,8 @@ import {
   cartOutline,
   personOutline
 } from 'ionicons/icons';
-import { FavoriteService, Car } from '../services/favorite.service';
-import { NotificationItem, NOTIFICATION_ITEMS } from '../data/notifications.data';
+import { FavoriteService, type Car } from '../services/favorite.service';
+import { type NotificationItem, NOTIFICATION_ITEMS } from '../data/notifications.data';
 
 @Component({
   selector: 'app-favorites',
@@ -56,10 +57,9 @@ import { NotificationItem, NOTIFICATION_ITEMS } from '../data/notifications.data
   ]
 })
 export class FavoritesPage {
-  allCars: Car[] = [];
   favoriteCars: Car[] = [];
-  activeTab: string = 'favorites';
-  isNotificationsOpen: boolean = false;
+  activeTab = 'favorites';
+  isNotificationsOpen = false;
   notificationItems: NotificationItem[] = NOTIFICATION_ITEMS;
   selectedNotification: NotificationItem | null = null;
 
@@ -67,51 +67,49 @@ export class FavoritesPage {
   private favoriteService = inject(FavoriteService);
 
   constructor() {
-    // Register icons
     addIcons({
-      'heart': heart,
+      heart,
+      'heart-outline': heartOutline,
       'share-social-outline': shareSocialOutline,
       'navigate-outline': navigateOutline,
-      'star': star,
+      star,
       'star-outline': starOutline,
-      'home': home,
+      home,
       'compass-outline': compassOutline,
       'cart-outline': cartOutline,
       'person-outline': personOutline
     });
 
-    // Load favorites from service
     this.loadFavorites();
   }
 
-  loadFavorites() {
-    // Get actual favorites from service
+  ionViewWillEnter(): void {
+    this.loadFavorites();
+  }
+
+  loadFavorites(): void {
     this.favoriteCars = this.favoriteService.getFavorites();
   }
 
-  toggleFavorite(car: Car, event: Event) {
+  toggleFavorite(car: Car, event: Event): void {
     event.stopPropagation();
     this.favoriteService.toggleFavorite(car);
-
-    // Reload favorites to update the list
     this.loadFavorites();
 
-    // Add haptic feedback on favorite
     if ('vibrate' in navigator) {
       navigator.vibrate(10);
     }
   }
 
-  onCarClick(car: Car) {
-    this.router.navigate(['/car', car.id], { state: { car: car } });
+  onCarClick(car: Car): void {
+    this.router.navigate(['/car', car.id], { state: { car } });
   }
 
-  openMenu() {
+  openMenu(): void {
     console.log('Menu button clicked');
-    alert('Menu functionality would open here');
   }
 
-  showNotifications(event?: Event) {
+  showNotifications(event?: Event): void {
     event?.stopPropagation();
     this.isNotificationsOpen = true;
     if (!this.selectedNotification && this.notificationItems.length) {
@@ -119,43 +117,44 @@ export class FavoritesPage {
     }
   }
 
-  dismissNotifications() {
+  dismissNotifications(): void {
     this.isNotificationsOpen = false;
   }
 
-  handleNotificationClick(notification: NotificationItem) {
+  handleNotificationClick(notification: NotificationItem): void {
     this.selectedNotification = notification;
   }
 
-  clearNotifications() {
+  clearNotifications(): void {
     this.isNotificationsOpen = false;
     this.selectedNotification = null;
   }
 
-  onTabChange(tabName: string) {
+  onTabChange(tabName: string): void {
     this.activeTab = tabName;
-    console.log('Active tab changed to:', tabName);
 
-    switch(tabName) {
+    switch (tabName) {
       case 'home':
-        this.router.navigate(['/home']);
+        this.router.navigate(['/tabs/home']);
         break;
       case 'explore':
-        this.router.navigate(['/explore']);
+        this.router.navigate(['/tabs/explore']);
         break;
       case 'favorites':
-        // Already on favorites page
+        this.router.navigate(['/tabs/favorites']);
         break;
       case 'account':
-        // For now, stay on favorites - you'll update this later
+        this.router.navigate(['/tabs/account']);
         break;
       default:
-        this.router.navigate(['/home']);
+        this.router.navigate(['/tabs/home']);
         break;
     }
   }
 
   getStars(rating: number): boolean[] {
-    return Array(5).fill(false).map((_, i) => i < rating);
+    return Array(5)
+      .fill(false)
+      .map((_, i) => i < rating);
   }
 }

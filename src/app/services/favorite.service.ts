@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 
 export interface Car {
-  id: number;
+  id: string | number;
   name: string;
   brand: string;
   model: string;
@@ -12,9 +12,25 @@ export interface Car {
   transmission: string;
   rating: number;
   image: string;
+  gallery?: string[];  // Optional gallery images (up to 4)
   isFavorite: boolean;
   features: string[];
   type: string;
+  // Additional details for car detail page
+  exteriorColor?: string;
+  interiorColor?: string;
+  engine?: string;
+  drivetrain?: string;
+  mpgCity?: number;
+  mpgHighway?: number;
+  mpgCombined?: number;
+  horsepower?: number;
+  seats?: number;
+  vin?: string;
+  stockNumber?: string;
+  condition?: string;
+  bodyStyle?: string;
+  doors?: number;
 }
 
 @Injectable({
@@ -44,7 +60,7 @@ export class FavoriteService {
   }
 
   // Check if a car is favorited
-  isFavorite(carId: number): boolean {
+  isFavorite(carId: string | number): boolean {
     return this.favorites.some(fav => fav.id === carId);
   }
 
@@ -67,7 +83,7 @@ export class FavoriteService {
   }
 
   // Remove a specific car from favorites
-  removeFromFavorites(carId: number): void {
+  removeFromFavorites(carId: string | number): void {
     const index = this.favorites.findIndex(fav => fav.id === carId);
     if (index > -1) {
       this.favorites.splice(index, 1);

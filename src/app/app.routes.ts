@@ -12,6 +12,61 @@ export const routes: Routes = [
     loadComponent: () => import('./intro/intro.page').then((m) => m.IntroPage),
   },
   {
+    path: 'auth',
+    loadComponent: () => import('./auth/auth.page').then((m) => m.AuthPage),
+  },
+  {
+    path: 'admin-login',
+    loadComponent: () => import('./admin/pages/admin-login/admin-login.page').then((m) => m.AdminLoginPage),
+  },
+  {
+    path: 'admin',
+    loadComponent: () => import('./admin/layout/admin-layout.component').then((m) => m.AdminLayoutComponent),
+    children: [
+      {
+        path: 'dashboard',
+        loadComponent: () => import('./admin/pages/admin-dashboard/admin-dashboard.page').then((m) => m.AdminDashboardPage),
+      },
+      {
+        path: 'add-car',
+        loadComponent: () => import('./admin/pages/admin-add-car/admin-add-car.page').then((m) => m.AdminAddCarPage),
+      },
+      {
+        path: 'brands',
+        loadComponent: () => import('./admin/pages/admin-brands/admin-brands.page').then((m) => m.AdminBrandsPage),
+      },
+      {
+        path: 'categories',
+        loadComponent: () => import('./admin/pages/admin-categories/admin-categories.page').then((m) => m.AdminCategoriesPage),
+      },
+      {
+        path: 'cars',
+        loadComponent: () => import('./admin/pages/admin-cars/admin-cars.page').then((m) => m.AdminCarsPage),
+      },
+      {
+        path: '',
+        redirectTo: 'dashboard',
+        pathMatch: 'full',
+      },
+    ],
+  },
+  {
+    path: 'compare-cars',
+    loadComponent: () => import('./compare-cars/compare-cars.page').then((m) => m.CompareCarsPage),
+  },
+  {
+    path: 'recently-viewed',
+    loadComponent: () => import('./recently-viewed/recently-viewed.page').then((m) => m.RecentlyViewedPage),
+  },
+  {
+    path: 'trade-in',
+    loadComponent: () => import('./trade-in/trade-in.page').then((m) => m.TradeInEstimatorPage),
+  },
+  {
+    path: 'payment/:id',
+    loadComponent: () => import('./payment/payment.page').then((m) => m.PaymentPage),
+  },
+  {
     path: 'tabs',
     component: TabsPage,
     children: [

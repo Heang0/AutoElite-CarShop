@@ -1,0 +1,25 @@
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyB56-_qhArqsBRNv58zM286Gnf-dOPMnNE",
+  authDomain: "ionic-car-app.firebaseapp.com",
+  projectId: "ionic-car-app",
+  storageBucket: "ionic-car-app.firebasestorage.app",
+  messagingSenderId: "32087788698",
+  appId: "1:32087788698:web:270df2cec09f6dcfa56323",
+  measurementId: "G-D56HWJJLX5"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+
+
+
+https://www.edmunds.com/

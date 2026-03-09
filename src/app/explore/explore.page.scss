@@ -271,6 +271,21 @@
     }
   }
 
+.status-banner {
+  margin: 0 0 12px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: #e2e8f0;
+  color: #0f172a;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.status-banner.error {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
 .filter-overlay {
   position: fixed;
   inset: 0;
@@ -625,6 +640,17 @@ ion-range {
         }
       }
     }
+  }
+
+  .empty-state {
+    margin-top: 14px;
+    padding: 14px;
+    border-radius: 14px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    color: #475569;
+    font-size: 14px;
+    text-align: center;
   }
 }
 

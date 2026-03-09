@@ -68,6 +68,8 @@
         <ion-icon name="filter-outline" color="dark"></ion-icon>
       </ion-button>
     </div>
+    <div class="status-banner" *ngIf="isLoadingCars">Loading inventory...</div>
+    <div class="status-banner error" *ngIf="carsError">{{ carsError }}</div>
 
     <div class="filter-overlay" *ngIf="isFilterOpen" (click)="dismissFilterPanel()">
       <section class="filter-sheet" role="dialog" aria-label="Filter cars" (click)="$event.stopPropagation()">
@@ -318,6 +320,9 @@
             </div>
           </ion-card-content>
         </ion-card>
+      </div>
+      <div class="empty-state" *ngIf="!isLoadingCars && cars.length === 0">
+        No cars match your filters right now.
       </div>
     </div>
   </div>

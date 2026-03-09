@@ -1,70 +1,73 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import {
-  IonContent,
-  IonHeader,
-  IonToolbar,
-  IonTitle,
-  IonButtons,
-  IonButton,
-  IonIcon,
-  IonList,
-  IonItem,
-  IonNote,
-  IonLabel
-} from '@ionic/angular/standalone';
-import { NotificationItem, NOTIFICATION_ITEMS } from '../data/notifications.data';
+import { Router } from '@angular/router';
+import { IonicModule } from '@ionic/angular';
+import { addIcons } from 'ionicons';
+import { personOutline, logOutOutline, heartOutline, timeOutline, calendarOutline, cashOutline, cameraOutline, chevronForwardOutline } from 'ionicons/icons';
+import { FirestoreService } from '../services/firestore.service';
+import { FavoriteService } from '../services/favorite.service';
+import { CloudinaryService } from '../services/cloudinary.service';
 
 @Component({
   selector: 'app-account',
   templateUrl: './account.page.html',
   styleUrls: ['./account.page.scss'],
   standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    IonContent,
-    IonHeader,
-    IonToolbar,
-    IonTitle,
-    IonButtons,
-    IonButton,
-    IonIcon,
-    IonList,
-    IonItem,
-    IonNote,
-    IonLabel
-  ]
+  imports: [CommonModule, IonicModule]
 })
-export class AccountPage {
-  isNotificationsOpen: boolean = false;
-  notificationItems: NotificationItem[] = NOTIFICATION_ITEMS;
-  selectedNotification: NotificationItem | null = null;
+export class AccountPage implements OnInit {
+  isLoggedIn = false;
+  userEmail = '';
+  photoUrl = '';
+  initials = 'U';
+  memberSince = '';
+  savedCount = 0;
+  viewedCount = 0;
+  drivesCount = 0;
+  showToast = false;
+  toastMsg = '';
+  toastColor = 'success';
 
-  openMenu() {
-    console.log('Menu button clicked');
-    alert('Menu functionality would open here');
+  private fs = inject(FirestoreService);
+  private fav = inject(FavoriteService);
+  private cloud = inject(CloudinaryService);
+  private router = inject(Router);
+
+  ngOnInit() {
+    (this.fs as any).onAuthStateChanged((u: any) => {
+      this.isLoggedIn = !!u;
+      if (u) {
+        this.userEmail = u.email;
+        this.initials = u.email.charAt(0).toUpperCase();
+        this.memberSince = new Date(u.metadata.creationTime).toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+        this.savedCount = (this.fav as any).getFavorites().length;
+        this.photoUrl = localStorage.getItem('photo_' + u.uid) || '';
+      }
+    });
   }
 
-  showNotifications(event?: Event) {
-    event?.stopPropagation();
-    this.isNotificationsOpen = true;
-    if (!this.selectedNotification && this.notificationItems.length) {
-      this.selectedNotification = this.notificationItems[0];
-    }
+  goToAuth() {
+    this.router.navigate(['/auth']);
   }
 
-  dismissNotifications() {
-    this.isNotificationsOpen = false;
+  goTo(path: string) {
+    this.router.navigate([path]);
   }
 
-  handleNotificationClick(notification: NotificationItem) {
-    this.selectedNotification = notification;
+  doLogout() {
+    (this.fs as any).signOut().then(() => {
+      this.isLoggedIn = false;
+      this.userEmail = '';
+      this.photoUrl = '';
+      this.toastMsg = 'Signed out';
+      this.toastColor = 'success';
+      this.showToast = true;
+    });
   }
 
-  clearNotifications() {
-    this.isNotificationsOpen = false;
-    this.selectedNotification = null;
+  openUpload() {
+    this.toastMsg = 'Photo upload - coming soon!';
+    this.toastColor = 'warning';
+    this.showToast = true;
   }
 }

@@ -1,158 +1,84 @@
-/*
- * App Global CSS
- * ----------------------------------------------------------------------------
- * Put style rules here that you want to apply globally. These styles are for
- * the entire app and not just one component. Additionally, this file can be
- * used as an entry point to import other CSS/Sass files to be included in the
- * output CSS.
- * For more information on global stylesheets, visit the documentation:
- * https://ionicframework.com/docs/layout/global-stylesheets
- */
-
-/* Core CSS required for Ionic components to work properly */
 @import "@ionic/angular/css/core.css";
-
-/* Basic CSS for apps built with Ionic */
 @import "@ionic/angular/css/normalize.css";
 @import "@ionic/angular/css/structure.css";
 @import "@ionic/angular/css/typography.css";
 @import "@ionic/angular/css/display.css";
-
-/* Optional CSS utils that can be commented out */
 @import "@ionic/angular/css/padding.css";
 @import "@ionic/angular/css/float-elements.css";
 @import "@ionic/angular/css/text-alignment.css";
 @import "@ionic/angular/css/text-transformation.css";
 @import "@ionic/angular/css/flex-utils.css";
+@import url("https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap");
 
-/**
- * Ionic Dark Mode
- * -----------------------------------------------------
- * For more info, please see:
- * https://ionicframework.com/docs/theming/dark-mode
- */
-
-/* @import "@ionic/angular/css/palettes/dark.always.css"; */
-/* @import "@ionic/angular/css/palettes/dark.class.css"; */
-/* @import '@ionic/angular/css/palettes/dark.system.css'; */
-
-/* Professional Car Shop Color Variables - Limited Palette */
 :root {
-  /* Primary Colors - Professional Blue */
-  --ion-color-primary: #003366;
-  --ion-color-primary-rgb: 0, 51, 102;
+  --ion-color-primary: #1f3a5f;
+  --ion-color-primary-rgb: 31, 58, 95;
   --ion-color-primary-contrast: #ffffff;
   --ion-color-primary-contrast-rgb: 255, 255, 255;
-  --ion-color-primary-shade: #002b57;
-  --ion-color-primary-tint: #1a4770;
+  --ion-color-primary-shade: #1b3354;
+  --ion-color-primary-tint: #35506f;
 
-  /* Secondary Colors - Silver Gray */
-  --ion-color-secondary: #708090;
-  --ion-color-secondary-rgb: 112, 128, 144;
+  --ion-color-secondary: #486581;
+  --ion-color-secondary-rgb: 72, 101, 129;
   --ion-color-secondary-contrast: #ffffff;
   --ion-color-secondary-contrast-rgb: 255, 255, 255;
-  --ion-color-secondary-shade: #627180;
-  --ion-color-secondary-tint: #7d8c99;
+  --ion-color-secondary-shade: #3f5971;
+  --ion-color-secondary-tint: #5a7490;
 
-  /* Accent Colors - Red */
-  --ion-color-tertiary: #c00000;
-  --ion-color-tertiary-rgb: 192, 0, 0;
+  --ion-color-tertiary: #c14953;
+  --ion-color-tertiary-rgb: 193, 73, 83;
   --ion-color-tertiary-contrast: #ffffff;
   --ion-color-tertiary-contrast-rgb: 255, 255, 255;
-  --ion-color-tertiary-shade: #aa0000;
-  --ion-color-tertiary-tint: #cc1a1a;
+  --ion-color-tertiary-shade: #aa4049;
+  --ion-color-tertiary-tint: #c75b64;
 
-  /* Success, Warning, Danger */
-  --ion-color-success: #2dd36f;
-  --ion-color-warning: #ffc409;
-  --ion-color-danger: #eb445a;
+  --ion-color-success: #0f8b8d;
+  --ion-color-warning: #f59f00;
+  --ion-color-danger: #d94841;
+  --ion-color-dark: #0f172a;
+  --ion-color-medium: #64748b;
+  --ion-color-light: #f8fafc;
 
-  /* Light/Dark variants */
-  --ion-color-light: #f8f8f8;
-  --ion-color-medium: #92949c;
-  --ion-color-dark: #1c1c1c;
+  --app-surface: #ffffff;
+  --app-surface-soft: #f8fafc;
+  --app-border: rgba(15, 23, 42, 0.1);
+  --app-shadow-sm: 0 4px 12px rgba(15, 23, 42, 0.08);
+  --app-shadow-md: 0 14px 30px rgba(15, 23, 42, 0.12);
 }
 
-/* Import Poppins Font */
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
-
-/* Force light mode */
+html,
 body {
-  --ion-color-primary: #003366;
-  --ion-color-primary-rgb: 0, 51, 102;
-  --ion-color-primary-contrast: #ffffff;
-  --ion-color-primary-contrast-rgb: 255, 255, 255;
-  --ion-color-primary-shade: #002b57;
-  --ion-color-primary-tint: #1a4770;
-  --ion-font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-  font-feature-settings: 'tnum';
-  color-scheme: light !important;
+  color-scheme: light;
 }
 
-/* Override any potential dark mode settings */
-html {
-  color-scheme: light !important;
+body {
+  --ion-font-family: "Manrope", "Segoe UI", sans-serif;
+  font-feature-settings: "tnum";
+  background:
+    radial-gradient(circle at 5% -10%, rgba(31, 58, 95, 0.16), transparent 34%),
+    radial-gradient(circle at 95% -10%, rgba(193, 73, 83, 0.11), transparent 34%),
+    #f1f5f9;
+  color: #0f172a;
 }
 
 ion-app,
-ion-content,
-.app-root {
-  --background: #ffffff !important;
-  background: #ffffff !important;
+ion-content {
+  --background: transparent;
+}
+
+ion-card,
+.panel-surface {
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+  box-shadow: var(--app-shadow-sm);
+}
+
+ion-button {
+  text-transform: none;
+  letter-spacing: 0.01em;
+  font-weight: 600;
 }
 
 * {
   -webkit-tap-highlight-color: transparent;
 }
-
-/* Smooth scrolling for better UX */
-html {
-  scroll-behavior: smooth;
-}
-
-/* Custom scrollbar for webkit browsers */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: var(--ion-color-light);
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--ion-color-medium);
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--ion-color-dark);
-}
-
-/* Professional Car Shop content background */
-ion-content {
-  --background: #ffffff !important;
-}
-
-/* Dark mode overrides - COMMENTED OUT TO ENFORCE LIGHT MODE */
-/*
-@media (prefers-color-scheme: dark) {
-  ion-content {
-    --background: #1a1a1a;
-  }
-
-  :root {
-    --ion-color-primary: #1a4770;
-    --ion-color-primary-shade: #0f2a41;
-    --ion-color-primary-tint: #345e84;
-
-    --ion-color-secondary: #7d8c99;
-    --ion-color-secondary-shade: #627180;
-    --ion-color-secondary-tint: #8da0ad;
-
-    --ion-color-tertiary: #d90000;
-    --ion-color-tertiary-shade: #bf0000;
-    --ion-color-tertiary-tint: #e01a1a;
-  }
-} */

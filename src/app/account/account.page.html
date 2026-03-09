@@ -1,96 +1,82 @@
-<ion-header class="clean-header">
-  <ion-toolbar class="header-toolbar">
-    <ion-buttons slot="start">
-      <ion-button fill="clear" size="large" class="menu-btn" (click)="openMenu()">
-        <ion-icon name="menu-outline"></ion-icon>
-      </ion-button>
-    </ion-buttons>
-
-    <ion-title class="store-name">AutoElite</ion-title>
-
-    <ion-buttons slot="end">
-      <ion-button fill="clear" size="large" class="notification-btn" (click)="showNotifications($event)">
-        <ion-icon name="notifications-outline"></ion-icon>
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>Account</ion-title>
+    <ion-buttons slot="end" *ngIf="isLoggedIn">
+      <ion-button (click)="doLogout()">
+        <ion-icon name="log-out-outline"></ion-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<div class="notification-drawer-backdrop" [class.visible]="isNotificationsOpen" (click)="dismissNotifications()"></div>
-<aside class="notification-drawer" [class.open]="isNotificationsOpen">
-  <div class="notification-drawer__panel">
-    <div class="notification-drawer__header">
-      <div>
-        <p class="notification-drawer__eyebrow">Your alerts</p>
-        <h3>Notifications</h3>
+<ion-content fullscreen>
+  <div *ngIf="!isLoggedIn" class="login-container">
+    <ion-icon name="person-outline"></ion-icon>
+    <h2>Not Signed In</h2>
+    <p>Sign in to access your account</p>
+    <ion-button expand="block" (click)="goToAuth()" color="primary">
+      Sign In / Register
+    </ion-button>
+  </div>
+
+  <div *ngIf="isLoggedIn" class="account-container">
+    <div class="profile-header">
+      <div class="avatar-wrapper">
+        <div class="avatar">
+          <ion-img *ngIf="photoUrl" [src]="photoUrl"></ion-img>
+          <span *ngIf="!photoUrl">{{ initials }}</span>
+        </div>
+        <ion-fab-button class="camera-btn" (click)="openUpload()">
+          <ion-icon name="camera-outline"></ion-icon>
+        </ion-fab-button>
       </div>
-      <ion-button fill="clear" size="small" (click)="clearNotifications()">Clear all</ion-button>
+      <h2>{{ userEmail }}</h2>
+      <p>{{ memberSince }}</p>
     </div>
 
-    <ion-list lines="none">
-      <ion-item
-        lines="none"
-        button
-        *ngFor="let notification of notificationItems"
-        (click)="handleNotificationClick(notification)"
-        [class.active]="selectedNotification?.id === notification.id"
-      >
-        <ion-icon slot="start" [name]="notification.icon" class="notification-icon"></ion-icon>
-        <div class="notification-popover__text">
-          <span class="notification-popover__title">{{ notification.title }}</span>
-          <span class="notification-popover__description">{{ notification.description }}</span>
-        </div>
-        <ion-note slot="end" class="notification-popover__time">{{ notification.time }}</ion-note>
+    <div class="stats-row">
+      <div class="stat-item">
+        <ion-icon name="heart-outline"></ion-icon>
+        <strong>{{ savedCount }}</strong>
+        <span>Saved</span>
+      </div>
+      <div class="stat-item">
+        <ion-icon name="time-outline"></ion-icon>
+        <strong>{{ viewedCount }}</strong>
+        <span>Viewed</span>
+      </div>
+      <div class="stat-item">
+        <ion-icon name="calendar-outline"></ion-icon>
+        <strong>{{ drivesCount }}</strong>
+        <span>Test Drives</span>
+      </div>
+    </div>
+
+    <ion-list class="menu-list">
+      <ion-item button (click)="goTo('/favorites')">
+        <ion-icon slot="start" name="heart-outline"></ion-icon>
+        <ion-label>Saved Cars</ion-label>
+        <ion-icon slot="end" name="chevron-forward-outline"></ion-icon>
+      </ion-item>
+      <ion-item button (click)="goTo('/recently-viewed')">
+        <ion-icon slot="start" name="time-outline"></ion-icon>
+        <ion-label>Recently Viewed</ion-label>
+        <ion-icon slot="end" name="chevron-forward-outline"></ion-icon>
+      </ion-item>
+      <ion-item button (click)="goTo('/trade-in')">
+        <ion-icon slot="start" name="cash-outline"></ion-icon>
+        <ion-label>Trade-In</ion-label>
+        <ion-icon slot="end" name="chevron-forward-outline"></ion-icon>
       </ion-item>
     </ion-list>
 
-    <div class="notification-drawer__detail" *ngIf="selectedNotification">
-      <h3>{{ selectedNotification.title }}</h3>
-      <p>{{ selectedNotification.details }}</p>
-      <span>{{ selectedNotification.time }} · AutoElite</span>
-    </div>
-  </div>
-</aside>
-
-<ion-content [fullscreen]="true">
-  <div class="account-container">
-    <div class="profile-card">
-      <div class="profile-pill">PF</div>
-      <div class="profile-avatar">
-        <img src="https://chhaiheang.onrender.com/img/pf-pic.png" alt="Hak Chhaiheang" />
-      </div>
-      <div class="profile-info">
-        <h2>Hak Chhaiheang</h2>
-        <p>Premium Member</p>
-      </div>
-    </div>
-
-    <div class="settings-card">
-      <ion-item button>
-        <ion-icon name="person-outline" slot="start"></ion-icon>
-        <ion-label>Profile settings</ion-label>
-        <ion-icon name="chevron-forward-outline" slot="end"></ion-icon>
-      </ion-item>
-      <ion-item button>
-        <ion-icon name="shield-checkmark-outline" slot="start"></ion-icon>
-        <ion-label>Security</ion-label>
-        <ion-icon name="chevron-forward-outline" slot="end"></ion-icon>
-      </ion-item>
-      <ion-item button>
-        <ion-icon name="notifications-outline" slot="start"></ion-icon>
-        <ion-label>Notifications</ion-label>
-        <ion-icon name="chevron-forward-outline" slot="end"></ion-icon>
-      </ion-item>
-      <ion-item button>
-        <ion-icon name="wallet-outline" slot="start"></ion-icon>
-        <ion-label>Preferences</ion-label>
-        <ion-icon name="chevron-forward-outline" slot="end"></ion-icon>
-      </ion-item>
-      <ion-item button>
-        <ion-icon name="help-circle-outline" slot="start"></ion-icon>
-        <ion-label>Support</ion-label>
-        <ion-icon name="chevron-forward-outline" slot="end"></ion-icon>
-      </ion-item>
+    <div class="logout-section">
+      <ion-button expand="block" color="danger" (click)="doLogout()">
+        <ion-icon slot="start" name="log-out-outline"></ion-icon>
+        Sign Out
+      </ion-button>
     </div>
   </div>
 </ion-content>
+
+<ion-toast [isOpen]="showToast" [message]="toastMsg" [duration]="3000" [color]="toastColor" position="top" (didDismiss)="showToast = false"></ion-toast>
