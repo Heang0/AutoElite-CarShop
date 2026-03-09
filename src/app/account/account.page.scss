@@ -733,9 +733,32 @@
 // ============================================
 // Responsive Adjustments
 // ============================================
-@media (max-width: 360px) {
-  .login-card {
-    padding: 40px 24px;
+@media (max-width: 768px) {
+  .profile-card {
+    .profile-content {
+      padding: 0 16px 20px;
+    }
+
+    .avatar {
+      width: 80px;
+      height: 80px;
+      font-size: 28px;
+    }
+
+    .edit-profile-btn {
+      --padding-start: 12px;
+      --padding-end: 12px;
+      font-size: 13px;
+      margin-top: 40px;
+    }
+
+    .display-name {
+      font-size: 20px;
+    }
+
+    .user-email {
+      font-size: 13px;
+    }
   }
 
   .stats-container {
@@ -747,21 +770,345 @@
         height: 40px;
 
         ion-icon {
-          font-size: 20px;
+          font-size: 18px;
         }
       }
 
       .stat-value {
         font-size: 20px;
       }
+
+      .stat-label {
+        font-size: 11px;
+      }
     }
   }
 
+  .menu-list .menu-item {
+    --padding-start: 16px;
+    --padding-end: 16px;
+
+    .menu-icon-wrapper {
+      width: 40px;
+      height: 40px;
+      margin-right: 12px;
+
+      ion-icon {
+        font-size: 20px;
+      }
+    }
+
+    ion-label {
+      h3 {
+        font-size: 15px;
+      }
+
+      p {
+        font-size: 12px;
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  // Profile Card
   .profile-card {
+    margin: 0 12px 12px;
+    border-radius: 20px;
+
+    .profile-cover {
+      height: 100px;
+    }
+
+    .profile-content {
+      padding: 0 12px 16px;
+    }
+
     .avatar {
-      width: 90px;
-      height: 90px;
+      width: 70px;
+      height: 70px;
+      font-size: 24px;
+      border-width: 3px;
+    }
+
+    .camera-btn {
+      width: 28px;
+      height: 28px;
+      --background: white;
+      font-size: 14px;
+    }
+
+    .edit-profile-btn {
+      display: none; // Hide edit button on small screens, use modal only
+    }
+
+    .display-name {
+      font-size: 18px;
+
+      .verified-icon {
+        font-size: 16px;
+      }
+    }
+
+    .user-email {
+      font-size: 12px;
+      flex-wrap: wrap;
+    }
+
+    .member-badge {
+      font-size: 11px;
+      padding: 4px 10px;
+    }
+  }
+
+  // Stats
+  .stats-container {
+    margin: 0 12px 12px;
+    border-radius: 16px;
+    padding: 16px 8px;
+
+    .stat-divider {
+      height: 40px;
+    }
+
+    .stat-card {
+      .stat-icon-wrapper {
+        width: 36px;
+        height: 36px;
+
+        ion-icon {
+          font-size: 16px;
+        }
+      }
+
+      .stat-value {
+        font-size: 18px;
+      }
+
+      .stat-label {
+        font-size: 10px;
+      }
+    }
+  }
+
+  // Section Titles
+  .section-title {
+    padding: 0 16px 10px;
+
+    h3 {
+      font-size: 14px;
+    }
+  }
+
+  // Menu Items
+  .menu-list,
+  .account-list {
+    margin: 0 12px 12px;
+    border-radius: 16px;
+
+    .menu-item {
+      --padding-start: 16px;
+      --padding-end: 16px;
+      --padding-top: 14px;
+      --padding-bottom: 14px;
+      --min-height: 64px;
+
+      .menu-icon-wrapper {
+        width: 36px;
+        height: 36px;
+        margin-right: 12px;
+        border-radius: 10px;
+
+        ion-icon {
+          font-size: 18px;
+        }
+      }
+
+      ion-label {
+        h3 {
+          font-size: 14px;
+        }
+
+        p {
+          font-size: 11px;
+        }
+      }
+
+      .chevron {
+        font-size: 18px;
+      }
+    }
+  }
+
+  // Logout
+  .logout-section {
+    padding: 0 12px;
+
+    .logout-btn {
+      --padding-top: 14px;
+      --padding-bottom: 14px;
+      font-size: 14px;
+    }
+  }
+
+  // App Version
+  .app-version {
+    padding: 16px;
+
+    p {
+      font-size: 11px;
+    }
+  }
+
+  // Login Card
+  .login-card {
+    padding: 32px 20px;
+    border-radius: 20px;
+
+    .login-illustration {
+      width: 100px;
+      height: 100px;
+
+      ion-icon {
+        font-size: 50px;
+      }
+    }
+
+    h2 {
+      font-size: 22px;
+    }
+
+    p {
+      font-size: 14px;
+    }
+
+    .features-grid {
+      gap: 12px;
+
+      .feature-card {
+        padding: 12px;
+
+        .feature-icon-wrapper {
+          width: 40px;
+          height: 40px;
+
+          ion-icon {
+            font-size: 20px;
+          }
+        }
+
+        span {
+          font-size: 12px;
+        }
+      }
+    }
+  }
+}
+
+// ============================================
+// Edit Profile Modal Responsive
+// ============================================
+@media (max-width: 480px) {
+  .edit-profile-modal {
+    --border-radius: 16px;
+  }
+
+  .modal-content {
+    gap: 20px;
+  }
+
+  .photo-section {
+    padding: 20px 16px;
+
+    .avatar-large {
+      width: 100px;
+      height: 100px;
       font-size: 32px;
     }
+
+    .change-photo-btn {
+      --padding-start: 16px;
+      --padding-end: 16px;
+      --padding-top: 10px;
+      --padding-bottom: 10px;
+      font-size: 14px;
+    }
+
+    .photo-hint {
+      font-size: 11px;
+    }
+  }
+
+  .form-section {
+    padding: 20px 16px;
+
+    .section-label {
+      font-size: 12px;
+    }
+
+    .input-wrapper {
+      padding: 0 12px;
+
+      ion-icon {
+        font-size: 18px;
+      }
+
+      .styled-input {
+        --padding-top: 12px;
+        --padding-bottom: 12px;
+
+        &::part(native) {
+          font-size: 14px;
+        }
+      }
+    }
+
+    .input-hint {
+      font-size: 11px;
+    }
+  }
+
+  .info-card {
+    padding: 14px;
+    border-radius: 12px;
+
+    .info-row {
+      gap: 12px;
+
+      .info-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+
+        ion-icon {
+          font-size: 18px;
+        }
+      }
+
+      .info-details {
+        .info-label {
+          font-size: 11px;
+        }
+
+        .info-value {
+          font-size: 14px;
+        }
+      }
+    }
+  }
+}
+
+// Extra small devices
+@media (max-width: 360px) {
+  .profile-card .display-name {
+    font-size: 16px;
+  }
+
+  .stats-container .stat-card .stat-value {
+    font-size: 16px;
+  }
+
+  .login-card h2 {
+    font-size: 20px;
   }
 }
