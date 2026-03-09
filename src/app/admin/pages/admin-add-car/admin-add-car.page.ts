@@ -70,24 +70,6 @@ import type { Car } from '../../../services/favorite.service';
               ></ion-input>
 
               <ion-select
-                label="Fuel Type"
-                labelPlacement="stacked"
-                formControlName="fuelType"
-                placeholder="Select fuel type"
-              >
-                <ion-select-option *ngFor="let fuel of FUEL_TYPES" [value]="fuel">{{ fuel }}</ion-select-option>
-              </ion-select>
-
-              <ion-select
-                label="Transmission"
-                labelPlacement="stacked"
-                formControlName="transmission"
-                placeholder="Select transmission"
-              >
-                <ion-select-option *ngFor="let trans of TRANSMISSIONS" [value]="trans">{{ trans }}</ion-select-option>
-              </ion-select>
-
-              <ion-select
                 label="Category"
                 labelPlacement="stacked"
                 formControlName="categoryId"
@@ -555,8 +537,6 @@ export class AdminAddCarPage implements OnInit {
       year: [new Date().getFullYear(), [Validators.required, Validators.min(1900), Validators.max(new Date().getFullYear() + 1)]],
       price: [0, [Validators.required, Validators.min(0)]],
       mileage: [0, [Validators.required, Validators.min(0)]],
-      fuelType: ['Gasoline', Validators.required],
-      transmission: ['Automatic', Validators.required],
       rating: [4, [Validators.required, Validators.min(1), Validators.max(5)]],
       image: ['', Validators.required],
       features: [''],
@@ -601,8 +581,6 @@ export class AdminAddCarPage implements OnInit {
             year: car.year,
             price: car.price,
             mileage: car.mileage,
-            fuelType: car.fuelType,
-            transmission: car.transmission,
             rating: car.rating,
             image: car.image,
             features: Array.isArray(car.features) ? car.features.join(', ') : car.features,
@@ -705,8 +683,8 @@ export class AdminAddCarPage implements OnInit {
       year: formValue.year,
       price: formValue.price,
       mileage: formValue.mileage,
-      fuelType: formValue.fuelType,
-      transmission: formValue.transmission,
+      fuelType: 'Gasoline',
+      transmission: 'Automatic',
       rating: formValue.rating,
       image: formValue.image,
       gallery: this.galleryImages.length > 0 ? this.galleryImages : [],
@@ -769,8 +747,6 @@ export class AdminAddCarPage implements OnInit {
       year: new Date().getFullYear(),
       price: 0,
       mileage: 0,
-      fuelType: 'Gasoline',
-      transmission: 'Automatic',
       rating: 4,
       image: '',
       features: '',
