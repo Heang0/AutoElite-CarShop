@@ -10,7 +10,8 @@ import {
   arrowBackOutline, heartOutline, heartSharp, shareOutline,
   callOutline, mailOutline, locationOutline, speedometerOutline,
   gitCommitOutline, swapHorizontalOutline, peopleOutline, navigateOutline,
-  colorPaletteOutline, carSportOutline, flashOutline, informationCircleOutline, checkmarkCircle, imagesOutline, cardOutline
+  colorPaletteOutline, carSportOutline, flashOutline, informationCircleOutline, checkmarkCircle, imagesOutline, cardOutline,
+  closeOutline, chevronBackOutline, chevronForwardOutline
 } from 'ionicons/icons';
 import { CarApiService } from '../services/car-api.service';
 import { FavoriteService } from '../services/favorite.service';
@@ -198,10 +199,41 @@ import { ContactDealerComponent } from '../shared/contact-dealer/contact-dealer.
     </div>
 
     <!-- Image Viewer Modal -->
-    <ion-modal [isOpen]="showImageViewer" (didDismiss)="showImageViewer = false">
+    <ion-modal [isOpen]="showImageViewer" (didDismiss)="showImageViewer = false" class="image-viewer-modal">
       <ng-template>
-        <ion-content>
-          <ion-img [src]="selectedImage" alt="Full view"></ion-img>
+        <ion-header>
+          <ion-toolbar>
+            <ion-buttons slot="start">
+              <ion-button (click)="showImageViewer = false">
+                <ion-icon slot="icon-only" name="close-outline"></ion-icon>
+              </ion-button>
+            </ion-buttons>
+            <ion-title>{{ currentImageIndex + 1 }} / {{ allImages.length }}</ion-title>
+            <ion-buttons slot="end">
+              <ion-button (click)="previousImage()" [disabled]="currentImageIndex === 0">
+                <ion-icon slot="icon-only" name="chevron-back-outline"></ion-icon>
+              </ion-button>
+              <ion-button (click)="nextImage()" [disabled]="currentImageIndex === allImages.length - 1">
+                <ion-icon slot="icon-only" name="chevron-forward-outline"></ion-icon>
+              </ion-button>
+            </ion-buttons>
+          </ion-toolbar>
+        </ion-header>
+        <ion-content class="image-viewer-content">
+          <div class="image-slider">
+            <ion-img [src]="allImages[currentImageIndex]" [alt]="'Image ' + (currentImageIndex + 1)"></ion-img>
+          </div>
+          <!-- Navigation Arrows -->
+          <button class="nav-arrow prev" (click)="previousImage()" [disabled]="currentImageIndex === 0">
+            <ion-icon name="chevron-back-outline"></ion-icon>
+          </button>
+          <button class="nav-arrow next" (click)="nextImage()" [disabled]="currentImageIndex === allImages.length - 1">
+            <ion-icon name="chevron-forward-outline"></ion-icon>
+          </button>
+          <!-- Image Counter -->
+          <div class="image-counter">
+            {{ currentImageIndex + 1 }} / {{ allImages.length }}
+          </div>
         </ion-content>
       </ng-template>
     </ion-modal>
@@ -476,6 +508,101 @@ import { ContactDealerComponent } from '../shared/contact-dealer/contact-dealer.
       height: 100%;
       object-fit: contain;
     }
+
+    .image-viewer-modal {
+      --height: 100%;
+      --max-height: 100vh;
+      --width: 100%;
+      --max-width: 100vw;
+    }
+
+    .image-viewer-modal ion-toolbar {
+      --background: rgba(0, 0, 0, 0.8);
+      --border-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .image-viewer-modal ion-title {
+      color: white;
+      font-weight: 600;
+    }
+
+    .image-viewer-modal ion-button {
+      --color: white;
+    }
+
+    .image-viewer-content {
+      --background: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .image-slider {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .image-slider ion-img {
+      max-width: 100%;
+      max-height: 80vh;
+      object-fit: contain;
+    }
+
+    .nav-arrow {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      color: white;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      z-index: 10;
+    }
+
+    .nav-arrow:hover:not(:disabled) {
+      background: rgba(255, 255, 255, 0.4);
+    }
+
+    .nav-arrow:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+
+    .nav-arrow ion-icon {
+      font-size: 32px;
+    }
+
+    .nav-arrow.prev {
+      left: 20px;
+    }
+
+    .nav-arrow.next {
+      right: 20px;
+    }
+
+    .image-counter {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.7);
+      color: white;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 600;
+    }
   `],
   standalone: true,
   imports: [
@@ -500,6 +627,8 @@ export class CarDetailPage implements OnInit {
   isFavorite = false;
   showImageViewer = false;
   selectedImage = '';
+  currentImageIndex = 0;
+  allImages: string[] = [];
   showToast = false;
   toastMessage = '';
   toastColor = 'success';
@@ -513,7 +642,8 @@ export class CarDetailPage implements OnInit {
       arrowBackOutline, heartOutline, heartSharp, shareOutline,
       callOutline, mailOutline, locationOutline, speedometerOutline,
       gitCommitOutline, swapHorizontalOutline, peopleOutline, navigateOutline,
-      colorPaletteOutline, carSportOutline, flashOutline, informationCircleOutline, checkmarkCircle, imagesOutline, cardOutline
+      colorPaletteOutline, carSportOutline, flashOutline, informationCircleOutline, checkmarkCircle, imagesOutline, cardOutline,
+      closeOutline, chevronBackOutline, chevronForwardOutline
     });
   }
 
@@ -548,8 +678,25 @@ export class CarDetailPage implements OnInit {
   }
 
   viewImage(url: string) {
-    this.selectedImage = url;
+    // Build array of all images (main + gallery)
+    this.allImages = [this.car!.image, ...(this.car!.gallery || [])];
+    this.currentImageIndex = this.allImages.indexOf(url);
+    if (this.currentImageIndex === -1) {
+      this.currentImageIndex = 0;
+    }
     this.showImageViewer = true;
+  }
+
+  previousImage() {
+    if (this.currentImageIndex > 0) {
+      this.currentImageIndex--;
+    }
+  }
+
+  nextImage() {
+    if (this.currentImageIndex < this.allImages.length - 1) {
+      this.currentImageIndex++;
+    }
   }
 
   addToCompare() {
