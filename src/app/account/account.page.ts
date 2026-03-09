@@ -22,7 +22,6 @@ import { FirestoreService } from '../services/firestore.service';
 import { FavoriteService } from '../services/favorite.service';
 import { CloudinaryService } from '../services/cloudinary.service';
 import { FormsModule } from '@angular/forms';
-import { IonInput, IonButton, IonIcon, IonSpinner, IonToast, IonModal, IonContent, IonHeader, IonToolbar, IonTitle, IonButtons } from '@ionic/angular/standalone';
 
 interface UserProfile {
   uid: string;
@@ -39,20 +38,9 @@ interface UserProfile {
   styleUrls: ['./account.page.scss'],
   standalone: true,
   imports: [
-    CommonModule, 
+    CommonModule,
     IonicModule,
-    FormsModule,
-    IonInput,
-    IonButton,
-    IonIcon,
-    IonSpinner,
-    IonToast,
-    IonModal,
-    IonContent,
-    IonHeader,
-    IonToolbar,
-    IonTitle,
-    IonButtons
+    FormsModule
   ]
 })
 export class AccountPage implements OnInit {
