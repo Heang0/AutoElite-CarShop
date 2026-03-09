@@ -1,3 +1,31 @@
+<ion-menu contentId="main-content" side="start" menuId="main-menu" class="side-menu">
+  <ion-header>
+    <ion-toolbar color="primary">
+      <ion-title>Menu</ion-title>
+    </ion-toolbar>
+  </ion-header>
+  <ion-content>
+    <ion-list>
+      <ion-menu-toggle auto-hide="true" *ngFor="let item of menuItems">
+        <ion-item button [routerLink]="item.url" routerLinkActive="active-menu-item">
+          <ion-icon slot="start" [name]="item.icon"></ion-icon>
+          <ion-label>{{ item.title }}</ion-label>
+        </ion-item>
+      </ion-menu-toggle>
+    </ion-list>
+    
+    <ion-list *ngIf="isLoggedIn">
+      <ion-menu-toggle auto-hide="true">
+        <ion-item button (click)="logout()" class="logout-item">
+          <ion-icon slot="start" name="log-out-outline"></ion-icon>
+          <ion-label>Sign Out</ion-label>
+        </ion-item>
+      </ion-menu-toggle>
+    </ion-list>
+  </ion-content>
+</ion-menu>
+
+<div class="ion-page" id="main-content">
 <ion-header class="clean-header">
   <ion-toolbar class="header-toolbar">
     <ion-buttons slot="start">
@@ -327,4 +355,5 @@
     </div>
   </div>
 </ion-content>
+</div>
 

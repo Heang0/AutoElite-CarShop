@@ -1,6 +1,7 @@
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { RouterModule } from '@angular/router';
 import { Router } from '@angular/router';
 import {
   IonContent,
@@ -21,7 +22,9 @@ import {
   IonRange,
   IonCheckbox,
   IonInput,
-  IonChip
+  IonChip,
+  IonMenu,
+  IonMenuToggle
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
@@ -49,11 +52,17 @@ import {
   flashOutline,
   chevronDownOutline,
   chevronBackOutline,
-  chevronForwardOutline
+  chevronForwardOutline,
+  logOutOutline,
+  timeOutline,
+  cashOutline,
+  settingsOutline,
+  helpCircleOutline
 } from 'ionicons/icons';
 import type { RangeValue } from '@ionic/core';
 import { FavoriteService, type Car } from '../services/favorite.service';
 import { CarApiService } from '../services/car-api.service';
+import { FirestoreService } from '../services/firestore.service';
 import { NOTIFICATION_ITEMS, type NotificationItem } from '../data/notifications.data';
 
 interface Brand {
@@ -92,6 +101,7 @@ const BRAND_LOGOS: Record<string, string> = {
   imports: [
     CommonModule,
     FormsModule,
+    RouterModule,
     IonContent,
     IonButton,
     IonIcon,
@@ -110,7 +120,9 @@ const BRAND_LOGOS: Record<string, string> = {
     IonCheckbox,
     IonInput,
     IonRange,
-    IonChip
+    IonChip,
+    IonMenu,
+    IonMenuToggle
   ]
 })
 export class HomePage implements OnInit, OnDestroy {
@@ -169,10 +181,22 @@ export class HomePage implements OnInit, OnDestroy {
 
   currentSlideIndex = 0;
   private autoSlideInterval: ReturnType<typeof setInterval> | null = null;
+  isLoggedIn = false;
+  
+  menuItems = [
+    { title: 'Home', icon: 'home', url: '/tabs/home' },
+    { title: 'Explore', icon: 'compass-outline', url: '/tabs/explore' },
+    { title: 'Favorites', icon: 'heart-outline', url: '/tabs/favorites' },
+    { title: 'Account', icon: 'person-outline', url: '/tabs/account' },
+    { title: 'Recently Viewed', icon: 'time-outline', url: '/recently-viewed' },
+    { title: 'Trade-In', icon: 'cash-outline', url: '/trade-in' },
+    { title: 'Compare Cars', icon: 'swap-horizontal-outline', url: '/compare-cars' }
+  ];
 
   private router = inject(Router);
   private favoriteService = inject(FavoriteService);
   private carApi = inject(CarApiService);
+  private firestoreService = inject(FirestoreService);
 
   constructor() {
     addIcons({
@@ -279,7 +303,21 @@ export class HomePage implements OnInit, OnDestroy {
   }
 
   openMenu(): void {
-    console.log('Menu button clicked');
+    const menu = document.querySelector('ion-menu') as HTMLIonMenuElement;
+    if (menu) {
+      menu.toggle();
+    }
+  }
+
+  logout() {
+    this.firestoreService.signOut().then(() => {
+      this.isLoggedIn = false;
+      const menu = document.querySelector('ion-menu') as HTMLIonMenuElement;
+      if (menu) {
+        menu.close();
+      }
+      this.router.navigate(['/auth']);
+    });
   }
 
   showNotifications(event?: Event): void {
