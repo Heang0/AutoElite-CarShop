@@ -16,7 +16,17 @@ import {
   mailOutline,
   shieldCheckmarkOutline,
   createOutline,
-  closeOutline
+  closeOutline,
+  carSportOutline,
+  heart,
+  time,
+  calendar,
+  swapHorizontalOutline,
+  settingsOutline,
+  helpCircleOutline,
+  lockClosedOutline,
+  fingerPrintOutline,
+  logoGoogle
 } from 'ionicons/icons';
 import { FirestoreService } from '../services/firestore.service';
 import { FavoriteService } from '../services/favorite.service';
@@ -82,7 +92,17 @@ export class AccountPage implements OnInit {
       mailOutline,
       shieldCheckmarkOutline,
       createOutline,
-      closeOutline
+      closeOutline,
+      carSportOutline,
+      heart,
+      time,
+      calendar,
+      swapHorizontalOutline,
+      settingsOutline,
+      helpCircleOutline,
+      lockClosedOutline,
+      fingerPrintOutline,
+      logoGoogle
     });
   }
 

@@ -1,6 +1,11 @@
-<ion-header>
-  <ion-toolbar color="primary">
-    <ion-title>Account</ion-title>
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-title class="account-title">My Account</ion-title>
+    <ion-buttons slot="end" *ngIf="isLoggedIn">
+      <ion-button (click)="doLogout()" class="logout-header-btn">
+        <ion-icon name="log-out-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
@@ -8,37 +13,47 @@
   <!-- Loading State -->
   <div *ngIf="isLoading" class="loading-container">
     <ion-spinner name="crescent"></ion-spinner>
-    <p>Loading...</p>
+    <p>Loading your profile...</p>
   </div>
 
   <!-- Not Logged In State -->
   <div *ngIf="!isLoading && !isLoggedIn" class="login-container">
     <div class="login-card">
-      <ion-icon name="person-outline" class="login-icon"></ion-icon>
+      <div class="login-illustration">
+        <ion-icon name="car-sport-outline"></ion-icon>
+      </div>
       <h2>Welcome to Car Shop</h2>
-      <p>Sign in to access your account and unlock all features</p>
-      
-      <ion-button expand="block" (click)="goToAuth()" color="primary" class="login-btn">
+      <p>Discover your dream car and enjoy exclusive features</p>
+
+      <ion-button expand="block" (click)="goToAuth()" class="login-btn">
         <ion-icon slot="start" name="person-add-outline"></ion-icon>
         Sign In / Register
       </ion-button>
-      
-      <div class="features-list">
-        <div class="feature-item">
-          <ion-icon name="heart-outline"></ion-icon>
-          <span>Save your favorite cars</span>
+
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon-wrapper">
+            <ion-icon name="heart"></ion-icon>
+          </div>
+          <span>Save Favorites</span>
         </div>
-        <div class="feature-item">
-          <ion-icon name="time-outline"></ion-icon>
-          <span>Track recently viewed cars</span>
+        <div class="feature-card">
+          <div class="feature-icon-wrapper">
+            <ion-icon name="time"></ion-icon>
+          </div>
+          <span>Recent Views</span>
         </div>
-        <div class="feature-item">
-          <ion-icon name="calendar-outline"></ion-icon>
-          <span>Book test drives</span>
+        <div class="feature-card">
+          <div class="feature-icon-wrapper">
+            <ion-icon name="calendar"></ion-icon>
+          </div>
+          <span>Test Drives</span>
         </div>
-        <div class="feature-item">
-          <ion-icon name="cash-outline"></ion-icon>
-          <span>Trade-in your car</span>
+        <div class="feature-card">
+          <div class="feature-icon-wrapper">
+            <ion-icon name="swap-horizontal"></ion-icon>
+          </div>
+          <span>Trade-In</span>
         </div>
       </div>
     </div>
@@ -46,185 +61,264 @@
 
   <!-- Logged In State -->
   <div *ngIf="!isLoading && isLoggedIn && user" class="account-container">
-    <!-- Profile Header -->
-    <div class="profile-header">
-      <div class="profile-top">
-        <div class="avatar-wrapper">
-          <div class="avatar" [class.has-photo]="user.photoURL">
-            <ion-img *ngIf="user.photoURL" [src]="user.photoURL!" (error)="user.photoURL = undefined"></ion-img>
-            <span *ngIf="!user.photoURL">{{ getAvatarText() }}</span>
+    <!-- Profile Card -->
+    <div class="profile-card">
+      <div class="profile-cover"></div>
+      <div class="profile-content">
+        <div class="avatar-section">
+          <div class="avatar-wrapper">
+            <div class="avatar" [class.has-photo]="user.photoURL">
+              <ion-img *ngIf="user.photoURL" [src]="user.photoURL!" (error)="user.photoURL = undefined"></ion-img>
+              <span *ngIf="!user.photoURL">{{ getAvatarText() }}</span>
+            </div>
+            <ion-fab-button 
+              class="camera-btn" 
+              (click)="uploadPhoto()"
+              [disabled]="isUploadingPhoto"
+              size="mini">
+              <ion-icon *ngIf="!isUploadingPhoto" name="camera-outline"></ion-icon>
+              <ion-spinner *ngIf="isUploadingPhoto" name="crescent" size="tiny"></ion-spinner>
+            </ion-fab-button>
           </div>
-          <ion-fab-button 
-            class="camera-btn" 
-            (click)="uploadPhoto()"
-            [disabled]="isUploadingPhoto">
-            <ion-icon *ngIf="!isUploadingPhoto" name="camera-outline"></ion-icon>
-            <ion-spinner *ngIf="isUploadingPhoto" name="crescent" size="small"></ion-spinner>
-          </ion-fab-button>
+          <ion-button 
+            fill="outline" 
+            class="edit-profile-btn"
+            (click)="openEditModal()">
+            <ion-icon name="create-outline" slot="start"></ion-icon>
+            Edit Profile
+          </ion-button>
         </div>
-        
-        <ion-button 
-          fill="clear" 
-          class="edit-btn"
-          (click)="openEditModal()">
-          <ion-icon name="create-outline"></ion-icon>
-        </ion-button>
-      </div>
-      
-      <div class="user-info">
-        <h2 class="display-name">
-          {{ user.displayName || 'No Name Set' }}
-          <ion-icon 
-            *ngIf="user.provider === 'google'" 
-            name="shield-checkmark-outline" 
-            class="verified-icon"
-            title="Verified with Google">
-          </ion-icon>
-        </h2>
-        <p class="user-email">
-          <ion-icon name="mail-outline" class="email-icon"></ion-icon>
-          {{ user.email }}
-        </p>
-        <p class="member-since">
-          <ion-icon name="calendar-outline"></ion-icon>
-          Member since {{ user.memberSince }}
-        </p>
+
+        <div class="user-details">
+          <h2 class="display-name">
+            {{ user.displayName || 'No Name Set' }}
+            <ion-icon 
+              *ngIf="user.provider === 'google'" 
+              name="shield-checkmark"
+              class="verified-icon">
+            </ion-icon>
+          </h2>
+          <p class="user-email">
+            <ion-icon name="mail-outline"></ion-icon>
+            {{ user.email }}
+          </p>
+          <div class="member-badge">
+            <ion-icon name="calendar-outline"></ion-icon>
+            <span>Member since {{ user.memberSince }}</span>
+          </div>
+        </div>
       </div>
     </div>
 
-    <!-- Stats Row -->
-    <div class="stats-row">
-      <div class="stat-item">
-        <ion-icon name="heart-outline" class="stat-icon"></ion-icon>
-        <strong>{{ savedCount }}</strong>
-        <span>Saved</span>
+    <!-- Stats Cards -->
+    <div class="stats-container">
+      <div class="stat-card">
+        <div class="stat-icon-wrapper">
+          <ion-icon name="heart"></ion-icon>
+        </div>
+        <div class="stat-value">{{ savedCount }}</div>
+        <div class="stat-label">Saved</div>
       </div>
-      <div class="stat-item">
-        <ion-icon name="time-outline" class="stat-icon"></ion-icon>
-        <strong>{{ viewedCount }}</strong>
-        <span>Viewed</span>
+      <div class="stat-divider"></div>
+      <div class="stat-card">
+        <div class="stat-icon-wrapper">
+          <ion-icon name="time"></ion-icon>
+        </div>
+        <div class="stat-value">{{ viewedCount }}</div>
+        <div class="stat-label">Viewed</div>
       </div>
-      <div class="stat-item">
-        <ion-icon name="calendar-outline" class="stat-icon"></ion-icon>
-        <strong>{{ drivesCount }}</strong>
-        <span>Test Drives</span>
+      <div class="stat-divider"></div>
+      <div class="stat-card">
+        <div class="stat-icon-wrapper">
+          <ion-icon name="calendar"></ion-icon>
+        </div>
+        <div class="stat-value">{{ drivesCount }}</div>
+        <div class="stat-label">Test Drives</div>
       </div>
     </div>
 
-    <!-- Menu List -->
+    <!-- Quick Actions -->
+    <div class="section-title">
+      <h3>Quick Actions</h3>
+    </div>
+    
     <ion-list class="menu-list">
       <ion-item button (click)="goTo('/favorites')" class="menu-item">
-        <ion-icon slot="start" name="heart-outline" class="menu-icon"></ion-icon>
+        <div class="menu-icon-wrapper heart">
+          <ion-icon name="heart-outline"></ion-icon>
+        </div>
         <ion-label>
           <h3>Saved Cars</h3>
-          <p>Your favorite vehicles</p>
+          <p>Browse your favorite vehicles</p>
         </ion-label>
-        <ion-icon slot="end" name="chevron-forward-outline" class="chevron"></ion-icon>
+        <ion-icon slot="end" name="chevron-forward" class="chevron"></ion-icon>
       </ion-item>
-      
+
       <ion-item button (click)="goTo('/recently-viewed')" class="menu-item">
-        <ion-icon slot="start" name="time-outline" class="menu-icon"></ion-icon>
+        <div class="menu-icon-wrapper time">
+          <ion-icon name="time-outline"></ion-icon>
+        </div>
         <ion-label>
           <h3>Recently Viewed</h3>
-          <p>Cars you've looked at</p>
+          <p>Cars you've explored</p>
         </ion-label>
-        <ion-icon slot="end" name="chevron-forward-outline" class="chevron"></ion-icon>
+        <ion-icon slot="end" name="chevron-forward" class="chevron"></ion-icon>
       </ion-item>
-      
+
       <ion-item button (click)="goTo('/trade-in')" class="menu-item">
-        <ion-icon slot="start" name="cash-outline" class="menu-icon"></ion-icon>
+        <div class="menu-icon-wrapper cash">
+          <ion-icon name="cash-outline"></ion-icon>
+        </div>
         <ion-label>
           <h3>Trade-In</h3>
-          <p>Get a quote for your car</p>
+          <p>Get an offer for your car</p>
         </ion-label>
-        <ion-icon slot="end" name="chevron-forward-outline" class="chevron"></ion-icon>
+        <ion-icon slot="end" name="chevron-forward" class="chevron"></ion-icon>
+      </ion-item>
+
+      <ion-item button class="menu-item">
+        <div class="menu-icon-wrapper settings">
+          <ion-icon name="settings-outline"></ion-icon>
+        </div>
+        <ion-label>
+          <h3>Settings</h3>
+          <p>Notifications and preferences</p>
+        </ion-label>
+        <ion-icon slot="end" name="chevron-forward" class="chevron"></ion-icon>
+      </ion-item>
+    </ion-list>
+
+    <!-- Account Actions -->
+    <div class="section-title">
+      <h3>Account</h3>
+    </div>
+
+    <ion-list class="account-list">
+      <ion-item button class="menu-item">
+        <div class="menu-icon-wrapper help">
+          <ion-icon name="help-circle-outline"></ion-icon>
+        </div>
+        <ion-label>
+          <h3>Help & Support</h3>
+          <p>FAQs and contact us</p>
+        </ion-label>
+        <ion-icon slot="end" name="chevron-forward" class="chevron"></ion-icon>
+      </ion-item>
+
+      <ion-item button class="menu-item">
+        <div class="menu-icon-wrapper privacy">
+          <ion-icon name="lock-closed-outline"></ion-icon>
+        </div>
+        <ion-label>
+          <h3>Privacy Policy</h3>
+          <p>Read our privacy policy</p>
+        </ion-label>
+        <ion-icon slot="end" name="chevron-forward" class="chevron"></ion-icon>
       </ion-item>
     </ion-list>
 
     <!-- Sign Out Button -->
     <div class="logout-section">
-      <ion-button expand="block" color="danger" (click)="doLogout()" class="logout-btn">
+      <ion-button expand="block" fill="outline" color="danger" (click)="doLogout()" class="logout-btn">
         <ion-icon slot="start" name="log-out-outline"></ion-icon>
         Sign Out
       </ion-button>
     </div>
+
+    <div class="app-version">
+      <p>Car Shop v1.0.0</p>
+    </div>
   </div>
+</ion-content>
 
-  <!-- Edit Profile Modal -->
-  <ion-modal [isOpen]="isEditModalOpen" (didDismiss)="closeEditModal()" class="edit-modal">
-    <ng-container *ngIf="isEditModalOpen">
-      <ion-header>
-        <ion-toolbar>
-          <ion-buttons slot="start">
-            <ion-button (click)="closeEditModal()">
-              <ion-icon name="close-outline"></ion-icon>
-            </ion-button>
-          </ion-buttons>
-          <ion-title>Edit Profile</ion-title>
-          <ion-buttons slot="end">
-            <ion-button (click)="saveName()" [strong]="true">Save</ion-button>
-          </ion-buttons>
-        </ion-toolbar>
-      </ion-header>
-      
-      <ion-content class="ion-padding">
-        <div class="edit-modal-content">
-          <!-- Profile Photo Section -->
-          <div class="edit-photo-section">
-            <div class="avatar-preview" [class.has-photo]="user?.photoURL">
-              <ion-img *ngIf="user?.photoURL" [src]="user!.photoURL!"></ion-img>
-              <span *ngIf="!user?.photoURL">{{ getAvatarText() }}</span>
-            </div>
-            <ion-button fill="outline" (click)="uploadPhoto()" [disabled]="isUploadingPhoto">
-              <ion-icon slot="start" name="camera-outline"></ion-icon>
-              {{ isUploadingPhoto ? 'Uploading...' : 'Change Photo' }}
-            </ion-button>
-            <p class="photo-hint">JPG, PNG or GIF. Max 5MB.</p>
+<!-- Edit Profile Modal -->
+<ion-modal [isOpen]="isEditModalOpen" (didDismiss)="closeEditModal()" class="edit-profile-modal">
+  <ng-template>
+    <ion-header>
+      <ion-toolbar>
+        <ion-buttons slot="start">
+          <ion-button (click)="closeEditModal()">
+            <ion-icon name="close-outline"></ion-icon>
+          </ion-button>
+        </ion-buttons>
+        <ion-title>Edit Profile</ion-title>
+        <ion-buttons slot="end">
+          <ion-button (click)="saveName()" class="save-btn">Save</ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+
+    <ion-content class="ion-padding">
+      <div class="modal-content">
+        <!-- Profile Photo -->
+        <div class="photo-section">
+          <div class="avatar-large" [class.has-photo]="user?.photoURL">
+            <ion-img *ngIf="user?.photoURL" [src]="user!.photoURL!"></ion-img>
+            <span *ngIf="!user?.photoURL">{{ getAvatarText() }}</span>
           </div>
+          <ion-button fill="outline" (click)="uploadPhoto()" [disabled]="isUploadingPhoto" class="change-photo-btn">
+            <ion-icon slot="start" name="camera-outline"></ion-icon>
+            {{ isUploadingPhoto ? 'Uploading...' : 'Change Photo' }}
+          </ion-button>
+          <p class="photo-hint">JPG, PNG or GIF. Max 5MB.</p>
+        </div>
 
-          <!-- Name Section -->
-          <div class="edit-name-section">
-            <ion-label class="edit-label">Display Name</ion-label>
-            <div class="name-input-wrapper">
-              <ion-input
-                [(ngModel)]="editName"
-                placeholder="Enter your name"
-                [clearInput]="true"
-                class="name-input">
-              </ion-input>
-            </div>
-            <p class="name-hint">This name will be visible to other users</p>
+        <!-- Display Name -->
+        <div class="form-section">
+          <ion-label class="section-label">Display Name</ion-label>
+          <div class="input-wrapper">
+            <ion-icon name="person-outline" slot="start"></ion-icon>
+            <ion-input
+              [(ngModel)]="editName"
+              placeholder="Enter your name"
+              [clearInput]="true"
+              class="styled-input">
+            </ion-input>
           </div>
+          <p class="input-hint">This name will be visible to other users</p>
+        </div>
 
-          <!-- Account Info Section -->
-          <div class="edit-info-section">
-            <ion-label class="edit-label">Account Information</ion-label>
-            <div class="info-item">
-              <ion-icon name="mail-outline"></ion-icon>
-              <div class="info-content">
-                <span class="info-label">Email</span>
+        <!-- Account Info -->
+        <div class="form-section">
+          <ion-label class="section-label">Account Information</ion-label>
+          
+          <div class="info-card">
+            <div class="info-row">
+              <div class="info-icon email">
+                <ion-icon name="mail-outline"></ion-icon>
+              </div>
+              <div class="info-details">
+                <span class="info-label">Email Address</span>
                 <span class="info-value">{{ user?.email }}</span>
               </div>
             </div>
-            <div class="info-item">
-              <ion-icon name="shield-check-outline"></ion-icon>
-              <div class="info-content">
-                <span class="info-label">Signed in with</span>
-                <span class="info-value">{{ user?.provider === 'google' ? 'Google' : 'Email' }}</span>
+          </div>
+
+          <div class="info-card">
+            <div class="info-row">
+              <div class="info-icon provider">
+                <ion-icon name="finger-print-outline"></ion-icon>
+              </div>
+              <div class="info-details">
+                <span class="info-label">Authentication</span>
+                <span class="info-value">
+                  <ion-icon *ngIf="user?.provider === 'google'" name="logo-google"></ion-icon>
+                  {{ user?.provider === 'google' ? 'Google' : 'Email' }}
+                </span>
               </div>
             </div>
           </div>
         </div>
-      </ion-content>
-    </ng-container>
-  </ion-modal>
-</ion-content>
+      </div>
+    </ion-content>
+  </ng-template>
+</ion-modal>
 
-<ion-toast 
-  [isOpen]="showToast" 
-  [message]="toastMsg" 
-  [duration]="3000" 
-  [color]="toastColor" 
-  position="top" 
+<ion-toast
+  [isOpen]="showToast"
+  [message]="toastMsg"
+  [duration]="3000"
+  [color]="toastColor"
+  position="top"
   (didDismiss)="showToast = false">
 </ion-toast>
