@@ -89,11 +89,14 @@ export class FavoritesPage {
 
   loadFavorites(): void {
     this.favoriteCars = this.favoriteService.getFavorites();
+    console.log('Loaded favorites:', this.favoriteCars.length);
   }
 
   toggleFavorite(car: Car, event: Event): void {
     event.stopPropagation();
     this.favoriteService.toggleFavorite(car);
+    
+    // Update the local list
     this.loadFavorites();
 
     if ('vibrate' in navigator) {

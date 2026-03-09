@@ -73,13 +73,12 @@
 
             <ion-button
               fill="clear"
-              class="favorite-btn"
-              [class.active]="car.isFavorite"
+              class="favorite-btn active"
               (click)="toggleFavorite(car, $event)"
-            >
+              title="Remove from favorites">
               <ion-icon
                 slot="icon-only"
-                [name]="car.isFavorite ? 'heart' : 'heart-outline'"
+                name="heart"
               ></ion-icon>
             </ion-button>
 
