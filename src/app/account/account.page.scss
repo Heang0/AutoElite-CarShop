@@ -174,8 +174,8 @@
 
   .avatar-section {
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    gap: 12px;
     margin-top: -50px;
   }
 
@@ -838,8 +838,25 @@
       font-size: 14px;
     }
 
+    .avatar-section {
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: -40px;
+    }
+
+    .avatar-wrapper {
+      flex-shrink: 0;
+    }
+
     .edit-profile-btn {
-      display: none; // Hide edit button on small screens, use modal only
+      // Always show edit button
+      --padding-start: 12px;
+      --padding-end: 12px;
+      --padding-top: 8px;
+      --padding-bottom: 8px;
+      font-size: 12px;
+      margin-top: 0;
+      margin-left: 8px;
     }
 
     .display-name {
