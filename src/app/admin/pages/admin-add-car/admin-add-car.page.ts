@@ -1,6 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
 import {
   IonCard, IonCardContent, IonButton, IonIcon, IonInput, IonSelect, IonSelectOption,
   IonToast, IonImg, IonSpinner
@@ -17,7 +18,7 @@ import type { Car } from '../../../services/favorite.service';
   template: `
     <div class="add-car-content">
       <header class="top-bar">
-        <h2>Add Car</h2>
+        <h2>{{ isEditMode ? 'Edit Car' : 'Add Car' }}</h2>
       </header>
 
       <div class="scroll-content">
@@ -236,7 +237,7 @@ import type { Car } from '../../../services/favorite.service';
             <div class="form-actions-wrapper">
               <div class="form-actions">
                 <ion-button fill="outline" (click)="resetForm()">Reset</ion-button>
-                <ion-button type="button" (click)="saveCar()" [disabled]="carForm.invalid">Add Car</ion-button>
+                <ion-button type="button" (click)="saveCar()" [disabled]="carForm.invalid">{{ isEditMode ? 'Update Car' : 'Add Car' }}</ion-button>
               </div>
             </div>
           </form>
@@ -497,6 +498,7 @@ export class AdminAddCarPage implements OnInit {
   showToast = false;
   toastMessage = '';
   toastColor = 'success';
+  isEditMode = false;
 
   FUEL_TYPES = ['Gasoline', 'Diesel', 'Electric', 'Hybrid', 'Plug-in Hybrid'];
   TRANSMISSIONS = ['Automatic', 'Manual', 'CVT'];
@@ -505,6 +507,8 @@ export class AdminAddCarPage implements OnInit {
   private firestoreService = inject(FirestoreService);
   private cloudinaryService = inject(CloudinaryService);
   private fb = inject(FormBuilder);
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
 
   constructor() {
     addIcons({ cloudUploadOutline, checkmarkCircleOutline, imagesOutline, closeCircleOutline });
@@ -540,6 +544,63 @@ export class AdminAddCarPage implements OnInit {
   ngOnInit() {
     this.loadBrands();
     this.loadCategories();
+    
+    // Check if we're editing an existing car
+    this.route.queryParams.subscribe(params => {
+      if (params['editId']) {
+        this.loadCarForEdit(params['editId']);
+      }
+    });
+  }
+
+  loadCarForEdit(carId: string) {
+    this.isEditMode = true;
+    this.carApi.getCarById(carId).subscribe({
+      next: (car) => {
+        if (car) {
+          // Populate form with car data
+          this.carForm.patchValue({
+            name: car.name,
+            brandId: car.brand,
+            model: car.model,
+            year: car.year,
+            price: car.price,
+            mileage: car.mileage,
+            fuelType: car.fuelType,
+            transmission: car.transmission,
+            rating: car.rating,
+            image: car.image,
+            features: Array.isArray(car.features) ? car.features.join(', ') : car.features,
+            categoryId: car.type,
+            exteriorColor: car.exteriorColor,
+            interiorColor: car.interiorColor,
+            engine: car.engine,
+            drivetrain: car.drivetrain,
+            horsepower: car.horsepower,
+            seats: car.seats,
+            vin: car.vin,
+            stockNumber: car.stockNumber,
+            condition: car.condition || 'Used',
+            bodyStyle: car.bodyStyle,
+            doors: car.doors || 4
+          });
+          
+          // Set gallery images if available
+          if (car.gallery && car.gallery.length > 0) {
+            this.galleryImages = car.gallery;
+          }
+          
+          this.toastMessage = 'Editing: ' + car.name;
+          this.toastColor = 'primary';
+          this.showToast = true;
+        }
+      },
+      error: (err) => {
+        this.toastMessage = 'Failed to load car: ' + err.message;
+        this.toastColor = 'danger';
+        this.showToast = true;
+      }
+    });
   }
 
   loadBrands() {
@@ -630,19 +691,42 @@ export class AdminAddCarPage implements OnInit {
       doors: formValue.doors
     };
 
-    this.carApi.addCar(carData).subscribe({
-      next: () => {
-        this.toastMessage = 'Car added successfully! 🎉';
-        this.toastColor = 'success';
-        this.showToast = true;
-        this.resetForm();
-      },
-      error: (err) => {
-        this.toastMessage = 'Failed to add car: ' + err.message;
-        this.toastColor = 'danger';
-        this.showToast = true;
-      }
-    });
+    // Check if we're editing an existing car
+    const editId = this.route.snapshot.queryParamMap.get('editId');
+    
+    if (editId) {
+      // Update existing car
+      this.carApi.updateCar(editId, carData).subscribe({
+        next: () => {
+          this.toastMessage = 'Car updated successfully! 🎉';
+          this.toastColor = 'success';
+          this.showToast = true;
+          setTimeout(() => {
+            this.router.navigate(['/admin/cars']);
+          }, 1500);
+        },
+        error: (err) => {
+          this.toastMessage = 'Failed to update car: ' + err.message;
+          this.toastColor = 'danger';
+          this.showToast = true;
+        }
+      });
+    } else {
+      // Add new car
+      this.carApi.addCar(carData).subscribe({
+        next: () => {
+          this.toastMessage = 'Car added successfully! 🎉';
+          this.toastColor = 'success';
+          this.showToast = true;
+          this.resetForm();
+        },
+        error: (err) => {
+          this.toastMessage = 'Failed to add car: ' + err.message;
+          this.toastColor = 'danger';
+          this.showToast = true;
+        }
+      });
+    }
   }
 
   resetForm() {

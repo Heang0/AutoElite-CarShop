@@ -1,9 +1,10 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { IonCard, IonCardContent, IonButton, IonIcon, IonInput, IonImg, IonSearchbar, IonToast } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { createOutline, trashOutline, carOutline } from 'ionicons/icons';
+import { createOutline, trashOutline, carOutline, calendarOutline, speedometerOutline } from 'ionicons/icons';
 import { CarApiService } from '../../../services/car-api.service';
 import type { Car } from '../../../services/favorite.service';
 
@@ -30,11 +31,11 @@ import type { Car } from '../../../services/favorite.service';
           <ion-card *ngFor="let car of filteredCars" class="car-card">
             <ion-img [src]="car.image" [alt]="car.name"></ion-img>
             <ion-card-content>
-              <h4>{{ car.name }}</h4>
-              <p class="price">\${{ car.price | number }}</p>
+              <h4>{{ car.name || 'Unnamed Car' }}</h4>
+              <p class="price">\${{ formatNumber(car.price) }}</p>
               <div class="car-details">
-                <span><ion-icon name="calendar-outline"></ion-icon> {{ car.year }}</span>
-                <span><ion-icon name="speedometer-outline"></ion-icon> {{ car.mileage | number }} km</span>
+                <span><ion-icon name="calendar-outline"></ion-icon> {{ formatNumber(car.year) }}</span>
+                <span><ion-icon name="speedometer-outline"></ion-icon> {{ formatNumber(car.mileage) }} km</span>
               </div>
               <div class="car-actions">
                 <ion-button fill="outline" size="small" (click)="editCar(car)">
@@ -215,9 +216,10 @@ export class AdminCarsPage implements OnInit {
   toastColor = 'success';
 
   private carApi = inject(CarApiService);
+  private router = inject(Router);
 
   constructor() {
-    addIcons({ createOutline, trashOutline, carOutline });
+    addIcons({ createOutline, trashOutline, carOutline, calendarOutline, speedometerOutline });
   }
 
   ngOnInit() {
@@ -253,8 +255,11 @@ export class AdminCarsPage implements OnInit {
   }
 
   editCar(car: Car) {
-    // Navigate to add-car page with car data (you can implement this later)
     console.log('Edit car:', car);
+    // Navigate to add-car page with car ID for editing
+    this.router.navigate(['/admin/add-car'], { 
+      queryParams: { editId: String(car.id) }
+    });
   }
 
   deleteCar(car: Car) {
@@ -275,5 +280,13 @@ export class AdminCarsPage implements OnInit {
         this.showToast = true;
       }
     });
+  }
+
+  // Helper to safely format numbers
+  formatNumber(value: any): string {
+    if (value === null || value === undefined || isNaN(value)) {
+      return '0';
+    }
+    return String(value);
   }
 }
