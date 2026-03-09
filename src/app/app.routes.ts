@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { TabsPage } from './tabs/tabs.page';
+import { adminGuard } from './guards/admin.guard';
 
 export const routes: Routes = [
   {
@@ -21,6 +22,7 @@ export const routes: Routes = [
   },
   {
     path: 'admin',
+    canMatch: [adminGuard],
     loadComponent: () => import('./admin/layout/admin-layout.component').then((m) => m.AdminLayoutComponent),
     children: [
       {
@@ -44,6 +46,10 @@ export const routes: Routes = [
         loadComponent: () => import('./admin/pages/admin-cars/admin-cars.page').then((m) => m.AdminCarsPage),
       },
       {
+        path: 'orders',
+        loadComponent: () => import('./admin/pages/admin-orders.page').then((m) => m.AdminOrdersPage),
+      },
+      {
         path: '',
         redirectTo: 'dashboard',
         pathMatch: 'full',
@@ -65,6 +71,10 @@ export const routes: Routes = [
   {
     path: 'payment/:id',
     loadComponent: () => import('./payment/payment.page').then((m) => m.PaymentPage),
+  },
+  {
+    path: 'settings',
+    loadComponent: () => import('./account/settings.page').then((m) => m.SettingsPage),
   },
   {
     path: 'tabs',

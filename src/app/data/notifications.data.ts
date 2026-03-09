@@ -1,10 +1,11 @@
 export interface NotificationItem {
-  id: number;
+  id: string | number;
   title: string;
   description: string;
   time: string;
   icon: string;
   details: string;
+  route?: string;
 }
 
 export const NOTIFICATION_ITEMS: NotificationItem[] = [

@@ -50,12 +50,16 @@ import {
   filterOutline,
   diamondOutline,
   flashOutline,
-  chevronDownOutline
+  chevronDownOutline,
+  chevronBackOutline,
+  chevronForwardOutline
 } from 'ionicons/icons';
 import type { RangeValue } from '@ionic/core';
 import { FavoriteService, type Car } from '../services/favorite.service';
 import { CarApiService } from '../services/car-api.service';
 import { NOTIFICATION_ITEMS, type NotificationItem } from '../data/notifications.data';
+import { FirestoreService } from '../services/firestore.service';
+import { NotificationService } from '../services/notification.service';
 
 interface Brand {
   name: string;
@@ -141,6 +145,8 @@ export class HomePage implements OnInit, OnDestroy {
   private router = inject(Router);
   private favoriteService = inject(FavoriteService);
   private carApi = inject(CarApiService);
+  private firestoreService = inject(FirestoreService);
+  private notificationService = inject(NotificationService);
   private heroIntervalId: number | null = null;
 
   constructor() {
@@ -167,12 +173,15 @@ export class HomePage implements OnInit, OnDestroy {
       'filter-outline': filterOutline,
       'diamond-outline': diamondOutline,
       'flash-outline': flashOutline,
-      'chevron-down-outline': chevronDownOutline
+      'chevron-down-outline': chevronDownOutline,
+      'chevron-back-outline': chevronBackOutline,
+      'chevron-forward-outline': chevronForwardOutline
     });
   }
 
   ngOnInit(): void {
     this.loadCars();
+    this.loadNotifications();
   }
 
   ngOnDestroy(): void {
@@ -264,6 +273,12 @@ export class HomePage implements OnInit, OnDestroy {
 
   handleNotificationClick(notification: NotificationItem): void {
     this.selectedNotification = notification;
+    if (notification.route) {
+      this.router.navigateByUrl(notification.route);
+    }
+    if (typeof notification.id === 'string') {
+      void this.notificationService.markAsRead(notification.id);
+    }
   }
 
   toggleFilterPanel(event?: Event): void {
@@ -447,6 +462,45 @@ export class HomePage implements OnInit, OnDestroy {
     );
 
     this.updateHeroCars();
+  }
+
+  private loadNotifications(): void {
+    this.firestoreService.onAuthStateChanged(async (user) => {
+      if (!user?.uid) {
+        this.notificationItems = NOTIFICATION_ITEMS;
+        return;
+      }
+
+      try {
+        const notifications = await this.notificationService.getNotifications(user.uid);
+        if (!notifications.length) {
+          this.notificationItems = NOTIFICATION_ITEMS;
+          return;
+        }
+        this.notificationItems = notifications.map((item) => ({
+          id: item.id,
+          title: item.title,
+          description: item.body,
+          details: item.body,
+          icon: item.icon || 'notifications-outline',
+          time: this.formatTime(item.createdAt.toDate()),
+          route: item.route
+        }));
+      } catch {
+        this.notificationItems = NOTIFICATION_ITEMS;
+      }
+    });
+  }
+
+  private formatTime(date: Date): string {
+    const diff = Date.now() - date.getTime();
+    const minutes = Math.floor(diff / 60000);
+    if (minutes < 1) return 'Just now';
+    if (minutes < 60) return `${minutes}m ago`;
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours}h ago`;
+    const days = Math.floor(hours / 24);
+    return `${days}d ago`;
   }
 
   private updateHeroCars(): void {

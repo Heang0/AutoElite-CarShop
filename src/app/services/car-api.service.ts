@@ -8,6 +8,9 @@ import type { Car } from './favorite.service';
 })
 export class CarApiService {
   private readonly firestoreService = inject(FirestoreService);
+  private readonly cacheKey = 'autoelite_cars_cache_v1';
+  private readonly cacheTimestampKey = 'autoelite_cars_cache_ts_v1';
+  private readonly cacheTtlMs = 1000 * 60 * 10;
 
   getCars(filters?: {
     search?: string;
@@ -20,6 +23,7 @@ export class CarApiService {
       this.firestoreService
         .getCars()
         .then((cars) => {
+          this.saveCache(cars);
           let filteredCars = cars;
 
           if (filters?.search) {
@@ -52,6 +56,12 @@ export class CarApiService {
           observer.complete();
         })
         .catch((error) => {
+          const cachedCars = this.getCachedCars();
+          if (cachedCars.length) {
+            observer.next(cachedCars.map((car) => this.normalizeCar(car)));
+            observer.complete();
+            return;
+          }
           observer.error(error);
         });
     });
@@ -63,6 +73,12 @@ export class CarApiService {
         .getCarById(id)
         .then((car) => {
           if (!car) {
+            const cached = this.getCachedCars().find((item) => item.id === id);
+            if (cached) {
+              observer.next(this.normalizeCar(cached));
+              observer.complete();
+              return;
+            }
             observer.error(new Error('Car not found'));
             return;
           }
@@ -70,6 +86,12 @@ export class CarApiService {
           observer.complete();
         })
         .catch((error) => {
+          const cached = this.getCachedCars().find((item) => item.id === id);
+          if (cached) {
+            observer.next(this.normalizeCar(cached));
+            observer.complete();
+            return;
+          }
           observer.error(error);
         });
     });
@@ -162,5 +184,27 @@ export class CarApiService {
       mpgHighway: raw.mpgHighway || 0,
       mpgCombined: raw.mpgCombined || 0
     };
+  }
+
+  private saveCache(cars: Car[]) {
+    try {
+      localStorage.setItem(this.cacheKey, JSON.stringify(cars));
+      localStorage.setItem(this.cacheTimestampKey, Date.now().toString());
+    } catch {
+      // Ignore caching errors
+    }
+  }
+
+  private getCachedCars(): Car[] {
+    try {
+      const ts = Number(localStorage.getItem(this.cacheTimestampKey));
+      if (ts && Date.now() - ts > this.cacheTtlMs) {
+        return [];
+      }
+      const raw = localStorage.getItem(this.cacheKey);
+      return raw ? (JSON.parse(raw) as Car[]) : [];
+    } catch {
+      return [];
+    }
   }
 }

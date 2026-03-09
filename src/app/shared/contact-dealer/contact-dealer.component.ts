@@ -1,11 +1,14 @@
 import { Component, Input, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonCard, IonCardContent, IonInput, IonTextarea, IonButton, IonIcon, IonDatetime, IonModal, IonHeader, IonToolbar, IonTitle, IonButtons, IonContent, IonList, IonItem, IonLabel, IonToast } from '@ionic/angular/standalone';
+import { IonInput, IonTextarea, IonButton, IonIcon, IonModal, IonHeader, IonToolbar, IonTitle, IonButtons, IonContent, IonList, IonItem, IonLabel, IonToast, IonToggle } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { mailOutline, callOutline, calendarOutline, sendOutline, closeOutline, checkmarkOutline } from 'ionicons/icons';
 import { FirestoreService } from '../../services/firestore.service';
+import { NotificationService } from '../../services/notification.service';
 import type { Car } from '../../services/favorite.service';
+import { Timestamp } from 'firebase/firestore';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-contact-dealer',
@@ -135,6 +138,16 @@ import type { Car } from '../../services/favorite.service';
               <ion-label position="stacked">Notes (optional)</ion-label>
               <ion-textarea [(ngModel)]="testDriveNotes" rows="3" placeholder="Any special requests..."></ion-textarea>
             </ion-item>
+
+            <ion-item>
+              <ion-label>Pay deposit now</ion-label>
+              <ion-toggle [(ngModel)]="wantsDeposit"></ion-toggle>
+            </ion-item>
+
+            <ion-item *ngIf="wantsDeposit">
+              <ion-label position="stacked">Deposit Amount (USD)</ion-label>
+              <ion-input [(ngModel)]="depositAmount" type="number" placeholder="100"></ion-input>
+            </ion-item>
           </ion-list>
         </ion-content>
       </ng-template>
@@ -232,13 +245,10 @@ import type { Car } from '../../services/favorite.service';
   imports: [
     CommonModule,
     FormsModule,
-    IonCard,
-    IonCardContent,
     IonInput,
     IonTextarea,
     IonButton,
     IonIcon,
-    IonDatetime,
     IonModal,
     IonHeader,
     IonToolbar,
@@ -248,7 +258,8 @@ import type { Car } from '../../services/favorite.service';
     IonList,
     IonItem,
     IonLabel,
-    IonToast
+    IonToast,
+    IonToggle
   ]
 })
 export class ContactDealerComponent {
@@ -266,6 +277,8 @@ export class ContactDealerComponent {
   testDriveDate = '';
   testDriveTime = '';
   testDriveNotes = '';
+  wantsDeposit = false;
+  depositAmount = 100;
   showToast = false;
   toastMessage = '';
   toastColor = 'success';
@@ -274,6 +287,8 @@ export class ContactDealerComponent {
   dealerEmail = 'sales@carshop.com';
 
   private firestoreService = inject(FirestoreService);
+  private notificationService = inject(NotificationService);
+  private router = inject(Router);
 
   constructor() {
     addIcons({ mailOutline, callOutline, calendarOutline, sendOutline, closeOutline, checkmarkOutline });
@@ -299,7 +314,54 @@ export class ContactDealerComponent {
     this.message = '';
   }
 
-  scheduleTestDrive() {
+  async scheduleTestDrive() {
+    const user = this.firestoreService.getCurrentUser();
+    if (!user?.uid) {
+      this.toastMessage = 'Please sign in to schedule a test drive.';
+      this.toastColor = 'danger';
+      this.showToast = true;
+      return;
+    }
+
+    if (!this.car) {
+      this.toastMessage = 'Car information not available.';
+      this.toastColor = 'danger';
+      this.showToast = true;
+      return;
+    }
+
+    const date = this.testDriveDate || new Date().toISOString().slice(0, 10);
+    const time = this.testDriveTime || '10:00';
+    const startDate = new Date(`${date}T${time}`);
+    const endDate = new Date(startDate.getTime() + 60 * 60 * 1000);
+
+    const bookingId = await this.firestoreService.addBooking({
+      carId: String(this.car.id),
+      userId: user.uid,
+      userName: this.testDriveName || user.displayName || 'Guest',
+      userEmail: this.testDriveEmail || user.email || '',
+      startDate: Timestamp.fromDate(startDate),
+      endDate: Timestamp.fromDate(endDate),
+      pickupLocation: 'AutoElite Showroom',
+      status: 'pending',
+      totalPrice: this.wantsDeposit ? Number(this.depositAmount || 0) : 0,
+      notes: this.testDriveNotes,
+      phone: this.testDrivePhone,
+      depositAmount: this.wantsDeposit ? Number(this.depositAmount || 0) : 0,
+      depositStatus: this.wantsDeposit ? 'pending' : 'unpaid',
+      bookingType: 'test-drive'
+    });
+
+    await this.notificationService.createInAppNotification({
+      userId: user.uid,
+      title: 'Test drive scheduled',
+      body: `We received your request for ${this.car.brand} ${this.car.model}.`,
+      icon: 'calendar-outline',
+      route: '/recently-viewed',
+      read: false,
+      type: 'booking'
+    });
+
     console.log('Scheduling test drive:', {
       name: this.testDriveName,
       phone: this.testDrivePhone,
@@ -314,6 +376,9 @@ export class ContactDealerComponent {
     this.toastColor = 'success';
     this.showToast = true;
     this.showTestDriveModal = false;
+
+    const shouldPayDeposit = this.wantsDeposit && this.depositAmount > 0;
+    const depositValue = Number(this.depositAmount || 0);
     
     // Reset form
     this.testDriveName = '';
@@ -322,5 +387,13 @@ export class ContactDealerComponent {
     this.testDriveDate = '';
     this.testDriveTime = '';
     this.testDriveNotes = '';
+    this.wantsDeposit = false;
+    this.depositAmount = 100;
+
+    if (shouldPayDeposit) {
+      this.router.navigate(['/payment', this.car.id], {
+        queryParams: { amount: depositValue, type: 'deposit', bookingId }
+      });
+    }
   }
 }

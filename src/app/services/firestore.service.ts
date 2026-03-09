@@ -25,7 +25,10 @@ import {
   User,
   createUserWithEmailAndPassword,
   GoogleAuthProvider,
-  signInWithPopup
+  signInWithPopup,
+  EmailAuthProvider,
+  reauthenticateWithCredential,
+  updatePassword
 } from 'firebase/auth';
 import { environment } from '../../environments/environment';
 import type { Car } from './favorite.service';
@@ -67,6 +70,43 @@ export interface Booking {
   status: 'pending' | 'confirmed' | 'completed' | 'cancelled';
   totalPrice: number;
   createdAt: Timestamp;
+  notes?: string;
+  phone?: string;
+  depositAmount?: number;
+  depositStatus?: 'unpaid' | 'pending' | 'paid';
+  bookingType?: 'test-drive' | 'purchase';
+}
+
+export interface AppNotification {
+  id: string;
+  userId: string;
+  title: string;
+  body: string;
+  icon?: string;
+  route?: string;
+  read: boolean;
+  createdAt: Timestamp;
+  type?: string;
+}
+
+export interface Order {
+  id: string;
+  carId: string;
+  carName: string;
+  carImage?: string;
+  userId: string;
+  userName: string;
+  userEmail: string;
+  phone?: string;
+  address?: string;
+  amount: number;
+  currency: string;
+  paymentMethod: 'bakong' | 'card';
+  paymentReference: string;
+  paymentType?: 'purchase' | 'deposit';
+  bookingId?: string;
+  status: 'pending' | 'paid' | 'cancelled';
+  createdAt: Timestamp;
 }
 
 // Initialize Firebase
@@ -93,6 +133,8 @@ export class FirestoreService {
   private readonly reviewsCollection = collection(db as Firestore, 'reviews');
   private readonly bookingsCollection = collection(db as Firestore, 'bookings');
   private readonly usersCollection = collection(db as Firestore, 'users');
+  private readonly notificationsCollection = collection(db as Firestore, 'notifications');
+  private readonly ordersCollection = collection(db as Firestore, 'orders');
 
   // Auth state observer
   onAuthStateChanged(callback: (user: User | null) => void) {
@@ -104,6 +146,16 @@ export class FirestoreService {
     return (auth as Auth).currentUser;
   }
 
+  async isCurrentUserAdmin(): Promise<boolean> {
+    const user = this.getCurrentUser();
+    if (!user) {
+      return false;
+    }
+
+    const profile = await this.getUserProfile(user.uid);
+    return profile?.role === 'admin' || profile?.isAdmin === true;
+  }
+
   // Check if user is authenticated
   isAuthenticated(): boolean {
     return (auth as Auth).currentUser !== null;
@@ -113,6 +165,7 @@ export class FirestoreService {
   async signIn(email: string, password: string): Promise<User> {
     try {
       const userCredential = await signInWithEmailAndPassword(auth as Auth, email, password);
+      await this.ensureUserProfile(userCredential.user, 'email');
       return userCredential.user;
     } catch (error: any) {
       throw new Error(this.getAuthErrorMessage(error.code));
@@ -147,16 +200,7 @@ export class FirestoreService {
       const userCredential = await signInWithPopup(auth as Auth, provider);
       const user = userCredential.user;
       
-      // Sync Google profile data with Firestore
-      if (user) {
-        await this.saveUserProfile(user.uid, {
-          email: user.email,
-          displayName: user.displayName,
-          photoURL: user.photoURL,
-          provider: 'google',
-          syncedAt: Timestamp.now()
-        });
-      }
+      await this.ensureUserProfile(user, 'google');
       
       return userCredential.user;
     } catch (error: any) {
@@ -171,6 +215,17 @@ export class FirestoreService {
     } catch (error: any) {
       throw new Error('Failed to sign out: ' + error.message);
     }
+  }
+
+  async updatePassword(currentPassword: string, newPassword: string): Promise<void> {
+    const user = (auth as Auth).currentUser;
+    if (!user || !user.email) {
+      throw new Error('No authenticated user');
+    }
+
+    const credential = EmailAuthProvider.credential(user.email, currentPassword);
+    await reauthenticateWithCredential(user, credential);
+    await updatePassword(user, newPassword);
   }
 
   // Get auth error message
@@ -391,6 +446,18 @@ export class FirestoreService {
     }, { merge: true });
   }
 
+  async updateUserProfile(userId: string, data: Record<string, any>): Promise<void> {
+    const docRef = doc(db as Firestore, 'users', userId);
+    await setDoc(
+      docRef,
+      {
+        ...data,
+        updatedAt: Timestamp.now()
+      },
+      { merge: true }
+    );
+  }
+
   // Update user photo URL
   async updateUserPhoto(userId: string, photoURL: string): Promise<void> {
     const docRef = doc(db as Firestore, 'users', userId);
@@ -398,6 +465,108 @@ export class FirestoreService {
       photoURL,
       updatedAt: Timestamp.now()
     }, { merge: true });
+  }
+
+  async updateUserSettings(userId: string, settings: Record<string, any>): Promise<void> {
+    const docRef = doc(db as Firestore, 'users', userId);
+    await setDoc(
+      docRef,
+      {
+        settings,
+        updatedAt: Timestamp.now()
+      },
+      { merge: true }
+    );
+  }
+
+  async getUserSettings(userId: string): Promise<Record<string, any>> {
+    const docRef = doc(db as Firestore, 'users', userId);
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      return docSnap.data()?.['settings'] || {};
+    }
+    return {};
+  }
+
+  async savePushToken(userId: string, token: string): Promise<void> {
+    const docRef = doc(db as Firestore, 'users', userId);
+    await setDoc(
+      docRef,
+      {
+        pushToken: token,
+        updatedAt: Timestamp.now()
+      },
+      { merge: true }
+    );
+  }
+
+  async addNotification(notification: Omit<AppNotification, 'id' | 'createdAt'>): Promise<string> {
+    const docRef = await addDoc(this.notificationsCollection, {
+      ...notification,
+      createdAt: Timestamp.now()
+    });
+    return docRef.id;
+  }
+
+  async getNotificationsByUserId(userId: string): Promise<AppNotification[]> {
+    const q = query(
+      this.notificationsCollection,
+      where('userId', '==', userId),
+      orderBy('createdAt', 'desc')
+    );
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(
+      (docSnap) => ({ id: docSnap.id, ...docSnap.data() } as AppNotification)
+    );
+  }
+
+  async markNotificationRead(notificationId: string): Promise<void> {
+    const docRef = doc(db as Firestore, 'notifications', notificationId);
+    await updateDoc(docRef, { read: true });
+  }
+
+  // ========== ORDERS ==========
+
+  async addOrder(order: Omit<Order, 'id' | 'createdAt'>): Promise<string> {
+    const cleanOrder = Object.entries(order).reduce<Record<string, any>>((acc, [key, value]) => {
+      if (value !== undefined) {
+        acc[key] = value;
+      }
+      return acc;
+    }, {});
+
+    const docRef = await addDoc(this.ordersCollection, {
+      ...cleanOrder,
+      createdAt: Timestamp.now()
+    });
+    return docRef.id;
+  }
+
+  async updateOrderStatus(id: string, status: Order['status']): Promise<void> {
+    const docRef = doc(db as Firestore, 'orders', id);
+    await updateDoc(docRef, { status });
+  }
+
+  async getOrders(): Promise<Order[]> {
+    const q = query(this.ordersCollection, orderBy('createdAt', 'desc'));
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map((docSnap) => ({
+      id: docSnap.id,
+      ...docSnap.data()
+    } as Order));
+  }
+
+  async getOrdersByUserId(userId: string): Promise<Order[]> {
+    const q = query(
+      this.ordersCollection,
+      where('userId', '==', userId),
+      orderBy('createdAt', 'desc')
+    );
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map((docSnap) => ({
+      id: docSnap.id,
+      ...docSnap.data()
+    } as Order));
   }
 
   // Get user profile
@@ -439,6 +608,33 @@ export class FirestoreService {
       console.error('[Firestore] Error fetching cars:', error?.message || error);
       return [];
     }
+  }
+
+  private async ensureUserProfile(user: User | null, provider: 'email' | 'google'): Promise<void> {
+    if (!user) {
+      return;
+    }
+
+    const existingProfile = await this.getUserProfile(user.uid);
+    if (existingProfile) {
+      await this.saveUserProfile(user.uid, {
+        email: user.email,
+        displayName: user.displayName,
+        photoURL: user.photoURL,
+        provider: existingProfile.provider || provider,
+        lastLoginAt: Timestamp.now()
+      });
+      return;
+    }
+
+    await this.saveUserProfile(user.uid, {
+      email: user.email,
+      displayName: user.displayName,
+      photoURL: user.photoURL,
+      provider,
+      createdAt: Timestamp.now(),
+      lastLoginAt: Timestamp.now()
+    });
   }
 
   // Get car by ID

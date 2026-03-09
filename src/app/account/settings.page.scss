@@ -1,0 +1,68 @@
+:host {
+  ion-content {
+    --background:
+      radial-gradient(circle at top, rgba(15, 23, 42, 0.06), transparent 30%),
+      #f3f5f8;
+  }
+}
+
+.settings-header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  --border-width: 0;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(16px);
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+}
+
+.settings-content {
+  --padding-bottom: 120px;
+}
+
+.settings-shell {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.settings-card {
+  background: #ffffff;
+  border-radius: 20px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.06);
+  padding: 12px 0;
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 16px 8px;
+}
+
+.section-title ion-icon {
+  color: #0f172a;
+}
+
+.section-title h3 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #64748b;
+}
+
+.password-form {
+  padding: 0 16px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.password-form ion-input {
+  --background: #f8fafc;
+  --border-radius: 12px;
+}

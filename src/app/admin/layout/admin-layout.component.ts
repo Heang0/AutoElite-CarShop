@@ -9,6 +9,7 @@ import {
   pricetagOutline,
   layersOutline,
   carOutline,
+  receiptOutline,
   logOutOutline
 } from 'ionicons/icons';
 import { FirestoreService } from '../../services/firestore.service';
@@ -42,6 +43,10 @@ import { FirestoreService } from '../../services/firestore.service';
           <a routerLink="/admin/cars" routerLinkActive="active" class="nav-item">
             <ion-icon name="car-outline"></ion-icon>
             <span>All Cars</span>
+          </a>
+          <a routerLink="/admin/orders" routerLinkActive="active" class="nav-item">
+            <ion-icon name="receipt-outline"></ion-icon>
+            <span>Orders</span>
           </a>
         </nav>
         <div class="sidebar-footer">
@@ -241,15 +246,23 @@ export class AdminLayoutComponent {
       pricetagOutline,
       layersOutline,
       carOutline,
+      receiptOutline,
       logOutOutline
     });
   }
 
   ngOnInit() {
-    this.firestoreService.onAuthStateChanged((user) => {
+    this.firestoreService.onAuthStateChanged(async (user) => {
       if (!user) {
         this.router.navigate(['/admin-login']);
       } else {
+        const isAdmin = await this.firestoreService.isCurrentUserAdmin();
+        if (!isAdmin) {
+          await this.firestoreService.signOut();
+          this.router.navigate(['/admin-login']);
+          return;
+        }
+
         this.adminEmail = user.email || '';
       }
     });

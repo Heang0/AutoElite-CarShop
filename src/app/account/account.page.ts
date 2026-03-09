@@ -14,6 +14,8 @@ import {
   chevronForwardOutline,
   personAddOutline,
   mailOutline,
+  callOutline,
+  locationOutline,
   shieldCheckmarkOutline,
   createOutline,
   closeOutline,
@@ -41,6 +43,8 @@ interface UserProfile {
   photoURL?: string;
   provider?: string;
   memberSince?: string;
+  phone?: string;
+  address?: string;
 }
 
 @Component({
@@ -69,6 +73,8 @@ export class AccountPage implements OnInit {
   isEditModalOpen = false;
   isEditingName = false;
   editName = '';
+  editPhone = '';
+  editAddress = '';
   isUploadingPhoto = false;
   isLoading = true;
 
@@ -92,6 +98,8 @@ export class AccountPage implements OnInit {
       chevronForwardOutline,
       personAddOutline,
       mailOutline,
+      callOutline,
+      locationOutline,
       shieldCheckmarkOutline,
       createOutline,
       closeOutline,
@@ -128,6 +136,8 @@ export class AccountPage implements OnInit {
           displayName: userProfile?.displayName || authUser.displayName || '',
           photoURL: userProfile?.photoURL || authUser.photoURL || '',
           provider: userProfile?.provider || (authUser.providerData[0]?.providerId || 'email'),
+          phone: userProfile?.phone || '',
+          address: userProfile?.address || '',
           memberSince: userProfile?.createdAt ? 
             new Date(userProfile.createdAt.seconds * 1000).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) :
             new Date(authUser.metadata.creationTime).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
@@ -189,6 +199,8 @@ export class AccountPage implements OnInit {
 
   openEditModal() {
     this.editName = this.user?.displayName || '';
+    this.editPhone = this.user?.phone || '';
+    this.editAddress = this.user?.address || '';
     this.isEditModalOpen = true;
   }
 
@@ -237,7 +249,7 @@ export class AccountPage implements OnInit {
     input.click();
   }
 
-  async saveName() {
+  async saveProfile() {
     if (!this.editName.trim()) {
       this.showToastMessage('Name cannot be empty', 'danger');
       return;
@@ -251,16 +263,22 @@ export class AccountPage implements OnInit {
 
     try {
       if (this.user?.uid) {
-        await (this.fs as any).updateUserName(this.user.uid, this.editName.trim());
+        await (this.fs as any).updateUserProfile(this.user.uid, {
+          displayName: this.editName.trim(),
+          phone: this.editPhone?.trim() || '',
+          address: this.editAddress?.trim() || ''
+        });
         if (this.user) {
           this.user.displayName = this.editName.trim();
           this.initials = this.user.displayName.charAt(0).toUpperCase();
+          this.user.phone = this.editPhone?.trim() || '';
+          this.user.address = this.editAddress?.trim() || '';
         }
-        this.showToastMessage('Name updated successfully', 'success');
+        this.showToastMessage('Profile updated successfully', 'success');
         this.isEditingName = false;
       }
     } catch (error: any) {
-      this.showToastMessage('Failed to update name', 'danger');
+      this.showToastMessage('Failed to update profile', 'danger');
     } finally {
       await loading.dismiss();
     }
@@ -268,6 +286,8 @@ export class AccountPage implements OnInit {
 
   cancelEditName() {
     this.editName = this.user?.displayName || '';
+    this.editPhone = this.user?.phone || '';
+    this.editAddress = this.user?.address || '';
     this.isEditingName = false;
   }
 
@@ -288,7 +308,7 @@ export class AccountPage implements OnInit {
   }
 
   openSettings() {
-    this.showToastMessage('Settings will be available soon.', 'primary');
+    this.router.navigate(['/settings']);
   }
 
   openSupport() {

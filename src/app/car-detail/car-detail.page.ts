@@ -15,6 +15,7 @@ import {
 } from 'ionicons/icons';
 import { CarApiService } from '../services/car-api.service';
 import { FavoriteService } from '../services/favorite.service';
+import { FirestoreService } from '../services/firestore.service';
 import type { Car } from '../services/favorite.service';
 // import { FinanceCalculatorComponent } from '../shared/finance-calculator/finance-calculator.component';
 import { ContactDealerComponent } from '../shared/contact-dealer/contact-dealer.component';
@@ -1023,6 +1024,7 @@ export class CarDetailPage implements OnInit {
   private router = inject(Router);
   private carApi = inject(CarApiService);
   private favoriteService = inject(FavoriteService);
+  private firestoreService = inject(FirestoreService);
 
   constructor() {
     addIcons({
@@ -1141,6 +1143,12 @@ export class CarDetailPage implements OnInit {
 
   buyNow() {
     if (this.car) {
+      const user = this.firestoreService.getCurrentUser();
+      if (!user) {
+        this.showFeedback('Please sign in to continue', 'danger');
+        this.router.navigate(['/auth'], { queryParams: { redirect: `/car/${this.car.id}` } });
+        return;
+      }
       this.router.navigate(['/payment', this.car.id]);
     }
   }

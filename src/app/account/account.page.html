@@ -105,6 +105,14 @@
             <ion-icon name="mail-outline"></ion-icon>
             {{ user.email }}
           </p>
+          <p class="user-email" *ngIf="user.phone">
+            <ion-icon name="call-outline"></ion-icon>
+            {{ user.phone }}
+          </p>
+          <p class="user-email" *ngIf="user.address">
+            <ion-icon name="location-outline"></ion-icon>
+            {{ user.address }}
+          </p>
           <div class="member-badge">
             <ion-icon name="calendar-outline"></ion-icon>
             <span>Member since {{ user.memberSince }}</span>
@@ -253,7 +261,7 @@
         </ion-buttons>
         <ion-title>Edit Profile</ion-title>
         <ion-buttons slot="end">
-          <ion-button (click)="saveName()" class="save-btn">Save</ion-button>
+          <ion-button (click)="saveProfile()" class="save-btn">Save</ion-button>
         </ion-buttons>
       </ion-toolbar>
     </ion-header>
@@ -286,6 +294,27 @@
             </ion-input>
           </div>
           <p class="input-hint">This name will be visible to other users</p>
+        </div>
+
+        <div class="form-section">
+          <ion-label class="section-label">Contact Details</ion-label>
+          <div class="input-wrapper">
+            <ion-icon name="call-outline" slot="start"></ion-icon>
+            <ion-input
+              [(ngModel)]="editPhone"
+              placeholder="Phone number"
+              class="styled-input">
+            </ion-input>
+          </div>
+          <div class="input-wrapper">
+            <ion-icon name="location-outline" slot="start"></ion-icon>
+            <ion-input
+              [(ngModel)]="editAddress"
+              placeholder="Address"
+              class="styled-input">
+            </ion-input>
+          </div>
+          <p class="input-hint">Required for booking and payment confirmation</p>
         </div>
 
         <!-- Account Info -->

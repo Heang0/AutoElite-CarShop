@@ -138,10 +138,16 @@ export class AdminLoginPage implements OnInit {
   }
 
   ngOnInit() {
-    this.firestoreService.onAuthStateChanged((user) => {
+    this.firestoreService.onAuthStateChanged(async (user) => {
       if (user) {
-        this.isAuthenticated = true;
-        this.router.navigate(['/admin/dashboard']);
+        const isAdmin = await this.firestoreService.isCurrentUserAdmin();
+        if (isAdmin) {
+          this.isAuthenticated = true;
+          this.router.navigate(['/admin/dashboard']);
+          return;
+        }
+
+        await this.firestoreService.signOut();
       }
     });
   }
@@ -157,6 +163,12 @@ export class AdminLoginPage implements OnInit {
 
     try {
       await this.firestoreService.signIn(this.adminEmail, this.adminPassword);
+      const isAdmin = await this.firestoreService.isCurrentUserAdmin();
+      if (!isAdmin) {
+        await this.firestoreService.signOut();
+        throw new Error('This account is not authorized for admin access');
+      }
+
       this.router.navigate(['/admin/dashboard']);
     } catch (error: any) {
       this.loginError = error.message;
