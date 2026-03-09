@@ -73,6 +73,3 @@ Thumbs.db
 .env
 .env.local
 .env.*.local
-
-# Firebase configuration (create from .env.example)
-src/environments/environment.local.ts
