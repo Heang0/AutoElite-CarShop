@@ -1,7 +1,6 @@
-import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
 import { Router } from '@angular/router';
 import {
   IonContent,
@@ -18,13 +17,14 @@ import {
   IonList,
   IonItem,
   IonNote,
+  IonModal,
+  IonFooter,
   IonLabel,
   IonRange,
   IonCheckbox,
   IonInput,
   IonChip,
-  IonMenu,
-  IonMenuToggle
+  IonMenuButton
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
@@ -50,32 +50,16 @@ import {
   filterOutline,
   diamondOutline,
   flashOutline,
-  chevronDownOutline,
-  chevronBackOutline,
-  chevronForwardOutline,
-  logOutOutline,
-  timeOutline,
-  cashOutline,
-  settingsOutline,
-  helpCircleOutline
+  chevronDownOutline
 } from 'ionicons/icons';
 import type { RangeValue } from '@ionic/core';
 import { FavoriteService, type Car } from '../services/favorite.service';
 import { CarApiService } from '../services/car-api.service';
-import { FirestoreService } from '../services/firestore.service';
 import { NOTIFICATION_ITEMS, type NotificationItem } from '../data/notifications.data';
 
 interface Brand {
   name: string;
   logoUrl: string;
-}
-
-interface Slide {
-  id: number;
-  title: string;
-  subtitle: string;
-  image: string;
-  ctaText: string;
 }
 
 const DEFAULT_BRAND_LOGO =
@@ -101,7 +85,6 @@ const BRAND_LOGOS: Record<string, string> = {
   imports: [
     CommonModule,
     FormsModule,
-    RouterModule,
     IonContent,
     IonButton,
     IonIcon,
@@ -116,13 +99,14 @@ const BRAND_LOGOS: Record<string, string> = {
     IonList,
     IonItem,
     IonNote,
+    IonModal,
+    IonFooter,
     IonLabel,
     IonCheckbox,
     IonInput,
     IonRange,
     IonChip,
-    IonMenu,
-    IonMenuToggle
+    IonMenuButton
   ]
 })
 export class HomePage implements OnInit, OnDestroy {
@@ -130,35 +114,10 @@ export class HomePage implements OnInit, OnDestroy {
   displayedBrands: Brand[] = [];
   showAllBrands = false;
 
-  slides: Slide[] = [
-    {
-      id: 1,
-      title: 'Executive Collection',
-      subtitle: 'High-end sedans for refined daily driving',
-      image:
-        'https://images.unsplash.com/photo-1542362567-b07e54358753?auto=format&fit=crop&w=1200&q=80',
-      ctaText: 'View Collection'
-    },
-    {
-      id: 2,
-      title: 'Performance Series',
-      subtitle: 'Power and control in every turn',
-      image:
-        'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?auto=format&fit=crop&w=1200&q=80',
-      ctaText: 'Explore Models'
-    },
-    {
-      id: 3,
-      title: 'Electric Flagships',
-      subtitle: 'Modern technology with premium comfort',
-      image:
-        'https://images.unsplash.com/photo-1553440569-bcc63803a83d?auto=format&fit=crop&w=1200&q=80',
-      ctaText: 'Go Electric'
-    }
-  ];
-
   allCars: Car[] = [];
   cars: Car[] = [];
+  heroCars: Car[] = [];
+  currentHeroIndex = 0;
   isLoadingCars = false;
   carsError = '';
 
@@ -175,28 +134,14 @@ export class HomePage implements OnInit, OnDestroy {
   selectedCarTypes: string[] = [];
   activeCarTypes: string[] = [];
   priceBounds = { min: 20000, max: 200000 };
-  private readonly defaultPriceRange = { lower: 20000, upper: 140000 };
+  private readonly defaultPriceRange = { lower: this.priceBounds.min, upper: this.priceBounds.max };
   activePriceRange = { ...this.defaultPriceRange };
   pendingPriceRange = { ...this.defaultPriceRange };
-
-  currentSlideIndex = 0;
-  private autoSlideInterval: ReturnType<typeof setInterval> | null = null;
-  isLoggedIn = false;
-  
-  menuItems = [
-    { title: 'Home', icon: 'home', url: '/tabs/home' },
-    { title: 'Explore', icon: 'compass-outline', url: '/tabs/explore' },
-    { title: 'Favorites', icon: 'heart-outline', url: '/tabs/favorites' },
-    { title: 'Account', icon: 'person-outline', url: '/tabs/account' },
-    { title: 'Recently Viewed', icon: 'time-outline', url: '/recently-viewed' },
-    { title: 'Trade-In', icon: 'cash-outline', url: '/trade-in' },
-    { title: 'Compare Cars', icon: 'swap-horizontal-outline', url: '/compare-cars' }
-  ];
 
   private router = inject(Router);
   private favoriteService = inject(FavoriteService);
   private carApi = inject(CarApiService);
-  private firestoreService = inject(FirestoreService);
+  private heroIntervalId: number | null = null;
 
   constructor() {
     addIcons({
@@ -222,23 +167,16 @@ export class HomePage implements OnInit, OnDestroy {
       'filter-outline': filterOutline,
       'diamond-outline': diamondOutline,
       'flash-outline': flashOutline,
-      'chevron-down-outline': chevronDownOutline,
-      'chevron-back-outline': chevronBackOutline,
-      'chevron-forward-outline': chevronForwardOutline,
-      'time-outline': timeOutline,
-      'cash-outline': cashOutline,
-      'settings-outline': settingsOutline,
-      'help-circle-outline': helpCircleOutline
+      'chevron-down-outline': chevronDownOutline
     });
   }
 
   ngOnInit(): void {
     this.loadCars();
-    this.startAutoSlide();
   }
 
   ngOnDestroy(): void {
-    this.stopAutoSlide();
+    this.clearHeroAutoSlide();
   }
 
   toggleBrands(): void {
@@ -259,6 +197,11 @@ export class HomePage implements OnInit, OnDestroy {
     this.router.navigate(['/car', car.id], { state: { car } });
   }
 
+  openCarDetails(car: Car, event: Event): void {
+    event.stopPropagation();
+    this.onCarClick(car);
+  }
+
   toggleFavorite(car: Car, event: Event): void {
     event.stopPropagation();
     this.favoriteService.toggleFavorite(car);
@@ -274,54 +217,32 @@ export class HomePage implements OnInit, OnDestroy {
     this.rebuildCarList();
   }
 
-  startAutoSlide(): void {
-    this.stopAutoSlide();
-    this.autoSlideInterval = setInterval(() => {
-      this.nextSlide();
-    }, 5000);
-  }
-
-  stopAutoSlide(): void {
-    if (this.autoSlideInterval) {
-      clearInterval(this.autoSlideInterval);
-      this.autoSlideInterval = null;
-    }
-  }
-
-  nextSlide(): void {
-    this.currentSlideIndex = (this.currentSlideIndex + 1) % this.slides.length;
-  }
-
-  prevSlide(): void {
-    this.currentSlideIndex = (this.currentSlideIndex - 1 + this.slides.length) % this.slides.length;
-  }
-
-  goToSlide(index: number): void {
-    this.currentSlideIndex = index;
-  }
-
   getStars(rating: number): boolean[] {
     return Array(5)
       .fill(false)
       .map((_, i) => i < rating);
   }
 
-  openMenu(): void {
-    const menu = document.querySelector('ion-menu') as HTMLIonMenuElement;
-    if (menu) {
-      menu.toggle();
-    }
+  get currentHero(): Car | null {
+    return this.heroCars[this.currentHeroIndex] ?? null;
   }
 
-  logout() {
-    this.firestoreService.signOut().then(() => {
-      this.isLoggedIn = false;
-      const menu = document.querySelector('ion-menu') as HTMLIonMenuElement;
-      if (menu) {
-        menu.close();
-      }
-      this.router.navigate(['/auth']);
-    });
+  get activeFilterCount(): number {
+    let count = 0;
+
+    if (this.activeBrands.length) {
+      count += this.activeBrands.length;
+    }
+
+    if (this.activeCarTypes.length) {
+      count += this.activeCarTypes.length;
+    }
+
+    if (this.isPriceFilterActive) {
+      count += 1;
+    }
+
+    return count;
   }
 
   showNotifications(event?: Event): void {
@@ -450,22 +371,11 @@ export class HomePage implements OnInit, OnDestroy {
     }
   }
 
-  get hasActiveFilters(): boolean {
-    return this.activeBrands.length > 0 || this.activeCarTypes.length > 0 || this.isPriceFilterActive;
-  }
-
   get isPriceFilterActive(): boolean {
     return (
-      this.activePriceRange.lower > this.priceBounds.min ||
-      this.activePriceRange.upper < this.priceBounds.max
+      this.activePriceRange.lower !== this.defaultPriceRange.lower ||
+      this.activePriceRange.upper !== this.defaultPriceRange.upper
     );
-  }
-
-  scrollToCarCards(): void {
-    const carSection = document.querySelector('.popular-cars-section');
-    if (carSection) {
-      carSection.scrollIntoView({ behavior: 'smooth' });
-    }
   }
 
   private loadCars(): void {
@@ -535,5 +445,50 @@ export class HomePage implements OnInit, OnDestroy {
       (car) =>
         car.price >= this.activePriceRange.lower && car.price <= this.activePriceRange.upper
     );
+
+    this.updateHeroCars();
+  }
+
+  private updateHeroCars(): void {
+    const baseList = this.cars.length ? this.cars : this.allCars;
+    this.heroCars = baseList.slice(0, 3);
+    if (this.currentHeroIndex >= this.heroCars.length) {
+      this.currentHeroIndex = 0;
+    }
+    this.resetHeroAutoSlide();
+  }
+
+  private resetHeroAutoSlide(): void {
+    this.clearHeroAutoSlide();
+    if (this.heroCars.length > 1) {
+      this.heroIntervalId = window.setInterval(() => {
+        this.advanceHero(1);
+      }, 3000);
+    }
+  }
+
+  private clearHeroAutoSlide(): void {
+    if (this.heroIntervalId !== null) {
+      window.clearInterval(this.heroIntervalId);
+      this.heroIntervalId = null;
+    }
+  }
+
+  private advanceHero(step: number): void {
+    if (this.heroCars.length < 2) {
+      return;
+    }
+    const total = this.heroCars.length;
+    this.currentHeroIndex = (this.currentHeroIndex + step + total) % total;
+  }
+
+  nextHero(): void {
+    this.advanceHero(1);
+    this.resetHeroAutoSlide();
+  }
+
+  prevHero(): void {
+    this.advanceHero(-1);
+    this.resetHeroAutoSlide();
   }
 }

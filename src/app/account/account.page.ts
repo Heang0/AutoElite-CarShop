@@ -1,7 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { IonicModule, LoadingController, AlertController } from '@ionic/angular';
+import { IonicModule, LoadingController, AlertController, MenuController } from '@ionic/angular';
 import { addIcons } from 'ionicons';
 import { 
   personOutline, 
@@ -26,7 +26,8 @@ import {
   helpCircleOutline,
   lockClosedOutline,
   fingerPrintOutline,
-  logoGoogle
+  logoGoogle,
+  menuOutline
 } from 'ionicons/icons';
 import { FirestoreService } from '../services/firestore.service';
 import { FavoriteService } from '../services/favorite.service';
@@ -77,6 +78,7 @@ export class AccountPage implements OnInit {
   private router = inject(Router);
   private loadingCtrl = inject(LoadingController);
   private alertCtrl = inject(AlertController);
+  private menuController = inject(MenuController);
 
   constructor() {
     addIcons({ 
@@ -102,7 +104,8 @@ export class AccountPage implements OnInit {
       helpCircleOutline,
       lockClosedOutline,
       fingerPrintOutline,
-      logoGoogle
+      logoGoogle,
+      menuOutline
     });
   }
 
@@ -152,6 +155,10 @@ export class AccountPage implements OnInit {
 
   goTo(path: string) {
     this.router.navigate([path]);
+  }
+
+  openMenu() {
+    void this.menuController.open('main-menu');
   }
 
   async doLogout() {
@@ -278,5 +285,17 @@ export class AccountPage implements OnInit {
     this.toastMsg = message;
     this.toastColor = color;
     this.showToast = true;
+  }
+
+  openSettings() {
+    this.showToastMessage('Settings will be available soon.', 'primary');
+  }
+
+  openSupport() {
+    this.showToastMessage('Support center will be available soon.', 'primary');
+  }
+
+  openPrivacy() {
+    this.showToastMessage('Privacy policy will be available soon.', 'primary');
   }
 }

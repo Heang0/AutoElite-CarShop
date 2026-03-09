@@ -9,6 +9,7 @@ import {
   IonTitle,
   IonToolbar,
   IonSearchbar,
+  IonInput,
   IonCard,
   IonCardContent,
   IonButton,
@@ -21,8 +22,8 @@ import {
   IonLabel,
   IonCheckbox,
   IonRange,
-  IonInput,
-  IonChip
+  IonChip,
+  IonMenuButton
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
@@ -64,6 +65,7 @@ interface Brand {
     IonTitle,
     IonToolbar,
     IonSearchbar,
+    IonInput,
     IonCard,
     IonCardContent,
     IonButton,
@@ -76,8 +78,8 @@ interface Brand {
     IonLabel,
     IonCheckbox,
     IonRange,
-    IonInput,
-    IonChip
+    IonChip,
+    IonMenuButton
   ]
 })
 export class ExplorePage implements OnInit {
@@ -150,6 +152,11 @@ export class ExplorePage implements OnInit {
     this.router.navigate(['/car', car.id], { state: { car } });
   }
 
+  openCarDetails(car: Car, event: Event): void {
+    event.stopPropagation();
+    this.onCarClick(car);
+  }
+
   onTabChange(tabName: string): void {
     this.activeTab = tabName;
 
@@ -170,10 +177,6 @@ export class ExplorePage implements OnInit {
         this.router.navigate(['/tabs/home']);
         break;
     }
-  }
-
-  openMenu(): void {
-    console.log('Menu button clicked');
   }
 
   showNotifications(event?: Event): void {

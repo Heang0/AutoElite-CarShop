@@ -168,13 +168,6 @@ import type { Car } from '../../../services/favorite.service';
                   ></ion-input>
 
                   <ion-input
-                    label="Engine"
-                    labelPlacement="stacked"
-                    formControlName="engine"
-                    placeholder="e.g., 1.8L 4-Cylinder"
-                  ></ion-input>
-
-                  <ion-input
                     label="Drivetrain"
                     labelPlacement="stacked"
                     formControlName="drivetrain"
@@ -564,7 +557,6 @@ export class AdminAddCarPage implements OnInit {
       // Additional details
       exteriorColor: [''],
       interiorColor: [''],
-      engine: [''],
       drivetrain: [''],
       horsepower: [0],
       seats: [5],
@@ -609,7 +601,6 @@ export class AdminAddCarPage implements OnInit {
             categoryId: car.type,
             exteriorColor: car.exteriorColor,
             interiorColor: car.interiorColor,
-            engine: car.engine,
             drivetrain: car.drivetrain,
             horsepower: car.horsepower,
             seats: car.seats,
@@ -715,7 +706,6 @@ export class AdminAddCarPage implements OnInit {
       isFavorite: false,
       exteriorColor: formValue.exteriorColor || '',
       interiorColor: formValue.interiorColor || '',
-      engine: formValue.engine || '',
       drivetrain: formValue.drivetrain || '',
       horsepower: formValue.horsepower || 0,
       seats: formValue.seats || 5,

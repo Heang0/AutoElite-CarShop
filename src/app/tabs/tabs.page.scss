@@ -3,6 +3,39 @@
   min-height: 100%;
 }
 
+.app-menu {
+  --width: min(320px, 88vw);
+}
+
+.app-menu ion-content {
+  --background: #f8fafc;
+}
+
+.app-menu__list {
+  padding: 18px 12px 8px;
+}
+
+.app-menu__list ion-item {
+  --background: transparent;
+  --border-radius: 18px;
+  --padding-start: 14px;
+  --padding-end: 14px;
+  margin-bottom: 6px;
+}
+
+.app-menu__list ion-item.is-active {
+  --background: #e2e8f0;
+  color: #0f172a;
+}
+
+.app-menu__list ion-icon {
+  color: #1f3a5f;
+}
+
+.app-menu__footer {
+  padding: 8px 16px calc(18px + env(safe-area-inset-bottom));
+}
+
 .tabs-shell {
   min-height: 100%;
 }

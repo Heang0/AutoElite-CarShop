@@ -10,12 +10,14 @@ import {
   IonCard,
   IonCardContent,
   IonButton,
+  IonInput,
   IonIcon,
   IonImg,
   IonButtons,
   IonList,
   IonItem,
-  IonNote
+  IonNote,
+  IonMenuButton
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
@@ -25,10 +27,16 @@ import {
   navigateOutline,
   star,
   starOutline,
+  searchOutline,
   home,
   compassOutline,
   cartOutline,
-  personOutline
+  personOutline,
+  menuOutline,
+  notificationsOutline,
+  diamondOutline,
+  flashOutline,
+  carSportOutline
 } from 'ionicons/icons';
 import { FavoriteService, type Car } from '../services/favorite.service';
 import { type NotificationItem, NOTIFICATION_ITEMS } from '../data/notifications.data';
@@ -48,16 +56,19 @@ import { type NotificationItem, NOTIFICATION_ITEMS } from '../data/notifications
     IonCard,
     IonCardContent,
     IonButton,
+    IonInput,
     IonIcon,
     IonImg,
     IonButtons,
     IonList,
     IonItem,
-    IonNote
+    IonNote,
+    IonMenuButton
   ]
 })
 export class FavoritesPage {
   favoriteCars: Car[] = [];
+  searchQuery = '';
   activeTab = 'favorites';
   isNotificationsOpen = false;
   notificationItems: NotificationItem[] = NOTIFICATION_ITEMS;
@@ -70,6 +81,7 @@ export class FavoritesPage {
     addIcons({
       heart,
       'heart-outline': heartOutline,
+      'search-outline': searchOutline,
       'share-social-outline': shareSocialOutline,
       'navigate-outline': navigateOutline,
       star,
@@ -77,7 +89,12 @@ export class FavoritesPage {
       home,
       'compass-outline': compassOutline,
       'cart-outline': cartOutline,
-      'person-outline': personOutline
+      'person-outline': personOutline,
+      'menu-outline': menuOutline,
+      'notifications-outline': notificationsOutline,
+      'diamond-outline': diamondOutline,
+      'flash-outline': flashOutline,
+      'car-sport-outline': carSportOutline
     });
 
     this.loadFavorites();
@@ -90,6 +107,10 @@ export class FavoritesPage {
   loadFavorites(): void {
     this.favoriteCars = this.favoriteService.getFavorites();
     console.log('Loaded favorites:', this.favoriteCars.length);
+  }
+
+  onSearch(event: any): void {
+    this.searchQuery = event?.detail?.value ?? '';
   }
 
   toggleFavorite(car: Car, event: Event): void {
@@ -108,8 +129,9 @@ export class FavoritesPage {
     this.router.navigate(['/car', car.id], { state: { car } });
   }
 
-  openMenu(): void {
-    console.log('Menu button clicked');
+  openCarDetails(car: Car, event: Event): void {
+    event.stopPropagation();
+    this.onCarClick(car);
   }
 
   showNotifications(event?: Event): void {
@@ -159,5 +181,20 @@ export class FavoritesPage {
     return Array(5)
       .fill(false)
       .map((_, i) => i < rating);
+  }
+
+  get filteredFavoriteCars(): Car[] {
+    const query = this.searchQuery.trim().toLowerCase();
+
+    if (!query) {
+      return this.favoriteCars;
+    }
+
+    return this.favoriteCars.filter(
+      (car) =>
+        car.name.toLowerCase().includes(query) ||
+        car.brand.toLowerCase().includes(query) ||
+        car.model.toLowerCase().includes(query)
+    );
   }
 }

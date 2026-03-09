@@ -1,13 +1,57 @@
-import { Component, inject } from '@angular/core';
-import { IonicModule } from '@ionic/angular';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { IonicModule, MenuController } from '@ionic/angular';
 import { Router, RouterModule } from '@angular/router';
 import { addIcons } from 'ionicons';
-import { home, compassOutline, heartOutline, personOutline } from 'ionicons/icons';
+import {
+  carSportOutline,
+  cashOutline,
+  compassOutline,
+  heartOutline,
+  home,
+  logInOutline,
+  logOutOutline,
+  personOutline,
+  swapHorizontalOutline,
+  timeOutline
+} from 'ionicons/icons';
+import { FirestoreService } from '../services/firestore.service';
+
+interface ShellMenuItem {
+  icon: string;
+  title: string;
+  url: string;
+}
 
 @Component({
   selector: 'app-tabs',
   template: `
-    <div class="tabs-shell">
+    <ion-menu contentId="tabs-content" menuId="main-menu" side="start" class="app-menu">
+      <ion-content>
+        <ion-list lines="none" class="app-menu__list">
+          <ion-menu-toggle auto-hide="true" *ngFor="let item of menuItems">
+            <ion-item button detail="false" (click)="navigate(item.url)" [class.is-active]="isActive(item.url)">
+              <ion-icon slot="start" [name]="item.icon"></ion-icon>
+              <ion-label>{{ item.title }}</ion-label>
+            </ion-item>
+          </ion-menu-toggle>
+        </ion-list>
+
+        <div class="app-menu__footer">
+          <ion-button expand="block" fill="clear" *ngIf="!isLoggedIn" (click)="navigate('/auth')">
+            <ion-icon slot="start" name="log-in-outline"></ion-icon>
+            Sign In
+          </ion-button>
+
+          <ion-button expand="block" color="danger" *ngIf="isLoggedIn" (click)="signOut()">
+            <ion-icon slot="start" name="log-out-outline"></ion-icon>
+            Sign Out
+          </ion-button>
+        </div>
+      </ion-content>
+    </ion-menu>
+
+    <div class="tabs-shell" id="tabs-content">
       <ion-router-outlet></ion-router-outlet>
     </div>
 
@@ -55,21 +99,65 @@ import { home, compassOutline, heartOutline, personOutline } from 'ionicons/icon
   `,
   styleUrls: ['./tabs.page.scss'],
   standalone: true,
-  imports: [IonicModule, RouterModule]
+  imports: [CommonModule, IonicModule, RouterModule]
 })
-export class TabsPage {
+export class TabsPage implements OnInit, OnDestroy {
   private readonly router = inject(Router);
+  private readonly firestoreService = inject(FirestoreService);
+  private readonly menuController = inject(MenuController);
+  private authSubscription?: () => void;
+
+  readonly menuItems: ShellMenuItem[] = [
+    { title: 'Home', icon: 'home', url: '/tabs/home' },
+    { title: 'Explore', icon: 'compass-outline', url: '/tabs/explore' },
+    { title: 'Favorites', icon: 'heart-outline', url: '/tabs/favorites' },
+    { title: 'Account', icon: 'person-outline', url: '/tabs/account' },
+    { title: 'Recently Viewed', icon: 'time-outline', url: '/recently-viewed' },
+    { title: 'Trade-In', icon: 'cash-outline', url: '/trade-in' },
+    { title: 'Compare Cars', icon: 'swap-horizontal-outline', url: '/compare-cars' }
+  ];
+  isLoggedIn = false;
 
   constructor() {
-    addIcons({ home, compassOutline, heartOutline, personOutline });
+    addIcons({
+      'car-sport-outline': carSportOutline,
+      'cash-outline': cashOutline,
+      'compass-outline': compassOutline,
+      'heart-outline': heartOutline,
+      home,
+      'log-in-outline': logInOutline,
+      'log-out-outline': logOutOutline,
+      'person-outline': personOutline,
+      'swap-horizontal-outline': swapHorizontalOutline,
+      'time-outline': timeOutline
+    });
+  }
+
+  ngOnInit(): void {
+    this.authSubscription = this.firestoreService.onAuthStateChanged((user) => {
+      this.isLoggedIn = !!user;
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.authSubscription?.();
   }
 
   navigate(path: string): void {
-    if (this.router.url === path) {
+    const isSamePath = this.router.url === path;
+    void this.menuController.close('main-menu');
+
+    if (isSamePath) {
       return;
     }
 
     void this.router.navigateByUrl(path);
+  }
+
+  async signOut(): Promise<void> {
+    await this.firestoreService.signOut();
+    this.isLoggedIn = false;
+    this.navigate('/auth');
   }
 
   isActive(path: string): boolean {

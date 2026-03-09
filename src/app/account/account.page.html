@@ -1,8 +1,11 @@
-<ion-header class="ion-no-border">
-  <ion-toolbar>
+<ion-header class="account-header ion-no-border">
+  <ion-toolbar class="account-toolbar">
+    <ion-buttons slot="start">
+      <ion-menu-button menu="main-menu" autoHide="false" class="menu-btn"></ion-menu-button>
+    </ion-buttons>
     <ion-title class="account-title">My Account</ion-title>
     <ion-buttons slot="end" *ngIf="isLoggedIn">
-      <ion-button (click)="doLogout()" class="logout-header-btn">
+      <ion-button fill="clear" (click)="doLogout()" class="logout-header-btn">
         <ion-icon name="log-out-outline" slot="icon-only"></ion-icon>
       </ion-button>
     </ion-buttons>
@@ -80,8 +83,8 @@
               <ion-spinner *ngIf="isUploadingPhoto" name="crescent" size="tiny"></ion-spinner>
             </ion-fab-button>
           </div>
-          <ion-button 
-            fill="outline" 
+          <ion-button
+            fill="outline"
             class="edit-profile-btn"
             (click)="openEditModal()">
             <ion-icon name="create-outline" slot="start"></ion-icon>
@@ -143,48 +146,48 @@
     </div>
     
     <ion-list class="menu-list">
-      <ion-item button (click)="goTo('/favorites')" class="menu-item">
-        <div class="menu-icon-wrapper heart">
+      <ion-item button detail="false" (click)="goTo('/favorites')" class="menu-item">
+        <div class="menu-icon-wrapper heart" slot="start">
           <ion-icon name="heart-outline"></ion-icon>
         </div>
         <ion-label>
           <h3>Saved Cars</h3>
           <p>Browse your favorite vehicles</p>
         </ion-label>
-        <ion-icon slot="end" name="chevron-forward" class="chevron"></ion-icon>
+        <ion-icon slot="end" name="chevron-forward-outline" class="chevron"></ion-icon>
       </ion-item>
 
-      <ion-item button (click)="goTo('/recently-viewed')" class="menu-item">
-        <div class="menu-icon-wrapper time">
+      <ion-item button detail="false" (click)="goTo('/recently-viewed')" class="menu-item">
+        <div class="menu-icon-wrapper time" slot="start">
           <ion-icon name="time-outline"></ion-icon>
         </div>
         <ion-label>
           <h3>Recently Viewed</h3>
           <p>Cars you've explored</p>
         </ion-label>
-        <ion-icon slot="end" name="chevron-forward" class="chevron"></ion-icon>
+        <ion-icon slot="end" name="chevron-forward-outline" class="chevron"></ion-icon>
       </ion-item>
 
-      <ion-item button (click)="goTo('/trade-in')" class="menu-item">
-        <div class="menu-icon-wrapper cash">
+      <ion-item button detail="false" (click)="goTo('/trade-in')" class="menu-item">
+        <div class="menu-icon-wrapper cash" slot="start">
           <ion-icon name="cash-outline"></ion-icon>
         </div>
         <ion-label>
           <h3>Trade-In</h3>
           <p>Get an offer for your car</p>
         </ion-label>
-        <ion-icon slot="end" name="chevron-forward" class="chevron"></ion-icon>
+        <ion-icon slot="end" name="chevron-forward-outline" class="chevron"></ion-icon>
       </ion-item>
 
-      <ion-item button class="menu-item">
-        <div class="menu-icon-wrapper settings">
+      <ion-item button detail="false" class="menu-item" (click)="openSettings()">
+        <div class="menu-icon-wrapper settings" slot="start">
           <ion-icon name="settings-outline"></ion-icon>
         </div>
         <ion-label>
           <h3>Settings</h3>
           <p>Notifications and preferences</p>
         </ion-label>
-        <ion-icon slot="end" name="chevron-forward" class="chevron"></ion-icon>
+        <ion-icon slot="end" name="chevron-forward-outline" class="chevron"></ion-icon>
       </ion-item>
     </ion-list>
 
@@ -194,26 +197,26 @@
     </div>
 
     <ion-list class="account-list">
-      <ion-item button class="menu-item">
-        <div class="menu-icon-wrapper help">
+      <ion-item button detail="false" class="menu-item" (click)="openSupport()">
+        <div class="menu-icon-wrapper help" slot="start">
           <ion-icon name="help-circle-outline"></ion-icon>
         </div>
         <ion-label>
           <h3>Help & Support</h3>
           <p>FAQs and contact us</p>
         </ion-label>
-        <ion-icon slot="end" name="chevron-forward" class="chevron"></ion-icon>
+        <ion-icon slot="end" name="chevron-forward-outline" class="chevron"></ion-icon>
       </ion-item>
 
-      <ion-item button class="menu-item">
-        <div class="menu-icon-wrapper privacy">
+      <ion-item button detail="false" class="menu-item" (click)="openPrivacy()">
+        <div class="menu-icon-wrapper privacy" slot="start">
           <ion-icon name="lock-closed-outline"></ion-icon>
         </div>
         <ion-label>
           <h3>Privacy Policy</h3>
           <p>Read our privacy policy</p>
         </ion-label>
-        <ion-icon slot="end" name="chevron-forward" class="chevron"></ion-icon>
+        <ion-icon slot="end" name="chevron-forward-outline" class="chevron"></ion-icon>
       </ion-item>
     </ion-list>
 
@@ -232,7 +235,14 @@
 </ion-content>
 
 <!-- Edit Profile Modal -->
-<ion-modal [isOpen]="isEditModalOpen" (didDismiss)="closeEditModal()" class="edit-profile-modal">
+<ion-modal
+  [isOpen]="isEditModalOpen"
+  (didDismiss)="closeEditModal()"
+  class="edit-profile-modal"
+  [initialBreakpoint]="0.9"
+  [breakpoints]="[0, 0.9]"
+  [handle]="true"
+>
   <ng-template>
     <ion-header>
       <ion-toolbar>

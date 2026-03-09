@@ -1,37 +1,7 @@
-<ion-menu contentId="main-content" side="start" menuId="main-menu" class="side-menu">
-  <ion-header>
-    <ion-toolbar color="primary">
-      <ion-title>Menu</ion-title>
-    </ion-toolbar>
-  </ion-header>
-  <ion-content>
-    <ion-list>
-      <ion-menu-toggle auto-hide="true" *ngFor="let item of menuItems">
-        <ion-item button [routerLink]="item.url" routerLinkActive="active-menu-item">
-          <ion-icon slot="start" [name]="item.icon"></ion-icon>
-          <ion-label>{{ item.title }}</ion-label>
-        </ion-item>
-      </ion-menu-toggle>
-    </ion-list>
-    
-    <ion-list *ngIf="isLoggedIn">
-      <ion-menu-toggle auto-hide="true">
-        <ion-item button (click)="logout()" class="logout-item">
-          <ion-icon slot="start" name="log-out-outline"></ion-icon>
-          <ion-label>Sign Out</ion-label>
-        </ion-item>
-      </ion-menu-toggle>
-    </ion-list>
-  </ion-content>
-</ion-menu>
-
-<div class="ion-page" id="main-content">
 <ion-header class="clean-header">
   <ion-toolbar class="header-toolbar">
     <ion-buttons slot="start">
-      <ion-button fill="clear" size="large" class="menu-btn" (click)="openMenu()">
-        <ion-icon name="menu-outline"></ion-icon>
-      </ion-button>
+      <ion-menu-button menu="main-menu" autoHide="false" class="menu-btn"></ion-menu-button>
     </ion-buttons>
 
     <ion-title class="store-name">AutoElite</ion-title>
@@ -75,228 +45,221 @@
     <div class="notification-drawer__detail" *ngIf="selectedNotification">
       <h3>{{ selectedNotification.title }}</h3>
       <p>{{ selectedNotification.details }}</p>
-      <span>{{ selectedNotification.time }} · AutoElite</span>
+      <span>{{ selectedNotification.time }} | AutoElite</span>
     </div>
   </div>
 </aside>
 
+<ion-modal
+  [isOpen]="isFilterOpen"
+  (didDismiss)="dismissFilterPanel()"
+  cssClass="filter-modal"
+  [initialBreakpoint]="0.92"
+  [breakpoints]="[0, 0.92]"
+  [handle]="true"
+>
+  <ng-template>
+    <ion-header class="filter-modal__header ion-no-border">
+      <ion-toolbar>
+        <div>
+          <p class="filter-sheet__eyebrow">Filters</p>
+          <h3>Filter Cars</h3>
+        </div>
+        <ion-button fill="clear" size="small" (click)="dismissFilterPanel()" class="filter-close">
+          <ion-icon name="close-outline"></ion-icon>
+        </ion-button>
+      </ion-toolbar>
+    </ion-header>
+
+    <ion-content class="filter-modal__content">
+      <div class="filter-sheet__content">
+        <section class="filter-section">
+          <div class="filter-section__heading">
+            <h4>Brand</h4>
+            <p>Search and multi-select</p>
+          </div>
+          <ion-searchbar
+            [(ngModel)]="brandSearchQuery"
+            placeholder="Search brands..."
+            [debounce]="250"
+            show-cancel-button="never"
+          ></ion-searchbar>
+          <ion-list lines="full" class="brand-selection-list">
+            <ion-item
+              button
+              detail="false"
+              *ngFor="let brand of filteredBrandOptions"
+              (click)="toggleBrandSelection(brand)"
+              [class.selected]="isBrandSelected(brand)"
+            >
+              <ion-checkbox slot="start" [checked]="isBrandSelected(brand)"></ion-checkbox>
+              <ion-label>{{ brand }}</ion-label>
+            </ion-item>
+          </ion-list>
+        </section>
+
+        <section class="filter-section">
+          <div class="filter-section__heading">
+            <h4>Car Type</h4>
+            <p>Tap to select one or more</p>
+          </div>
+          <div class="type-chip-row">
+            <ion-chip
+              *ngFor="let type of carTypeOptions"
+              [class.active]="isCarTypeSelected(type)"
+              (click)="toggleCarTypeSelection(type)"
+            >
+              <ion-label>{{ type }}</ion-label>
+            </ion-chip>
+          </div>
+        </section>
+
+        <section class="filter-section">
+          <div class="filter-section__heading">
+            <h4>Price Range</h4>
+          </div>
+          <ion-range
+            dualKnobs="true"
+            [min]="priceBounds.min"
+            [max]="priceBounds.max"
+            [pin]="true"
+            [value]="pendingPriceRange"
+            (ionChange)="updatePriceRange($event.detail.value)"
+          ></ion-range>
+          <div class="range-inputs">
+            <ion-item lines="none">
+              <ion-label position="stacked">Min</ion-label>
+              <ion-input
+                type="number"
+                [value]="pendingPriceRange.lower"
+                (ionInput)="updatePendingPrice('lower', $event.detail.value)"
+              ></ion-input>
+            </ion-item>
+            <ion-item lines="none">
+              <ion-label position="stacked">Max</ion-label>
+              <ion-input
+                type="number"
+                [value]="pendingPriceRange.upper"
+                (ionInput)="updatePendingPrice('upper', $event.detail.value)"
+              ></ion-input>
+            </ion-item>
+          </div>
+        </section>
+      </div>
+    </ion-content>
+
+    <ion-footer class="filter-modal__footer ion-no-border">
+      <div class="filter-sheet__footer">
+        <ion-button fill="outline" size="small" (click)="resetFilters($event)">Reset</ion-button>
+        <ion-button expand="block" (click)="applyFilterChanges()">Apply Filters</ion-button>
+      </div>
+    </ion-footer>
+  </ng-template>
+</ion-modal>
+
 <ion-content [fullscreen]="true" [scrollY]="true">
   <div class="app-container">
-    <!-- Search Bar Below Header -->
+    <section class="home-hero" *ngIf="currentHero">
+      <div class="hero-card">
+        <ion-img [src]="currentHero.image" [alt]="currentHero.name" class="hero-image"></ion-img>
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+          <span class="hero-kicker">Featured today</span>
+          <h1 class="hero-title">{{ currentHero.brand }} {{ currentHero.model }}</h1>
+          <div class="hero-meta">
+            <span>{{ currentHero.type }}</span>
+            <span>{{ currentHero.year }}</span>
+            <span>\${{ currentHero.price | number:'1.0-0' }}</span>
+          </div>
+          <div class="hero-actions">
+            <ion-button size="small" class="hero-cta" (click)="onCarClick(currentHero)">
+              View Car
+            </ion-button>
+            <ion-button size="small" fill="outline" class="hero-cta-outline" (click)="toggleFavorite(currentHero, $event)">
+              Save
+            </ion-button>
+          </div>
+        </div>
+        <button
+          class="hero-nav prev"
+          type="button"
+          (click)="prevHero()"
+          [disabled]="heroCars.length < 2"
+          aria-label="Previous banner"
+        >
+          <ion-icon name="chevron-back-outline"></ion-icon>
+        </button>
+        <button
+          class="hero-nav next"
+          type="button"
+          (click)="nextHero()"
+          [disabled]="heroCars.length < 2"
+          aria-label="Next banner"
+        >
+          <ion-icon name="chevron-forward-outline"></ion-icon>
+        </button>
+        <div class="hero-counter" *ngIf="heroCars.length > 1">
+          {{ currentHeroIndex + 1 }} / {{ heroCars.length }}
+        </div>
+      </div>
+    </section>
+
     <div class="search-section">
-      <ion-searchbar
-        [(ngModel)]="searchQuery"
-        (ionInput)="onSearch($event)"
-        placeholder="Search cars..."
-        [debounce]="500"
-        class="search-bar"
-      >
-      </ion-searchbar>
+      <label class="search-field" aria-label="Search cars">
+        <span class="search-field__icon">
+          <ion-icon name="search-outline"></ion-icon>
+        </span>
+        <ion-input
+          [(ngModel)]="searchQuery"
+          (ionInput)="onSearch($event)"
+          placeholder="Search cars"
+          class="search-input"
+        ></ion-input>
+      </label>
       <ion-button fill="clear" class="filter-btn" (click)="toggleFilterPanel($event)">
         <ion-icon name="filter-outline" color="dark"></ion-icon>
+        <span *ngIf="activeFilterCount" class="filter-btn__badge">{{ activeFilterCount }}</span>
       </ion-button>
     </div>
-    <div class="status-banner" *ngIf="isLoadingCars">Loading inventory...</div>
-    <div class="status-banner error" *ngIf="carsError">{{ carsError }}</div>
 
-    <div class="filter-overlay" *ngIf="isFilterOpen" (click)="dismissFilterPanel()">
-      <section class="filter-sheet" role="dialog" aria-label="Filter cars" (click)="$event.stopPropagation()">
-        <header class="filter-sheet__header">
-          <div>
-            <p class="filter-sheet__eyebrow">Filters</p>
-            <h3>Filter Cars</h3>
-          </div>
-          <ion-button fill="clear" size="small" (click)="dismissFilterPanel()" class="filter-close">
-            <ion-icon name="close-outline"></ion-icon>
-          </ion-button>
-        </header>
-
-        <div class="filter-sheet__content">
-          <section class="filter-section">
-            <div class="filter-section__heading">
-              <h4>Brand</h4>
-              <p>Search and multi-select</p>
-            </div>
-            <ion-searchbar
-              [(ngModel)]="brandSearchQuery"
-              placeholder="Search brands..."
-              [debounce]="250"
-              show-cancel-button="never"
-            ></ion-searchbar>
-            <ion-list lines="full" class="brand-selection-list">
-              <ion-item
-                button
-                detail="false"
-                *ngFor="let brand of filteredBrandOptions"
-                (click)="toggleBrandSelection(brand)"
-                [class.selected]="isBrandSelected(brand)"
-              >
-                <ion-checkbox slot="start" [checked]="isBrandSelected(brand)"></ion-checkbox>
-                <ion-label>{{ brand }}</ion-label>
-              </ion-item>
-            </ion-list>
-          </section>
-
-          <section class="filter-section">
-            <div class="filter-section__heading">
-              <h4>Car Type</h4>
-              <p>Tap to select one or more</p>
-            </div>
-            <div class="type-chip-row">
-              <ion-chip
-                *ngFor="let type of carTypeOptions"
-                [class.active]="isCarTypeSelected(type)"
-                (click)="toggleCarTypeSelection(type)"
-              >
-                <ion-label>{{ type }}</ion-label>
-              </ion-chip>
-            </div>
-          </section>
-
-          <section class="filter-section">
-            <div class="filter-section__heading">
-              <h4>Price Range</h4>
-            </div>
-            <ion-range
-              dualKnobs="true"
-              [min]="priceBounds.min"
-              [max]="priceBounds.max"
-              [pin]="true"
-              [value]="pendingPriceRange"
-              (ionChange)="updatePriceRange($event.detail.value)"
-            ></ion-range>
-            <div class="range-inputs">
-              <ion-item lines="none">
-                <ion-label position="stacked">Min</ion-label>
-                <ion-input
-                  type="number"
-                  [value]="pendingPriceRange.lower"
-                  (ionInput)="updatePendingPrice('lower', $event.detail.value)"
-                ></ion-input>
-              </ion-item>
-              <ion-item lines="none">
-                <ion-label position="stacked">Max</ion-label>
-                <ion-input
-                  type="number"
-                  [value]="pendingPriceRange.upper"
-                  (ionInput)="updatePendingPrice('upper', $event.detail.value)"
-                ></ion-input>
-              </ion-item>
-            </div>
-          </section>
+    <section class="brand-strip">
+      <div class="section-heading section-heading--compact">
+        <div>
+          <span class="section-heading__eyebrow">Browse by brand</span>
+          <h2>Top brands</h2>
         </div>
-
-        <footer class="filter-sheet__footer">
-          <ion-button fill="outline" size="small" (click)="resetFilters($event)">Reset</ion-button>
-          <ion-button expand="block" (click)="applyFilterChanges()">Apply Filters</ion-button>
-        </footer>
-      </section>
-    </div>
-
-
-    <!-- Slideshow -->
-    <div class="slideshow-container">
-      <div
-        class="slideshow-track"
-        [style.transform]="'translateX(-' + (currentSlideIndex * 100) + '%)'"
-      >
-        <div
-          class="slide"
-          *ngFor="let slide of slides; let i = index"
-        >
-          <div class="slide-container">
-            <ion-img [src]="slide.image" [alt]="slide.title" class="slide-image"></ion-img>
-            <div class="slide-overlay">
-              <h2 class="slide-title">{{ slide.title }}</h2>
-              <p class="slide-subtitle">{{ slide.subtitle }}</p>
-              <ion-button fill="solid" color="primary" class="slide-cta" (click)="scrollToCarCards()">
-                {{ slide.ctaText }}
-              </ion-button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Slide Indicators -->
-      <div class="slide-indicators">
-        <span
-          *ngFor="let slide of slides; let i = index"
-          class="indicator"
-          [class.active]="i === currentSlideIndex"
-          (click)="goToSlide(i)"
-        ></span>
-      </div>
-
-      <!-- Navigation Arrows -->
-      <button class="slide-nav prev" (click)="prevSlide()" *ngIf="slides.length > 1">
-        <ion-icon name="chevron-back-outline"></ion-icon>
-      </button>
-      <button class="slide-nav next" (click)="nextSlide()" *ngIf="slides.length > 1">
-        <ion-icon name="chevron-forward-outline"></ion-icon>
-      </button>
-    </div>
-
-    <!-- Brand Section -->
-    <div class="brand-section">
-      <div class="section-header">
-        <h3 class="section-title">Brands</h3>
-        <ion-button fill="clear" class="see-more-btn" (click)="toggleBrands()">
-          <span *ngIf="!showAllBrands">See More</span>
-          <span *ngIf="showAllBrands">Show Less</span>
-          <ion-icon
-            name="chevron-down-outline"
-            [class.rotated]="showAllBrands"
-          ></ion-icon>
+        <ion-button fill="clear" size="small" class="section-link" (click)="toggleBrands()">
+          <span *ngIf="!showAllBrands">More</span>
+          <span *ngIf="showAllBrands">Less</span>
         </ion-button>
       </div>
-      <div class="brand-filter-summary" *ngIf="hasActiveFilters">
-        <span>
-          <ng-container *ngIf="activeBrands.length">
-            Showing {{ activeBrands.join(', ') }} models
-          </ng-container>
-          <ng-container *ngIf="!activeBrands.length && activeCarTypes.length">
-            Showing selected {{ activeCarTypes.join(', ') }} body types
-          </ng-container>
-          <ng-container
-            *ngIf="!activeBrands.length && !activeCarTypes.length && isPriceFilterActive"
-          >
-            Showing cars between ${{ activePriceRange.lower | number }} and
-            ${{ activePriceRange.upper | number }}
-          </ng-container>
-        </span>
-        <ion-button
-          size="small"
-          fill="clear"
-          class="clear-filter-btn"
-          (click)="resetFilters($event)"
-        >
-          Reset filters
-        </ion-button>
-      </div>
-      <div class="brand-grid">
-        <div
-          class="brand-card"
+
+      <div class="brand-strip__row">
+        <button
+          type="button"
+          class="brand-pill"
           *ngFor="let brand of displayedBrands"
           [class.active]="activeBrands.includes(brand.name)"
           (click)="onBrandClick(brand.name)"
         >
-          <div class="brand-logo">
+          <span class="brand-pill__logo">
             <img [src]="brand.logoUrl" [alt]="brand.name" class="brand-logo-img">
-          </div>
-          <span class="brand-name">{{ brand.name }}</span>
-        </div>
+          </span>
+          <span>{{ brand.name }}</span>
+        </button>
       </div>
-    </div>
+    </section>
 
-    <!-- Popular Cars Section -->
-    <div class="popular-cars-section">
-      <h3 class="section-title">Popular Cars</h3>
+    <div class="status-banner" *ngIf="isLoadingCars">Loading inventory...</div>
+    <div class="status-banner error" *ngIf="carsError">{{ carsError }}</div>
+
+    <section class="popular-cars-section">
       <div class="cars-grid">
         <ion-card
           class="car-card"
           *ngFor="let car of cars; let i = index"
           (click)="onCarClick(car)"
-          [style.animation-delay]="i * 0.1 + 's'"
+          [style.animation-delay]="i * 0.06 + 's'"
         >
           <div class="car-image-container">
             <ion-img
@@ -304,6 +267,11 @@
               alt="{{ car.name }}"
               class="car-image"
             ></ion-img>
+
+            <div class="car-card__badges">
+              <span class="car-card__badge">{{ car.type }}</span>
+              <span class="car-card__badge car-card__badge--dark">{{ car.year }}</span>
+            </div>
 
             <ion-button
               fill="clear"
@@ -316,24 +284,19 @@
                 [name]="car.isFavorite ? 'heart' : 'heart-outline'"
               ></ion-icon>
             </ion-button>
-
-            <div class="image-overlay">
-              <ion-button
-                size="small"
-                fill="solid"
-                color="primary"
-                class="quick-view-btn"
-              >
-                Details
-              </ion-button>
-            </div>
           </div>
 
           <ion-card-content class="car-info">
-            <div class="car-name">{{ car.brand }} {{ car.model }}</div>
+            <div class="car-info__topline">
+              <div class="car-name">{{ car.brand }} {{ car.model }}</div>
+              <div class="price-section">
+                <div class="current-price">${{ car.price | number:'1.0-0' }}</div>
+              </div>
+            </div>
             <div class="car-details">
               <span class="year">{{ car.year }}</span>
               <span class="mileage">{{ car.mileage | number }} miles</span>
+              <span class="mileage">{{ car.fuelType }}</span>
             </div>
             <div class="rating">
               <ion-icon
@@ -343,17 +306,25 @@
                 [style.animation-delay]="j * 0.05 + 's'"
               ></ion-icon>
             </div>
-            <div class="price-section">
-              <div class="current-price">${{ car.price | number:'1.0':'en-US' }}</div>
+            <div class="car-card__footer">
+              <span class="car-card__meta">{{ car.transmission }}</span>
+              <ion-button
+                size="small"
+                fill="clear"
+                class="quick-view-btn"
+                (click)="openCarDetails(car, $event)"
+              >
+                Details
+                <ion-icon slot="end" name="arrow-forward-outline"></ion-icon>
+              </ion-button>
             </div>
           </ion-card-content>
         </ion-card>
       </div>
+
       <div class="empty-state" *ngIf="!isLoadingCars && cars.length === 0">
         No cars match your filters right now.
       </div>
-    </div>
+    </section>
   </div>
 </ion-content>
-</div>
-

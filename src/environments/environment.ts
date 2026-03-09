@@ -1,6 +1,3 @@
-// This file can be replaced during build by using the `fileReplacements` array.
-// `ng build` replaces `environment.ts` with `environment.prod.ts`.
-// The list of file replacements can be found in `angular.json`.
 
 export const environment = {
   production: false,
@@ -22,11 +19,4 @@ export const environment = {
   }
 };
 
-/*
- * SECURITY NOTE:
- * - Firebase API keys are safe to expose (they identify your project, not authenticate)
- * - Firebase security is controlled via Security Rules in Firebase Console
- * - For production: Use Firebase Admin SDK on backend, never client-side admin passwords
- * 
- * More info: See SECURITY.md
- */
+

@@ -1,9 +1,7 @@
 <ion-header class="clean-header">
   <ion-toolbar class="header-toolbar">
     <ion-buttons slot="start">
-      <ion-button fill="clear" size="large" class="menu-btn" (click)="openMenu()">
-        <ion-icon name="menu-outline"></ion-icon>
-      </ion-button>
+      <ion-menu-button menu="main-menu" autoHide="false" class="menu-btn"></ion-menu-button>
     </ion-buttons>
 
     <ion-title class="store-name">AutoElite</ion-title>
@@ -54,13 +52,27 @@
 
 <ion-content [fullscreen]="true" [scrollY]="true">
   <div class="app-container">
+    <div class="search-section">
+      <label class="search-field" aria-label="Search favorites">
+        <span class="search-field__icon">
+          <ion-icon name="search-outline"></ion-icon>
+        </span>
+        <ion-input
+          [(ngModel)]="searchQuery"
+          (ionInput)="onSearch($event)"
+          placeholder="Search favorites"
+          class="search-input"
+        ></ion-input>
+      </label>
+    </div>
+
     <!-- Favorites Section -->
     <div class="popular-cars-section">
       <h3 class="section-title">Favorites</h3>
-      <div class="cars-grid" *ngIf="favoriteCars.length > 0; else noFavorites">
+      <div class="cars-grid" *ngIf="filteredFavoriteCars.length > 0; else noFavorites">
         <ion-card
           class="car-card"
-          *ngFor="let car of favoriteCars; let i = index"
+          *ngFor="let car of filteredFavoriteCars; let i = index"
           (click)="onCarClick(car)"
           [style.animation-delay]="i * 0.1 + 's'"
         >
@@ -88,6 +100,7 @@
                 fill="solid"
                 color="primary"
                 class="quick-view-btn"
+                (click)="openCarDetails(car, $event)"
               >
                 Details
               </ion-button>
@@ -119,8 +132,8 @@
       <ng-template #noFavorites>
         <div class="no-favorites">
           <ion-icon name="heart-outline" class="empty-icon"></ion-icon>
-          <h3>No Favorites Yet</h3>
-          <p>Tap the heart icon on cars to add them to your favorites</p>
+          <h3>{{ favoriteCars.length ? 'No matching favorites' : 'No Favorites Yet' }}</h3>
+          <p>{{ favoriteCars.length ? 'Try another search term.' : 'Tap the heart icon on cars to add them to your favorites' }}</p>
         </div>
       </ng-template>
     </div>
