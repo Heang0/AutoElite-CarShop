@@ -1,152 +1,530 @@
-.login-container {
+// Loading State
+.loading-container {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 80vh;
-  padding: 40px;
+  height: 100vh;
+  gap: 16px;
+
+  p {
+    color: #667eea;
+    font-size: 14px;
+  }
+}
+
+// Login State
+.login-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 24px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.login-card {
+  background: white;
+  border-radius: 24px;
+  padding: 40px 32px;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
   text-align: center;
 
-  ion-icon {
+  .login-icon {
     font-size: 80px;
-    color: #bdc3c7;
+    color: #667eea;
     margin-bottom: 20px;
   }
 
   h2 {
-    margin: 0 0 8px 0;
-    font-size: 24px;
+    margin: 0 0 12px 0;
+    font-size: 26px;
     color: #2c3e50;
+    font-weight: 700;
   }
 
   p {
-    margin: 0 0 30px 0;
+    margin: 0 0 28px 0;
     font-size: 15px;
     color: #7f8c8d;
+    line-height: 1.5;
   }
+
+  .login-btn {
+    --border-radius: 12px;
+    --padding-top: 14px;
+    --padding-bottom: 14px;
+    font-weight: 600;
+    margin-bottom: 32px;
+  }
+
+  .features-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    text-align: left;
+  }
+
+  .feature-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: #f8f9fa;
+    border-radius: 12px;
+
+    ion-icon {
+      font-size: 22px;
+      color: #667eea;
+      flex-shrink: 0;
+    }
+
+    span {
+      font-size: 14px;
+      color: #555;
+    }
+  }
+}
+
+// Account Content
+.account-content {
+  --background: #f5f6fa;
 }
 
 .account-container {
   display: block;
-  padding-bottom: 40px;
+  padding-bottom: 32px;
 }
 
+// Profile Header
 .profile-header {
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  padding: 40px 20px;
-  text-align: center;
-  color: white;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 32px 20px 24px;
+  position: relative;
+  overflow: hidden;
 
-  .avatar-wrapper {
-    position: relative;
-    display: inline-block;
-    margin-bottom: 16px;
-  }
-
-  .avatar {
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.3);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 36px;
-    font-weight: bold;
-    overflow: hidden;
-
-    ion-img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-  }
-
-  .camera-btn {
+  &::before {
+    content: '';
     position: absolute;
-    bottom: 0;
-    right: 0;
-    width: 36px;
-    height: 36px;
-    --background: #fff;
-    --color: #667eea;
-    font-size: 16px;
+    top: -50%;
+    right: -20%;
+    width: 200px;
+    height: 200px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
   }
 
-  h2 {
-    margin: 8px 0 4px 0;
-    font-size: 20px;
-    font-weight: 600;
-  }
-
-  p {
-    margin: 0;
-    font-size: 13px;
-    opacity: 0.9;
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -30%;
+    left: -10%;
+    width: 150px;
+    height: 150px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 50%;
   }
 }
 
+.profile-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+  position: relative;
+  z-index: 1;
+}
+
+.avatar-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.avatar {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  font-weight: 700;
+  color: white;
+  overflow: hidden;
+  border: 3px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+
+  &.has-photo {
+    background: white;
+  }
+
+  ion-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.camera-btn {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  width: 34px;
+  height: 34px;
+  --background: #fff;
+  --color: #667eea;
+  font-size: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.edit-btn {
+  --color: white;
+  --background: rgba(255, 255, 255, 0.2);
+  --border-radius: 10px;
+  width: 40px;
+  height: 40px;
+
+  ion-icon {
+    font-size: 20px;
+  }
+}
+
+.user-info {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+}
+
+.display-name {
+  margin: 0 0 8px 0;
+  font-size: 22px;
+  font-weight: 700;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  .verified-icon {
+    color: #00d2aa;
+    font-size: 20px;
+  }
+}
+
+.user-email {
+  margin: 0 0 6px 0;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+
+  .email-icon {
+    font-size: 14px;
+  }
+}
+
+.member-since {
+  margin: 0;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+
+  ion-icon {
+    font-size: 12px;
+  }
+}
+
+// Stats Row
 .stats-row {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 12px;
   padding: 20px;
-  background: #fff;
-  margin-bottom: 12px;
+  background: white;
+  margin: -20px 16px 16px;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 
   .stat-item {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 4px;
+    gap: 6px;
 
-    ion-icon {
+    .stat-icon {
       font-size: 24px;
       color: #667eea;
     }
 
     strong {
-      font-size: 20px;
-      font-weight: bold;
+      font-size: 22px;
+      font-weight: 700;
       color: #2c3e50;
     }
 
     span {
-      font-size: 11px;
-      color: #7f8c8d;
+      font-size: 12px;
+      color: #95a5a6;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
   }
 }
 
+// Menu List
 .menu-list {
-  background: #fff;
-  margin-bottom: 12px;
+  background: white;
+  margin: 0 16px 16px;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
 
-  ion-item {
+  .menu-item {
     --padding-start: 20px;
     --padding-end: 20px;
     --padding-top: 16px;
     --padding-bottom: 16px;
-    --background: #fff;
+    --background: transparent;
     --border-color: #e8ecf1;
+    --min-height: 64px;
 
-    ion-icon[slot="start"] {
-      color: #667eea;
-      font-size: 22px;
-      margin-right: 12px;
+    &:not(:last-child) {
+      border-bottom: 1px solid #e8ecf1;
     }
 
-    ion-icon[slot="end"] {
+    .menu-icon {
+      color: #667eea;
+      font-size: 22px;
+      margin-right: 16px;
+      width: 24px;
+    }
+
+    ion-label {
+      h3 {
+        margin: 0 0 4px 0;
+        font-size: 16px;
+        font-weight: 600;
+        color: #2c3e50;
+      }
+
+      p {
+        margin: 0;
+        font-size: 13px;
+        color: #95a5a6;
+      }
+    }
+
+    .chevron {
       color: #bdc3c7;
-      font-size: 18px;
+      font-size: 20px;
     }
   }
 }
 
+// Logout Section
 .logout-section {
-  padding: 20px;
+  padding: 0 16px;
 
-  ion-button {
-    --border-radius: 10px;
+  .logout-btn {
+    --border-radius: 12px;
+    --padding-top: 14px;
+    --padding-bottom: 14px;
+    font-weight: 600;
+    box-shadow: 0 2px 12px rgba(231, 76, 60, 0.3);
+  }
+}
+
+// Edit Modal
+.edit-modal {
+  --height: auto;
+  --max-height: 90vh;
+  --border-radius: 20px;
+
+  ion-header {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  }
+
+  ion-toolbar {
+    --background: #fff;
+    --color: #2c3e50;
+    --border-color: #e8ecf1;
+  }
+
+  ion-title {
+    font-weight: 700;
+    font-size: 18px;
+  }
+
+  ion-content {
+    --background: #f5f6fa;
+  }
+}
+
+.edit-modal-content {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  padding: 20px 0;
+}
+
+// Photo Section
+.edit-photo-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #e8ecf1;
+}
+
+.avatar-preview {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36px;
+  font-weight: 700;
+  color: white;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+
+  &.has-photo {
+    background: white;
+    border: 3px solid #667eea;
+  }
+
+  ion-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.photo-hint {
+  margin: 0;
+  font-size: 12px;
+  color: #95a5a6;
+  text-align: center;
+}
+
+// Name Section
+.edit-name-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.edit-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #555;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.name-input-wrapper {
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e8ecf1;
+  overflow: hidden;
+}
+
+.name-input {
+  --padding-top: 14px;
+  --padding-bottom: 14px;
+  --padding-start: 16px;
+  --padding-end: 16px;
+  --background: transparent;
+  --color: #2c3e50;
+  --placeholder-color: #bdc3c7;
+  --placeholder-opacity: 1;
+
+  &::part(native) {
+    font-size: 16px;
+  }
+}
+
+.name-hint {
+  margin: 4px 0 0 0;
+  font-size: 12px;
+  color: #95a5a6;
+}
+
+// Info Section
+.edit-info-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.info-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px;
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e8ecf1;
+
+  ion-icon {
+    font-size: 22px;
+    color: #667eea;
+    flex-shrink: 0;
+  }
+
+  .info-content {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+    min-width: 0;
+
+    .info-label {
+      font-size: 12px;
+      color: #95a5a6;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .info-value {
+      font-size: 15px;
+      color: #2c3e50;
+      font-weight: 500;
+      word-break: break-word;
+    }
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 360px) {
+  .login-card {
+    padding: 32px 24px;
+  }
+
+  .stats-row {
+    gap: 8px;
+
+    .stat-item {
+      strong {
+        font-size: 18px;
+      }
+
+      span {
+        font-size: 10px;
+      }
+    }
   }
 }

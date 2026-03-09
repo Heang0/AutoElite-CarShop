@@ -123,6 +123,17 @@ export class FirestoreService {
   async signUp(email: string, password: string): Promise<User> {
     try {
       const userCredential = await createUserWithEmailAndPassword(auth as Auth, email, password);
+      const user = userCredential.user;
+      
+      // Create user profile in Firestore
+      if (user) {
+        await this.saveUserProfile(user.uid, {
+          email: user.email,
+          provider: 'email',
+          createdAt: Timestamp.now()
+        });
+      }
+      
       return userCredential.user;
     } catch (error: any) {
       throw new Error(this.getAuthErrorMessage(error.code));
@@ -134,6 +145,19 @@ export class FirestoreService {
     try {
       const provider = new GoogleAuthProvider();
       const userCredential = await signInWithPopup(auth as Auth, provider);
+      const user = userCredential.user;
+      
+      // Sync Google profile data with Firestore
+      if (user) {
+        await this.saveUserProfile(user.uid, {
+          email: user.email,
+          displayName: user.displayName,
+          photoURL: user.photoURL,
+          provider: 'google',
+          syncedAt: Timestamp.now()
+        });
+      }
+      
       return userCredential.user;
     } catch (error: any) {
       throw new Error('Google sign-in failed: ' + error.message);
@@ -356,6 +380,34 @@ export class FirestoreService {
       ...data,
       updatedAt: Timestamp.now()
     }, { merge: true });
+  }
+
+  // Update user display name
+  async updateUserName(userId: string, displayName: string): Promise<void> {
+    const docRef = doc(db as Firestore, 'users', userId);
+    await setDoc(docRef, {
+      displayName,
+      updatedAt: Timestamp.now()
+    }, { merge: true });
+  }
+
+  // Update user photo URL
+  async updateUserPhoto(userId: string, photoURL: string): Promise<void> {
+    const docRef = doc(db as Firestore, 'users', userId);
+    await setDoc(docRef, {
+      photoURL,
+      updatedAt: Timestamp.now()
+    }, { merge: true });
+  }
+
+  // Get user profile
+  async getUserProfile(userId: string): Promise<any> {
+    const docRef = doc(db as Firestore, 'users', userId);
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      return { id: docSnap.id, ...docSnap.data() };
+    }
+    return null;
   }
 
   // Get all cars
