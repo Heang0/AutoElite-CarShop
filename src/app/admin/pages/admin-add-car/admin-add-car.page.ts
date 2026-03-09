@@ -233,6 +233,19 @@ import type { Car } from '../../../services/favorite.service';
               </div>
             </div>
 
+            <!-- Gallery Preview -->
+            <div *ngIf="galleryImages.length > 0" class="gallery-preview-wrapper">
+              <h4>Gallery Images ({{ galleryImages.length }}):</h4>
+              <div class="gallery-preview-grid">
+                <div class="gallery-item" *ngFor="let img of galleryImages; let i = index">
+                  <ion-img [src]="img" alt="Gallery {{ i + 1 }}"></ion-img>
+                  <button class="remove-gallery" (click)="removeGalleryImage(i)">
+                    <ion-icon name="close-circle"></ion-icon>
+                  </button>
+                </div>
+              </div>
+            </div>
+
             <!-- Form Actions -->
             <div class="form-actions-wrapper">
               <div class="form-actions">
@@ -354,6 +367,28 @@ import type { Car } from '../../../services/favorite.service';
       width: 100%;
       max-height: 350px;
       object-fit: cover;
+    }
+
+    .image-preview-wrapper,
+    .gallery-preview-wrapper {
+      margin: 24px 0;
+      padding: 24px;
+      background: #f8f9fa;
+      border-radius: 12px;
+    }
+
+    .image-preview-wrapper h4,
+    .gallery-preview-wrapper h4 {
+      margin: 0 0 16px 0;
+      font-size: 16px;
+      color: #2c3e50;
+      font-weight: 600;
+    }
+
+    .gallery-preview-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 12px;
     }
 
     .image-preview-wrapper {
@@ -674,21 +709,21 @@ export class AdminAddCarPage implements OnInit {
       transmission: formValue.transmission,
       rating: formValue.rating,
       image: formValue.image,
-      gallery: this.galleryImages.length > 0 ? this.galleryImages : undefined,
+      gallery: this.galleryImages.length > 0 ? this.galleryImages : [],
       features: formValue.features.split(',').map((f: string) => f.trim()).filter((f: string) => f),
       type: selectedCat?.name || 'Other',
       isFavorite: false,
-      exteriorColor: formValue.exteriorColor,
-      interiorColor: formValue.interiorColor,
-      engine: formValue.engine,
-      drivetrain: formValue.drivetrain,
-      horsepower: formValue.horsepower,
-      seats: formValue.seats,
-      vin: formValue.vin,
-      stockNumber: formValue.stockNumber,
-      condition: formValue.condition,
-      bodyStyle: formValue.bodyStyle,
-      doors: formValue.doors
+      exteriorColor: formValue.exteriorColor || '',
+      interiorColor: formValue.interiorColor || '',
+      engine: formValue.engine || '',
+      drivetrain: formValue.drivetrain || '',
+      horsepower: formValue.horsepower || 0,
+      seats: formValue.seats || 5,
+      vin: formValue.vin || '',
+      stockNumber: formValue.stockNumber || '',
+      condition: formValue.condition || 'Used',
+      bodyStyle: formValue.bodyStyle || '',
+      doors: formValue.doors || 4
     };
 
     // Check if we're editing an existing car
