@@ -75,6 +75,9 @@ export interface Booking {
   depositAmount?: number;
   depositStatus?: 'unpaid' | 'pending' | 'paid';
   bookingType?: 'test-drive' | 'purchase';
+  adminNote?: string;
+  updatedAt?: Timestamp;
+  timeline?: StatusTimelineEvent[];
 }
 
 export interface AppNotification {
@@ -87,6 +90,14 @@ export interface AppNotification {
   read: boolean;
   createdAt: Timestamp;
   type?: string;
+}
+
+export interface StatusTimelineEvent {
+  status: string;
+  label: string;
+  createdAt: Timestamp;
+  actor?: 'system' | 'customer' | 'admin';
+  note?: string;
 }
 
 export interface Order {
@@ -107,6 +118,11 @@ export interface Order {
   bookingId?: string;
   status: 'pending' | 'paid' | 'cancelled';
   createdAt: Timestamp;
+  updatedAt?: Timestamp;
+  paidAt?: Timestamp | null;
+  deliveryMethod?: 'showroom-pickup' | 'home-delivery';
+  buyerNote?: string;
+  timeline?: StatusTimelineEvent[];
 }
 
 // Initialize Firebase
@@ -368,12 +384,14 @@ export class FirestoreService {
   
   // Get reviews by car ID
   async getReviewsByCarId(carId: string): Promise<Review[]> {
-    const q = query(this.reviewsCollection, where('carId', '==', carId), orderBy('createdAt', 'desc'));
+    const q = query(this.reviewsCollection, where('carId', '==', carId));
     const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    } as Review));
+    return snapshot.docs
+      .map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      } as Review))
+      .sort((a, b) => b.createdAt.toMillis() - a.createdAt.toMillis());
   }
 
   // Add review
@@ -393,19 +411,25 @@ export class FirestoreService {
   
   // Get bookings by user ID
   async getBookingsByUserId(userId: string): Promise<Booking[]> {
-    const q = query(this.bookingsCollection, where('userId', '==', userId), orderBy('createdAt', 'desc'));
+    const q = query(this.bookingsCollection, where('userId', '==', userId));
     const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    } as Booking));
+    return snapshot.docs
+      .map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      } as Booking))
+      .sort((a, b) => b.createdAt.toMillis() - a.createdAt.toMillis());
   }
 
   // Add booking
   async addBooking(booking: Omit<Booking, 'id' | 'createdAt'>): Promise<string> {
     const docRef = await addDoc(this.bookingsCollection, {
       ...booking,
-      createdAt: Timestamp.now()
+      createdAt: Timestamp.now(),
+      updatedAt: Timestamp.now(),
+      timeline: booking['timeline'] || [
+        this.createTimelineEvent('pending', 'Booking request submitted', 'customer')
+      ]
     });
     return docRef.id;
   }
@@ -413,7 +437,17 @@ export class FirestoreService {
   // Update booking status
   async updateBookingStatus(id: string, status: Booking['status']): Promise<void> {
     const docRef = doc(db as Firestore, 'bookings', id);
-    await updateDoc(docRef, { status });
+    const existingSnap = await getDoc(docRef);
+    const existingData = existingSnap.exists() ? existingSnap.data() : {};
+    const timeline = Array.isArray(existingData?.['timeline']) ? existingData['timeline'] : [];
+    await updateDoc(docRef, {
+      status,
+      updatedAt: Timestamp.now(),
+      timeline: [
+        ...timeline,
+        this.createTimelineEvent(status, `Booking ${status}`, 'admin')
+      ]
+    });
   }
 
   // ========== USERS ==========
@@ -500,6 +534,29 @@ export class FirestoreService {
     );
   }
 
+  async saveFavoriteIds(userId: string, favoriteCarIds: Array<string | number>): Promise<void> {
+    const docRef = doc(db as Firestore, 'users', userId);
+    await setDoc(
+      docRef,
+      {
+        favoriteCarIds: favoriteCarIds.map((id) => String(id)),
+        updatedAt: Timestamp.now()
+      },
+      { merge: true }
+    );
+  }
+
+  async getAllUsers(): Promise<any[]> {
+    const snapshot = await getDocs(this.usersCollection);
+    return snapshot.docs.map((docSnap) => ({ id: docSnap.id, ...docSnap.data() }));
+  }
+
+  async getUsersWithFavoriteCarId(carId: string | number): Promise<any[]> {
+    const q = query(this.usersCollection, where('favoriteCarIds', 'array-contains', String(carId)));
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map((docSnap) => ({ id: docSnap.id, ...docSnap.data() }));
+  }
+
   async addNotification(notification: Omit<AppNotification, 'id' | 'createdAt'>): Promise<string> {
     const docRef = await addDoc(this.notificationsCollection, {
       ...notification,
@@ -509,20 +566,22 @@ export class FirestoreService {
   }
 
   async getNotificationsByUserId(userId: string): Promise<AppNotification[]> {
-    const q = query(
-      this.notificationsCollection,
-      where('userId', '==', userId),
-      orderBy('createdAt', 'desc')
-    );
+    const q = query(this.notificationsCollection, where('userId', '==', userId));
     const snapshot = await getDocs(q);
-    return snapshot.docs.map(
-      (docSnap) => ({ id: docSnap.id, ...docSnap.data() } as AppNotification)
-    );
+    return snapshot.docs
+      .map((docSnap) => ({ id: docSnap.id, ...docSnap.data() } as AppNotification))
+      .sort((a, b) => b.createdAt.toMillis() - a.createdAt.toMillis());
   }
 
   async markNotificationRead(notificationId: string): Promise<void> {
     const docRef = doc(db as Firestore, 'notifications', notificationId);
     await updateDoc(docRef, { read: true });
+  }
+
+  async clearNotificationsByUserId(userId: string): Promise<void> {
+    const q = query(this.notificationsCollection, where('userId', '==', userId));
+    const snapshot = await getDocs(q);
+    await Promise.all(snapshot.docs.map((docSnap) => deleteDoc(docSnap.ref)));
   }
 
   // ========== ORDERS ==========
@@ -537,14 +596,34 @@ export class FirestoreService {
 
     const docRef = await addDoc(this.ordersCollection, {
       ...cleanOrder,
-      createdAt: Timestamp.now()
+      createdAt: Timestamp.now(),
+      updatedAt: Timestamp.now(),
+      timeline: cleanOrder['timeline'] || [
+        this.createTimelineEvent('pending', 'Order created', 'system')
+      ]
     });
     return docRef.id;
   }
 
-  async updateOrderStatus(id: string, status: Order['status']): Promise<void> {
+  async updateOrderStatus(id: string, status: Order['status'], note?: string): Promise<void> {
     const docRef = doc(db as Firestore, 'orders', id);
-    await updateDoc(docRef, { status });
+    const existingSnap = await getDoc(docRef);
+    const existingData = existingSnap.exists() ? existingSnap.data() : {};
+    const timeline = Array.isArray(existingData?.['timeline']) ? existingData['timeline'] : [];
+    await updateDoc(docRef, {
+      status,
+      updatedAt: Timestamp.now(),
+      paidAt: status === 'paid' ? Timestamp.now() : existingData?.['paidAt'] || null,
+      timeline: [
+        ...timeline,
+        this.createTimelineEvent(
+          status,
+          status === 'paid' ? 'Payment confirmed' : status === 'cancelled' ? 'Order cancelled' : 'Order updated',
+          'admin',
+          note
+        )
+      ]
+    });
   }
 
   async getOrders(): Promise<Order[]> {
@@ -557,16 +636,23 @@ export class FirestoreService {
   }
 
   async getOrdersByUserId(userId: string): Promise<Order[]> {
-    const q = query(
-      this.ordersCollection,
-      where('userId', '==', userId),
-      orderBy('createdAt', 'desc')
-    );
+    const q = query(this.ordersCollection, where('userId', '==', userId));
     const snapshot = await getDocs(q);
-    return snapshot.docs.map((docSnap) => ({
-      id: docSnap.id,
-      ...docSnap.data()
-    } as Order));
+    return snapshot.docs
+      .map((docSnap) => ({
+        id: docSnap.id,
+        ...docSnap.data()
+      } as Order))
+      .sort((a, b) => b.createdAt.toMillis() - a.createdAt.toMillis());
+  }
+
+  async getOrderById(orderId: string): Promise<Order | null> {
+    const docRef = doc(db as Firestore, 'orders', orderId);
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      return { id: docSnap.id, ...docSnap.data() } as Order;
+    }
+    return null;
   }
 
   // Get user profile
@@ -669,6 +755,59 @@ export class FirestoreService {
   async deleteCar(id: string): Promise<void> {
     const docRef = doc(db as Firestore, 'cars', id);
     await deleteDoc(docRef);
+  }
+
+  async getAllBookings(): Promise<Booking[]> {
+    const q = query(this.bookingsCollection, orderBy('createdAt', 'desc'));
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map((docSnap) => ({
+      id: docSnap.id,
+      ...docSnap.data()
+    } as Booking));
+  }
+
+  async getBookingById(id: string): Promise<Booking | null> {
+    const docRef = doc(db as Firestore, 'bookings', id);
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      return { id: docSnap.id, ...docSnap.data() } as Booking;
+    }
+    return null;
+  }
+
+  async updateBooking(id: string, data: Partial<Booking>, timelineLabel?: string, note?: string): Promise<void> {
+    const docRef = doc(db as Firestore, 'bookings', id);
+    const existingSnap = await getDoc(docRef);
+    const existingData = existingSnap.exists() ? existingSnap.data() : {};
+    const timeline = Array.isArray(existingData?.['timeline']) ? existingData['timeline'] : [];
+    const updates: Record<string, any> = {
+      ...data,
+      updatedAt: Timestamp.now()
+    };
+
+    if (timelineLabel && data.status) {
+      updates['timeline'] = [
+        ...timeline,
+        this.createTimelineEvent(data.status, timelineLabel, 'admin', note)
+      ];
+    }
+
+    await updateDoc(docRef, updates);
+  }
+
+  private createTimelineEvent(
+    status: string,
+    label: string,
+    actor: 'system' | 'customer' | 'admin',
+    note?: string
+  ): StatusTimelineEvent {
+    return {
+      status,
+      label,
+      actor,
+      note,
+      createdAt: Timestamp.now()
+    };
   }
 
   // Get cars by brand

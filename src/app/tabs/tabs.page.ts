@@ -5,7 +5,6 @@ import { Router, RouterModule } from '@angular/router';
 import { addIcons } from 'ionicons';
 import {
   carSportOutline,
-  cashOutline,
   compassOutline,
   heartOutline,
   home,
@@ -113,7 +112,6 @@ export class TabsPage implements OnInit, OnDestroy {
     { title: 'Favorites', icon: 'heart-outline', url: '/tabs/favorites' },
     { title: 'Account', icon: 'person-outline', url: '/tabs/account' },
     { title: 'Recently Viewed', icon: 'time-outline', url: '/recently-viewed' },
-    { title: 'Trade-In', icon: 'cash-outline', url: '/trade-in' },
     { title: 'Compare Cars', icon: 'swap-horizontal-outline', url: '/compare-cars' }
   ];
   isLoggedIn = false;
@@ -121,7 +119,6 @@ export class TabsPage implements OnInit, OnDestroy {
   constructor() {
     addIcons({
       'car-sport-outline': carSportOutline,
-      'cash-outline': cashOutline,
       'compass-outline': compassOutline,
       'heart-outline': heartOutline,
       home,

@@ -36,10 +36,16 @@ import {
   notificationsOutline,
   diamondOutline,
   flashOutline,
-  carSportOutline
+  carSportOutline,
+  carOutline,
+  calendarOutline,
+  receiptOutline,
+  cashOutline
 } from 'ionicons/icons';
 import { FavoriteService, type Car } from '../services/favorite.service';
-import { type NotificationItem, NOTIFICATION_ITEMS } from '../data/notifications.data';
+import { type NotificationItem } from '../data/notifications.data';
+import { FirestoreService } from '../services/firestore.service';
+import { NotificationService } from '../services/notification.service';
 
 @Component({
   selector: 'app-favorites',
@@ -71,11 +77,13 @@ export class FavoritesPage {
   searchQuery = '';
   activeTab = 'favorites';
   isNotificationsOpen = false;
-  notificationItems: NotificationItem[] = NOTIFICATION_ITEMS;
+  notificationItems: NotificationItem[] = [];
   selectedNotification: NotificationItem | null = null;
 
   private router = inject(Router);
   private favoriteService = inject(FavoriteService);
+  private firestoreService = inject(FirestoreService);
+  private notificationService = inject(NotificationService);
 
   constructor() {
     addIcons({
@@ -94,10 +102,15 @@ export class FavoritesPage {
       'notifications-outline': notificationsOutline,
       'diamond-outline': diamondOutline,
       'flash-outline': flashOutline,
-      'car-sport-outline': carSportOutline
+      'car-sport-outline': carSportOutline,
+      'car-outline': carOutline,
+      'calendar-outline': calendarOutline,
+      'receipt-outline': receiptOutline,
+      'cash-outline': cashOutline
     });
 
     this.loadFavorites();
+    this.loadNotifications();
   }
 
   ionViewWillEnter(): void {
@@ -148,11 +161,19 @@ export class FavoritesPage {
 
   handleNotificationClick(notification: NotificationItem): void {
     this.selectedNotification = notification;
+    if (notification.route) {
+      this.router.navigateByUrl(notification.route);
+    }
+    if (typeof notification.id === 'string') {
+      void this.notificationService.markAsRead(notification.id);
+    }
   }
 
   clearNotifications(): void {
     this.isNotificationsOpen = false;
     this.selectedNotification = null;
+    this.notificationItems = [];
+    void this.notificationService.clearForCurrentUser();
   }
 
   onTabChange(tabName: string): void {
@@ -196,5 +217,39 @@ export class FavoritesPage {
         car.brand.toLowerCase().includes(query) ||
         car.model.toLowerCase().includes(query)
     );
+  }
+
+  private loadNotifications(): void {
+    this.firestoreService.onAuthStateChanged(async (user) => {
+      if (!user?.uid) {
+        this.notificationItems = [];
+        return;
+      }
+
+      try {
+        const notifications = await this.notificationService.getNotifications(user.uid);
+        this.notificationItems = notifications.map((item) => ({
+          id: item.id,
+          title: item.title,
+          description: item.body,
+          details: item.body,
+          icon: item.icon || 'notifications-outline',
+          time: this.formatTime(item.createdAt.toDate()),
+          route: item.route
+        }));
+      } catch {
+        this.notificationItems = [];
+      }
+    });
+  }
+
+  private formatTime(date: Date): string {
+    const diff = Date.now() - date.getTime();
+    const minutes = Math.floor(diff / 60000);
+    if (minutes < 1) return 'Just now';
+    if (minutes < 60) return `${minutes}m ago`;
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours}h ago`;
+    return `${Math.floor(hours / 24)}d ago`;
   }
 }

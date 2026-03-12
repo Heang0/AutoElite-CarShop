@@ -10,6 +10,7 @@ import {
   layersOutline,
   carOutline,
   receiptOutline,
+  calendarOutline,
   logOutOutline
 } from 'ionicons/icons';
 import { FirestoreService } from '../../services/firestore.service';
@@ -47,6 +48,10 @@ import { FirestoreService } from '../../services/firestore.service';
           <a routerLink="/admin/orders" routerLinkActive="active" class="nav-item">
             <ion-icon name="receipt-outline"></ion-icon>
             <span>Orders</span>
+          </a>
+          <a routerLink="/admin/bookings" routerLinkActive="active" class="nav-item">
+            <ion-icon name="calendar-outline"></ion-icon>
+            <span>Bookings</span>
           </a>
         </nav>
         <div class="sidebar-footer">
@@ -229,6 +234,7 @@ import { FirestoreService } from '../../services/firestore.service';
       display: flex;
       flex-direction: column;
       min-height: 100vh;
+      overflow: hidden;
     }
   `],
   standalone: true,
@@ -247,6 +253,7 @@ export class AdminLayoutComponent {
       layersOutline,
       carOutline,
       receiptOutline,
+      calendarOutline,
       logOutOutline
     });
   }

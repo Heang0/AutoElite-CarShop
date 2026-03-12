@@ -89,9 +89,14 @@ import { Router } from '@angular/router';
     </div>
 
     <!-- Schedule Test Drive Modal -->
-    <ion-modal [isOpen]="showTestDriveModal" (didDismiss)="showTestDriveModal = false">
+    <ion-modal 
+      [isOpen]="showTestDriveModal" 
+      (didDismiss)="showTestDriveModal = false"
+      [initialBreakpoint]="0.75"
+      [breakpoints]="[0.25, 0.5, 0.75, 1]"
+      [handle]="false">
       <ng-template>
-        <ion-header>
+        <ion-header class="modal-header">
           <ion-toolbar>
             <ion-buttons slot="start">
               <ion-button (click)="showTestDriveModal = false">
@@ -239,6 +244,26 @@ import { Router } from '@angular/router';
     ion-list {
       background: transparent;
       padding: 24px;
+    }
+
+    /* Modal styling to prevent covering action buttons */
+    ion-modal {
+      --border-radius: 20px 20px 0 0;
+      --box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.2);
+      --z-index: 99999;
+    }
+
+    ion-modal::part(backdrop) {
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(4px);
+    }
+
+    ion-modal ion-toolbar {
+      --background: #f8f9fa;
+    }
+
+    ion-modal ion-content {
+      --background: white;
     }
   `],
   standalone: true,

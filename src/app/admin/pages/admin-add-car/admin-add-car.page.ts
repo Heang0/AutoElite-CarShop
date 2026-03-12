@@ -12,6 +12,7 @@ import { CarApiService } from '../../../services/car-api.service';
 import { FirestoreService, type Category, type Brand } from '../../../services/firestore.service';
 import { CloudinaryService } from '../../../services/cloudinary.service';
 import type { Car } from '../../../services/favorite.service';
+import { NotificationService } from '../../../services/notification.service';
 
 @Component({
   selector: 'app-admin-add-car',
@@ -527,6 +528,7 @@ export class AdminAddCarPage implements OnInit {
   toastMessage = '';
   toastColor = 'success';
   isEditMode = false;
+  originalCarPrice = 0;
 
   FUEL_TYPES = ['Gasoline', 'Diesel', 'Electric', 'Hybrid', 'Plug-in Hybrid'];
   TRANSMISSIONS = ['Automatic', 'Manual', 'CVT'];
@@ -534,6 +536,7 @@ export class AdminAddCarPage implements OnInit {
   private carApi = inject(CarApiService);
   private firestoreService = inject(FirestoreService);
   private cloudinaryService = inject(CloudinaryService);
+  private notificationService = inject(NotificationService);
   private fb = inject(FormBuilder);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
@@ -615,6 +618,7 @@ export class AdminAddCarPage implements OnInit {
           if (car.gallery && car.gallery.length > 0) {
             this.galleryImages = car.gallery;
           }
+          this.originalCarPrice = Number(car.price || 0);
           
           this.toastMessage = 'Editing: ' + car.name;
           this.toastColor = 'primary';
@@ -722,7 +726,21 @@ export class AdminAddCarPage implements OnInit {
     if (editId) {
       // Update existing car
       this.carApi.updateCar(editId, carData).subscribe({
-        next: () => {
+        next: async () => {
+          if (this.originalCarPrice && this.originalCarPrice !== Number(carData.price)) {
+            const users = await this.firestoreService.getUsersWithFavoriteCarId(editId);
+            const userIds = users.map((user) => String(user.id));
+            if (userIds.length) {
+              await this.notificationService.notifyUsers(userIds, {
+                title: 'Favorite price changed',
+                body: `${carData.brand} ${carData.model} now starts at $${Number(carData.price).toLocaleString()}.`,
+                icon: 'cash-outline',
+                route: `/car/${editId}`,
+                read: false,
+                type: 'price-update'
+              });
+            }
+          }
           this.toastMessage = 'Car updated successfully! 🎉';
           this.toastColor = 'success';
           this.showToast = true;
@@ -739,7 +757,15 @@ export class AdminAddCarPage implements OnInit {
     } else {
       // Add new car
       this.carApi.addCar(carData).subscribe({
-        next: () => {
+        next: async (id) => {
+          await this.notificationService.notifyAllUsers({
+            title: 'New car added',
+            body: `${carData.brand} ${carData.model} is now available in the showroom.`,
+            icon: 'car-outline',
+            route: `/car/${id}`,
+            read: false,
+            type: 'inventory'
+          });
           this.toastMessage = 'Car added successfully! 🎉';
           this.toastColor = 'success';
           this.showToast = true;

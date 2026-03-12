@@ -10,7 +10,8 @@ import {
   IonSegment,
   IonSegmentButton,
   IonLabel,
-  IonToast
+  IonToast,
+  IonContent
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
@@ -21,11 +22,12 @@ import {
   receiptOutline
 } from 'ionicons/icons';
 import { FirestoreService, type Order } from '../../services/firestore.service';
+import { NotificationService } from '../../services/notification.service';
 
 @Component({
   selector: 'app-admin-orders',
   template: `
-    <div class="orders-content">
+    <div class="admin-orders-page">
       <header class="top-bar">
         <div>
           <h2>Orders</h2>
@@ -33,22 +35,23 @@ import { FirestoreService, type Order } from '../../services/firestore.service';
         </div>
       </header>
 
-      <div class="content">
-        <ion-segment [(ngModel)]="statusFilter" (ionChange)="applyFilter()" class="filter-segment">
-          <ion-segment-button value="all">
-            <ion-label>All</ion-label>
-          </ion-segment-button>
-          <ion-segment-button value="pending">
-            <ion-label>Pending</ion-label>
-          </ion-segment-button>
-          <ion-segment-button value="paid">
-            <ion-label>Paid</ion-label>
-          </ion-segment-button>
-        </ion-segment>
+      <ion-content class="orders-content" [fullscreen]="true">
+        <div class="content">
+          <ion-segment [(ngModel)]="statusFilter" (ionChange)="applyFilter()" class="filter-segment">
+            <ion-segment-button value="all">
+              <ion-label>All</ion-label>
+            </ion-segment-button>
+            <ion-segment-button value="pending">
+              <ion-label>Pending</ion-label>
+            </ion-segment-button>
+            <ion-segment-button value="paid">
+              <ion-label>Paid</ion-label>
+            </ion-segment-button>
+          </ion-segment>
 
         <div class="orders-grid">
           <ion-card *ngFor="let order of filteredOrders" class="order-card">
-            <div class="order-hero">
+            <div class="order-hero" (click)="selectOrder(order)">
               <ion-img [src]="order.carImage || fallbackImage" [alt]="order.carName"></ion-img>
               <div class="order-status" [class.paid]="order.status === 'paid'">
                 <ion-icon [name]="order.status === 'paid' ? 'checkmark-circle-outline' : 'time-outline'"></ion-icon>
@@ -91,7 +94,45 @@ import { FirestoreService, type Order } from '../../services/firestore.service';
           <ion-icon name="receipt-outline"></ion-icon>
           <p>No orders found</p>
         </div>
-      </div>
+
+        <ion-card *ngIf="selectedOrder" class="detail-card">
+          <ion-card-content>
+            <div class="detail-header">
+              <div>
+                <span class="eyebrow">Order detail</span>
+                <h3>{{ selectedOrder.carName }}</h3>
+              </div>
+              <span class="detail-status" [class.paid]="selectedOrder.status === 'paid'">{{ selectedOrder.status }}</span>
+            </div>
+
+            <div class="detail-grid">
+              <div>
+                <span class="detail-label">Buyer</span>
+                <strong>{{ selectedOrder.userName }}</strong>
+                <p>{{ selectedOrder.userEmail }}</p>
+              </div>
+              <div>
+                <span class="detail-label">Fulfilment</span>
+                <strong>{{ selectedOrder.deliveryMethod === 'home-delivery' ? 'Home delivery' : 'Showroom pickup' }}</strong>
+                <p *ngIf="selectedOrder.address">{{ selectedOrder.address }}</p>
+              </div>
+            </div>
+
+            <div class="timeline">
+              <h4>Payment timeline</h4>
+              <div class="timeline-item" *ngFor="let event of selectedOrder.timeline || []">
+                <div class="timeline-dot"></div>
+                <div>
+                  <strong>{{ event.label }}</strong>
+                  <p *ngIf="event.note">{{ event.note }}</p>
+                  <span>{{ event.createdAt.toDate() | date:'medium' }}</span>
+                </div>
+              </div>
+            </div>
+          </ion-card-content>
+        </ion-card>
+        </div>
+      </ion-content>
     </div>
 
     <ion-toast
@@ -104,10 +145,15 @@ import { FirestoreService, type Order } from '../../services/firestore.service';
     ></ion-toast>
   `,
   styles: [`
-    .orders-content {
-      flex: 1;
+    .admin-orders-page {
       display: flex;
       flex-direction: column;
+      height: 100%;
+    }
+
+    .orders-content {
+      --background: #f8fafc;
+      flex: 1;
     }
 
     .top-bar {
@@ -117,6 +163,7 @@ import { FirestoreService, type Order } from '../../services/firestore.service';
       display: flex;
       align-items: center;
       justify-content: space-between;
+      flex-shrink: 0;
     }
 
     .top-bar h2 {
@@ -133,8 +180,8 @@ import { FirestoreService, type Order } from '../../services/firestore.service';
     }
 
     .content {
-      flex: 1;
       padding: 28px 36px;
+      min-height: 100%;
     }
 
     .filter-segment {
@@ -148,6 +195,7 @@ import { FirestoreService, type Order } from '../../services/firestore.service';
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
       gap: 24px;
+      padding-bottom: 20px;
     }
 
     .order-card {
@@ -254,6 +302,110 @@ import { FirestoreService, type Order } from '../../services/firestore.service';
       color: #cbd5f5;
       margin-bottom: 16px;
     }
+
+    .detail-card {
+      margin: 24px 0 0;
+      border-radius: 18px;
+      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+    }
+
+    .detail-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-start;
+      margin-bottom: 16px;
+    }
+
+    .eyebrow {
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #94a3b8;
+    }
+
+    .detail-header h3 {
+      margin: 6px 0 0;
+      font-size: 20px;
+      color: #0f172a;
+    }
+
+    .detail-status {
+      padding: 7px 11px;
+      border-radius: 999px;
+      background: #fff7ed;
+      color: #c2410c;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: capitalize;
+    }
+
+    .detail-status.paid {
+      background: #ecfdf5;
+      color: #047857;
+    }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .detail-label {
+      display: block;
+      font-size: 12px;
+      color: #64748b;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .detail-grid strong {
+      color: #0f172a;
+    }
+
+    .detail-grid p {
+      margin: 6px 0 0;
+      color: #64748b;
+      font-size: 13px;
+    }
+
+    .timeline h4 {
+      margin: 0 0 14px;
+      font-size: 15px;
+      color: #0f172a;
+    }
+
+    .timeline-item {
+      display: grid;
+      grid-template-columns: 14px 1fr;
+      gap: 12px;
+      padding: 0 0 14px;
+    }
+
+    .timeline-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: #e1232e;
+      margin-top: 6px;
+    }
+
+    .timeline-item strong {
+      color: #111827;
+      font-size: 14px;
+    }
+
+    .timeline-item p {
+      margin: 4px 0;
+      color: #64748b;
+      font-size: 13px;
+    }
+
+    .timeline-item span {
+      color: #94a3b8;
+      font-size: 12px;
+    }
   `],
   standalone: true,
   imports: [
@@ -267,12 +419,14 @@ import { FirestoreService, type Order } from '../../services/firestore.service';
     IonSegment,
     IonSegmentButton,
     IonLabel,
-    IonToast
+    IonToast,
+    IonContent
   ]
 })
 export class AdminOrdersPage implements OnInit, OnDestroy {
   orders: Order[] = [];
   filteredOrders: Order[] = [];
+  selectedOrder: Order | null = null;
   statusFilter = 'all';
   isLoading = false;
   showToast = false;
@@ -282,6 +436,7 @@ export class AdminOrdersPage implements OnInit, OnDestroy {
     'https://images.unsplash.com/photo-1542362567-b07e54358753?auto=format&fit=crop&w=1200&q=80';
 
   private firestoreService = inject(FirestoreService);
+  private notificationService = inject(NotificationService);
   private refreshTimer: ReturnType<typeof setInterval> | null = null;
 
   constructor() {
@@ -313,6 +468,9 @@ export class AdminOrdersPage implements OnInit, OnDestroy {
     try {
       this.orders = await this.firestoreService.getOrders();
       this.applyFilter();
+      this.selectedOrder = this.selectedOrder
+        ? this.orders.find((item) => item.id === this.selectedOrder?.id) || this.orders[0] || null
+        : this.orders[0] || null;
     } catch (error: any) {
       this.toastMessage = 'Failed to load orders';
       this.toastColor = 'danger';
@@ -331,12 +489,33 @@ export class AdminOrdersPage implements OnInit, OnDestroy {
   }
 
   async updateStatus(order: Order, status: Order['status']) {
-    await this.firestoreService.updateOrderStatus(order.id, status);
+    await this.firestoreService.updateOrderStatus(
+      order.id,
+      status,
+      status === 'paid' ? 'Marked paid by admin.' : 'Cancelled by admin.'
+    );
     order.status = status;
     this.applyFilter();
+    this.selectedOrder = order;
+    await this.notificationService.createInAppNotification({
+      userId: order.userId,
+      title: status === 'paid' ? 'Payment confirmed' : 'Order update',
+      body:
+        status === 'paid'
+          ? `Your order for ${order.carName} is confirmed.`
+          : `Your order for ${order.carName} was cancelled.`,
+      icon: 'receipt-outline',
+      route: '/orders',
+      read: false,
+      type: 'order'
+    });
     this.toastMessage = `Order marked as ${status}`;
     this.toastColor = status === 'paid' ? 'success' : 'medium';
     this.showToast = true;
+  }
+
+  selectOrder(order: Order) {
+    this.selectedOrder = order;
   }
 
   formatDate(date: Date) {
@@ -344,6 +523,6 @@ export class AdminOrdersPage implements OnInit, OnDestroy {
   }
 
   formatMethod(method: Order['paymentMethod']) {
-    return method === 'bakong' ? 'ABA KHQR' : 'CARD';
+    return method === 'bakong' ? 'KHQR' : 'Card';
   }
 }

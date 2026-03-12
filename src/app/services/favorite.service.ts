@@ -1,4 +1,5 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
+import { FirestoreService } from './firestore.service';
 
 export interface Car {
   id: string | number;
@@ -38,10 +39,14 @@ export interface Car {
 })
 export class FavoriteService {
   private favorites: Car[] = [];
+  private readonly firestoreService = inject(FirestoreService);
 
   constructor() {
     // Load favorites from localStorage on initialization
     this.loadFavorites();
+    this.firestoreService.onAuthStateChanged((user) => {
+      void this.syncWithUserProfile(user?.uid ?? null);
+    });
   }
 
   // Toggle favorite status for a car
@@ -57,6 +62,7 @@ export class FavoriteService {
       car.isFavorite = true;
     }
     this.saveFavorites();
+    void this.persistFavorites();
   }
 
   // Check if a car is favorited
@@ -88,6 +94,7 @@ export class FavoriteService {
     if (index > -1) {
       this.favorites.splice(index, 1);
       this.saveFavorites();
+      void this.persistFavorites();
     }
   }
 
@@ -95,6 +102,7 @@ export class FavoriteService {
   clearFavorites(): void {
     this.favorites = [];
     this.saveFavorites();
+    void this.persistFavorites();
   }
 
   /**
@@ -105,5 +113,50 @@ export class FavoriteService {
     cars.forEach(car => {
       car.isFavorite = favoriteIds.has(car.id);
     });
+  }
+
+  private async persistFavorites(): Promise<void> {
+    const user = this.firestoreService.getCurrentUser();
+    if (!user?.uid) {
+      return;
+    }
+
+    await this.firestoreService.saveFavoriteIds(
+      user.uid,
+      this.favorites.map((fav) => fav.id)
+    );
+  }
+
+  private async syncWithUserProfile(userId: string | null): Promise<void> {
+    if (!userId) {
+      this.loadFavorites();
+      return;
+    }
+
+    const profile = await this.firestoreService.getUserProfile(userId);
+    const favoriteIds = Array.isArray(profile?.favoriteCarIds)
+      ? profile.favoriteCarIds.map((id: unknown) => String(id))
+      : [];
+
+    if (!favoriteIds.length) {
+      await this.persistFavorites();
+      return;
+    }
+
+    const currentFavoriteIds = new Set(this.favorites.map((fav) => String(fav.id)));
+    if (favoriteIds.every((id: string) => currentFavoriteIds.has(id))) {
+      return;
+    }
+
+    const cachedMap = new Map(this.favorites.map((fav) => [String(fav.id), fav]));
+    const restoredFavorites: Car[] = [];
+    favoriteIds.forEach((id: string) => {
+      const cachedCar = cachedMap.get(id);
+      if (cachedCar) {
+        restoredFavorites.push(cachedCar);
+      }
+    });
+    this.favorites = restoredFavorites;
+    this.saveFavorites();
   }
 }

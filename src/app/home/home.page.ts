@@ -52,12 +52,15 @@ import {
   flashOutline,
   chevronDownOutline,
   chevronBackOutline,
-  chevronForwardOutline
+  chevronForwardOutline,
+  calendarOutline,
+  receiptOutline,
+  cashOutline
 } from 'ionicons/icons';
 import type { RangeValue } from '@ionic/core';
 import { FavoriteService, type Car } from '../services/favorite.service';
 import { CarApiService } from '../services/car-api.service';
-import { NOTIFICATION_ITEMS, type NotificationItem } from '../data/notifications.data';
+import { type NotificationItem } from '../data/notifications.data';
 import { FirestoreService } from '../services/firestore.service';
 import { NotificationService } from '../services/notification.service';
 
@@ -128,7 +131,7 @@ export class HomePage implements OnInit, OnDestroy {
   isSearching = false;
   searchQuery = '';
   isNotificationsOpen = false;
-  notificationItems: NotificationItem[] = NOTIFICATION_ITEMS;
+  notificationItems: NotificationItem[] = [];
   selectedNotification: NotificationItem | null = null;
   isFilterOpen = false;
   brandSearchQuery = '';
@@ -175,7 +178,10 @@ export class HomePage implements OnInit, OnDestroy {
       'flash-outline': flashOutline,
       'chevron-down-outline': chevronDownOutline,
       'chevron-back-outline': chevronBackOutline,
-      'chevron-forward-outline': chevronForwardOutline
+      'chevron-forward-outline': chevronForwardOutline,
+      'calendar-outline': calendarOutline,
+      'receipt-outline': receiptOutline,
+      'cash-outline': cashOutline
     });
   }
 
@@ -265,6 +271,8 @@ export class HomePage implements OnInit, OnDestroy {
   clearNotifications(): void {
     this.isNotificationsOpen = false;
     this.selectedNotification = null;
+    this.notificationItems = [];
+    void this.notificationService.clearForCurrentUser();
   }
 
   dismissNotifications(): void {
@@ -467,16 +475,12 @@ export class HomePage implements OnInit, OnDestroy {
   private loadNotifications(): void {
     this.firestoreService.onAuthStateChanged(async (user) => {
       if (!user?.uid) {
-        this.notificationItems = NOTIFICATION_ITEMS;
+        this.notificationItems = [];
         return;
       }
 
       try {
         const notifications = await this.notificationService.getNotifications(user.uid);
-        if (!notifications.length) {
-          this.notificationItems = NOTIFICATION_ITEMS;
-          return;
-        }
         this.notificationItems = notifications.map((item) => ({
           id: item.id,
           title: item.title,
@@ -487,7 +491,7 @@ export class HomePage implements OnInit, OnDestroy {
           route: item.route
         }));
       } catch {
-        this.notificationItems = NOTIFICATION_ITEMS;
+        this.notificationItems = [];
       }
     });
   }

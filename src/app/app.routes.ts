@@ -50,6 +50,10 @@ export const routes: Routes = [
         loadComponent: () => import('./admin/pages/admin-orders.page').then((m) => m.AdminOrdersPage),
       },
       {
+        path: 'bookings',
+        loadComponent: () => import('./admin/pages/admin-bookings.page').then((m) => m.AdminBookingsPage),
+      },
+      {
         path: '',
         redirectTo: 'dashboard',
         pathMatch: 'full',
@@ -65,16 +69,20 @@ export const routes: Routes = [
     loadComponent: () => import('./recently-viewed/recently-viewed.page').then((m) => m.RecentlyViewedPage),
   },
   {
-    path: 'trade-in',
-    loadComponent: () => import('./trade-in/trade-in.page').then((m) => m.TradeInEstimatorPage),
-  },
-  {
     path: 'payment/:id',
     loadComponent: () => import('./payment/payment.page').then((m) => m.PaymentPage),
   },
   {
     path: 'settings',
     loadComponent: () => import('./account/settings.page').then((m) => m.SettingsPage),
+  },
+  {
+    path: 'orders',
+    loadComponent: () => import('./account/order-history.page').then((m) => m.OrderHistoryPage),
+  },
+  {
+    path: 'payment-success',
+    loadComponent: () => import('./payment/payment-success.page').then((m) => m.PaymentSuccessPage),
   },
   {
     path: 'tabs',
@@ -121,6 +129,10 @@ export const routes: Routes = [
   {
     path: 'car/:id',
     loadComponent: () => import('./car-detail/car-detail.page').then((m) => m.CarDetailPage),
+  },
+  {
+    path: 'booking/:id',
+    loadComponent: () => import('./booking/booking.page').then((m) => m.BookingPage),
   },
   {
     path: '**',

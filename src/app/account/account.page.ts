@@ -128,7 +128,11 @@ export class AccountPage implements OnInit {
       
       if (authUser) {
         // Get user profile from Firestore
-        const userProfile = await (this.fs as any).getUserProfile(authUser.uid);
+        const [userProfile, orders, bookings] = await Promise.all([
+          (this.fs as any).getUserProfile(authUser.uid),
+          (this.fs as any).getOrdersByUserId(authUser.uid),
+          (this.fs as any).getBookingsByUserId(authUser.uid)
+        ]);
         
         this.user = {
           uid: authUser.uid,
@@ -151,8 +155,13 @@ export class AccountPage implements OnInit {
         }
         
         this.savedCount = (this.fav as any).getFavorites().length;
+        this.viewedCount = orders.length;
+        this.drivesCount = bookings.length;
       } else {
         this.user = null;
+        this.savedCount = 0;
+        this.viewedCount = 0;
+        this.drivesCount = 0;
       }
       
       this.isLoading = false;

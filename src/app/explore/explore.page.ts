@@ -41,12 +41,18 @@ import {
   menuOutline,
   notificationsOutline,
   closeOutline,
-  filterOutline
+  filterOutline,
+  carOutline,
+  calendarOutline,
+  receiptOutline,
+  cashOutline
 } from 'ionicons/icons';
 import { FavoriteService, type Car } from '../services/favorite.service';
 import { CarApiService } from '../services/car-api.service';
 import { CAR_DATABASE } from '../services/car-data';
-import { NOTIFICATION_ITEMS, type NotificationItem } from '../data/notifications.data';
+import { type NotificationItem } from '../data/notifications.data';
+import { FirestoreService } from '../services/firestore.service';
+import { NotificationService } from '../services/notification.service';
 
 interface Brand {
   name: string;
@@ -89,7 +95,7 @@ export class ExplorePage implements OnInit {
   searchQuery = '';
   activeTab = 'explore';
   isNotificationsOpen = false;
-  notificationItems: NotificationItem[] = NOTIFICATION_ITEMS;
+  notificationItems: NotificationItem[] = [];
   selectedNotification: NotificationItem | null = null;
   isFilterOpen = false;
   brandSearchQuery = '';
@@ -108,6 +114,8 @@ export class ExplorePage implements OnInit {
   private router = inject(Router);
   private favoriteService = inject(FavoriteService);
   private carApi = inject(CarApiService);
+  private firestoreService = inject(FirestoreService);
+  private notificationService = inject(NotificationService);
 
   constructor() {
     addIcons({
@@ -125,12 +133,17 @@ export class ExplorePage implements OnInit {
       'menu-outline': menuOutline,
       'notifications-outline': notificationsOutline,
       'close-outline': closeOutline,
-      'filter-outline': filterOutline
+      'filter-outline': filterOutline,
+      'car-outline': carOutline,
+      'calendar-outline': calendarOutline,
+      'receipt-outline': receiptOutline,
+      'cash-outline': cashOutline
     });
   }
 
   ngOnInit(): void {
     this.loadCars();
+    this.loadNotifications();
   }
 
   toggleFavorite(car: Car, event: Event): void {
@@ -309,10 +322,19 @@ export class ExplorePage implements OnInit {
 
   clearNotifications(): void {
     this.isNotificationsOpen = false;
+    this.selectedNotification = null;
+    this.notificationItems = [];
+    void this.notificationService.clearForCurrentUser();
   }
 
   handleNotificationClick(notification: NotificationItem): void {
     this.selectedNotification = notification;
+    if (notification.route) {
+      this.router.navigateByUrl(notification.route);
+    }
+    if (typeof notification.id === 'string') {
+      void this.notificationService.markAsRead(notification.id);
+    }
   }
 
   getStars(rating: number): boolean[] {
@@ -375,5 +397,39 @@ export class ExplorePage implements OnInit {
       (car) =>
         car.price >= this.activePriceRange.lower && car.price <= this.activePriceRange.upper
     );
+  }
+
+  private loadNotifications(): void {
+    this.firestoreService.onAuthStateChanged(async (user) => {
+      if (!user?.uid) {
+        this.notificationItems = [];
+        return;
+      }
+
+      try {
+        const notifications = await this.notificationService.getNotifications(user.uid);
+        this.notificationItems = notifications.map((item) => ({
+          id: item.id,
+          title: item.title,
+          description: item.body,
+          details: item.body,
+          icon: item.icon || 'notifications-outline',
+          time: this.formatTime(item.createdAt.toDate()),
+          route: item.route
+        }));
+      } catch {
+        this.notificationItems = [];
+      }
+    });
+  }
+
+  private formatTime(date: Date): string {
+    const diff = Date.now() - date.getTime();
+    const minutes = Math.floor(diff / 60000);
+    if (minutes < 1) return 'Just now';
+    if (minutes < 60) return `${minutes}m ago`;
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours}h ago`;
+    return `${Math.floor(hours / 24)}d ago`;
   }
 }

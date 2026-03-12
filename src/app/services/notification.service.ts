@@ -71,6 +71,39 @@ export class NotificationService {
     return this.firestoreService.markNotificationRead(notificationId);
   }
 
+  async clearForCurrentUser(): Promise<void> {
+    const user = this.firestoreService.getCurrentUser();
+    if (!user?.uid) {
+      return;
+    }
+    await this.firestoreService.clearNotificationsByUserId(user.uid);
+  }
+
+  async notifyUsers(
+    userIds: string[],
+    payload: Omit<AppNotification, 'id' | 'createdAt' | 'userId'>
+  ): Promise<void> {
+    await Promise.all(
+      userIds.map((userId) =>
+        this.createInAppNotification({
+          ...payload,
+          userId
+        })
+      )
+    );
+  }
+
+  async notifyAllUsers(
+    payload: Omit<AppNotification, 'id' | 'createdAt' | 'userId'>
+  ): Promise<void> {
+    const users = await this.firestoreService.getAllUsers();
+    const userIds = users.map((user) => String(user.id)).filter(Boolean);
+    if (!userIds.length) {
+      return;
+    }
+    await this.notifyUsers(userIds, payload);
+  }
+
   private async registerServiceWorker() {
     if ('serviceWorker' in navigator) {
       await navigator.serviceWorker.register('/firebase-messaging-sw.js');

@@ -165,6 +165,17 @@
         <ion-icon slot="end" name="chevron-forward-outline" class="chevron"></ion-icon>
       </ion-item>
 
+      <ion-item button detail="false" (click)="goTo('/orders')" class="menu-item">
+        <div class="menu-icon-wrapper settings" slot="start">
+          <ion-icon name="calendar-outline"></ion-icon>
+        </div>
+        <ion-label>
+          <h3>Orders & Bookings</h3>
+          <p>Track purchases, deposits, and test drives</p>
+        </ion-label>
+        <ion-icon slot="end" name="chevron-forward-outline" class="chevron"></ion-icon>
+      </ion-item>
+
       <ion-item button detail="false" (click)="goTo('/recently-viewed')" class="menu-item">
         <div class="menu-icon-wrapper time" slot="start">
           <ion-icon name="time-outline"></ion-icon>
@@ -172,17 +183,6 @@
         <ion-label>
           <h3>Recently Viewed</h3>
           <p>Cars you've explored</p>
-        </ion-label>
-        <ion-icon slot="end" name="chevron-forward-outline" class="chevron"></ion-icon>
-      </ion-item>
-
-      <ion-item button detail="false" (click)="goTo('/trade-in')" class="menu-item">
-        <div class="menu-icon-wrapper cash" slot="start">
-          <ion-icon name="cash-outline"></ion-icon>
-        </div>
-        <ion-label>
-          <h3>Trade-In</h3>
-          <p>Get an offer for your car</p>
         </ion-label>
         <ion-icon slot="end" name="chevron-forward-outline" class="chevron"></ion-icon>
       </ion-item>

@@ -4,7 +4,7 @@ import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } 
 import { ActivatedRoute, Router } from '@angular/router';
 import { 
   IonContent, IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonIcon,
-  IonCard, IonCardContent, IonInput, IonToast, IonSpinner, IonImg,
+  IonCard, IonCardContent, IonInput, IonToast, IonSpinner, IonImg, IonTextarea,
   IonLabel, IonSegment, IonSegmentButton, IonText
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
@@ -14,6 +14,7 @@ import { PaymentService, type BakongPaymentResponse } from '../services/payment.
 import { FirestoreService } from '../services/firestore.service';
 import { NotificationService } from '../services/notification.service';
 import type { Car } from '../services/favorite.service';
+import { Timestamp } from 'firebase/firestore';
 
 @Component({
   selector: 'app-payment',
@@ -40,6 +41,80 @@ import type { Car } from '../services/favorite.service';
             <div class="price-note" *ngIf="paymentType === 'deposit'">Deposit amount</div>
           </div>
         </div>
+
+        <ion-card class="review-card">
+          <ion-card-content>
+            <div class="review-card__header">
+              <div>
+                <h3>Buyer Review</h3>
+                <p>Confirm buyer details and choose delivery before payment.</p>
+              </div>
+              <ion-button fill="outline" size="small" (click)="openAccountProfile()">
+                Update Profile
+              </ion-button>
+            </div>
+
+            <div class="review-grid">
+              <div class="review-field">
+                <span class="review-label">Email</span>
+                <strong>{{ buyerEmail || currentUserEmail || 'Sign in required' }}</strong>
+              </div>
+              <div class="review-field">
+                <span class="review-label">Phone</span>
+                <strong>{{ buyerPhone || 'Add phone in account' }}</strong>
+              </div>
+              <div class="review-field review-field--full">
+                <span class="review-label">Address</span>
+                <strong>{{ buyerAddress || 'Add address in account' }}</strong>
+              </div>
+            </div>
+
+            <div class="delivery-options">
+              <button
+                type="button"
+                class="delivery-option"
+                [class.active]="deliveryMethod === 'showroom-pickup'"
+                (click)="deliveryMethod = 'showroom-pickup'"
+              >
+                <span>Showroom pickup</span>
+                <small>Collect from AutoElite showroom</small>
+              </button>
+              <button
+                type="button"
+                class="delivery-option"
+                [class.active]="deliveryMethod === 'home-delivery'"
+                (click)="deliveryMethod = 'home-delivery'"
+              >
+                <span>Home delivery</span>
+                <small>We contact you to arrange delivery</small>
+              </button>
+            </div>
+
+            <ion-textarea
+              label="Buyer note"
+              label-placement="stacked"
+              auto-grow="true"
+              rows="3"
+              [(ngModel)]="buyerNote"
+              placeholder="Optional delivery or purchase note"
+            ></ion-textarea>
+
+            <div class="review-summary">
+              <div class="review-summary__row">
+                <span>Payment type</span>
+                <strong>{{ paymentType === 'deposit' ? 'Deposit' : 'Purchase' }}</strong>
+              </div>
+              <div class="review-summary__row">
+                <span>Fulfilment</span>
+                <strong>{{ deliveryMethod === 'home-delivery' ? 'Home delivery' : 'Showroom pickup' }}</strong>
+              </div>
+              <div class="review-summary__row review-summary__row--total">
+                <span>Total due</span>
+                <strong>\${{ paymentAmount | number:'1.0-2' }}</strong>
+              </div>
+            </div>
+          </ion-card-content>
+        </ion-card>
 
         <!-- Payment Method -->
         <ion-segment [(ngModel)]="paymentMethod" class="payment-segment" (ionChange)="onPaymentMethodChange($event.detail.value ?? null)">
@@ -196,6 +271,25 @@ import type { Car } from '../services/favorite.service';
     .car-info h3{margin:0 0 8px 0;font-size:16px;color:#2c3e50}
     .price{font-size:22px;font-weight:700;color:#3498db}
     .price-note{font-size:12px;color:#7f8c8d;margin-top:4px}
+    .review-card{margin:0 0 20px;border-radius:18px;box-shadow:0 10px 28px rgba(15,23,42,0.08)}
+    .review-card__header{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:16px}
+    .review-card__header h3{margin:0;font-size:18px;color:#0f172a}
+    .review-card__header p{margin:4px 0 0;color:#64748b;font-size:13px}
+    .review-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-bottom:16px}
+    .review-field{padding:12px 14px;border-radius:14px;background:#f8fafc;border:1px solid #e2e8f0}
+    .review-field--full{grid-column:1 / -1}
+    .review-label{display:block;font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:#64748b;margin-bottom:6px}
+    .review-field strong{font-size:14px;color:#0f172a}
+    .delivery-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-bottom:16px}
+    .delivery-option{border:none;border-radius:16px;padding:14px 16px;text-align:left;background:#f8fafc;border:1px solid #e2e8f0;display:flex;flex-direction:column;gap:4px;cursor:pointer}
+    .delivery-option span{font-size:14px;font-weight:700;color:#0f172a}
+    .delivery-option small{font-size:12px;color:#64748b}
+    .delivery-option.active{background:#fff1f2;border-color:#fda4af;box-shadow:0 10px 20px rgba(225,35,46,0.08)}
+    .review-card ion-textarea{--background:#f8fafc;--border-radius:14px;margin-bottom:16px}
+    .review-summary{border-top:1px solid #e2e8f0;padding-top:12px}
+    .review-summary__row{display:flex;align-items:center;justify-content:space-between;font-size:14px;color:#475569;padding:7px 0}
+    .review-summary__row strong{color:#0f172a}
+    .review-summary__row--total{font-size:16px}
     .payment-segment{margin-bottom:20px;--background:#f8f9fa;--border-radius:10px}
     .payment-form ion-card{border-radius:12px;box-shadow:0 2px 12px rgba(0,0,0,0.08)}
     .payment-form ion-input{--background:#f8f9fa;--border-radius:8px;margin-bottom:16px}
@@ -224,7 +318,7 @@ import type { Car } from '../services/favorite.service';
     .qr-detail-item .label{font-size:14px;color:#6b7280}
     .qr-detail-item .value{font-size:14px;font-weight:600;color:#111827}
     .payment-note{font-size:13px;text-align:center;margin-top:16px}
-    @media (max-width: 480px){.payment-page{padding:16px}.wallet-header{height:78px;padding:12px 16px}.wallet-header-logo{height:28px}.wallet-summary{padding:16px 16px 12px}.wallet-summary__amount{font-size:36px}.wallet-summary__amount .currency{font-size:21px}.qr-container{padding:0 16px}.qr-code img{width:180px;height:180px}.qr-center-logo{width:42px;height:42px}}
+    @media (max-width: 480px){.payment-page{padding:16px}.review-grid,.delivery-options,.expiry-cvv{grid-template-columns:1fr}.review-card__header{flex-direction:column}.wallet-header{height:78px;padding:12px 16px}.wallet-header-logo{height:28px}.wallet-summary{padding:16px 16px 12px}.wallet-summary__amount{font-size:36px}.wallet-summary__amount .currency{font-size:21px}.qr-container{padding:0 16px}.qr-code img{width:180px;height:180px}.qr-center-logo{width:42px;height:42px}}
   `],
   standalone: true,
   imports: [
@@ -241,6 +335,7 @@ import type { Car } from '../services/favorite.service';
     IonCard,
     IonCardContent,
     IonInput,
+    IonTextarea,
     IonToast,
     IonSpinner,
     IonImg,
@@ -269,6 +364,10 @@ export class PaymentPage implements OnInit, OnDestroy {
   countdownLabel = '';
   bakongMerchantName = 'AutoElite Motors';
   bakongLoading = false;
+  buyerProfile: Record<string, any> | null = null;
+  currentUserEmail = '';
+  deliveryMethod: 'showroom-pickup' | 'home-delivery' = 'showroom-pickup';
+  buyerNote = '';
   readonly khqrHeaderLogo = 'assets/icon/KHQR Logo.png';
   readonly bakongLogoUrl = 'https://bakong.nbc.gov.kh/images/favicon.png';
   private bakongPayment?: BakongPaymentResponse;
@@ -304,6 +403,7 @@ export class PaymentPage implements OnInit, OnDestroy {
     this.paymentAmount = Number(this.route.snapshot.queryParamMap.get('amount')) || 0;
     this.paymentType = this.route.snapshot.queryParamMap.get('type') || 'purchase';
     this.bookingId = this.route.snapshot.queryParamMap.get('bookingId') || '';
+    void this.loadBuyerProfile();
   }
 
   ngOnDestroy() {
@@ -313,6 +413,18 @@ export class PaymentPage implements OnInit, OnDestroy {
 
   get merchantDisplayName(): string {
     return (this.bakongMerchantName || 'AutoElite').toUpperCase();
+  }
+
+  get buyerEmail(): string {
+    return String(this.buyerProfile?.['email'] || '');
+  }
+
+  get buyerPhone(): string {
+    return String(this.buyerProfile?.['phone'] || '');
+  }
+
+  get buyerAddress(): string {
+    return String(this.buyerProfile?.['address'] || '');
   }
 
   loadCar(id: string) {
@@ -334,6 +446,17 @@ export class PaymentPage implements OnInit, OnDestroy {
     this.paymentReference = 'PAY-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).substr(2, 5).toUpperCase();
   }
 
+  private async loadBuyerProfile() {
+    const user = this.firestoreService.getCurrentUser();
+    this.currentUserEmail = user?.email || '';
+    if (!user?.uid) {
+      this.buyerProfile = null;
+      return;
+    }
+
+    this.buyerProfile = await this.firestoreService.getUserProfile(user.uid);
+  }
+
   async loadBakongPayment() {
     if (!this.car || this.paymentAmount <= 0) {
       return;
@@ -353,6 +476,7 @@ export class PaymentPage implements OnInit, OnDestroy {
       }
 
       const profile = await this.firestoreService.getUserProfile(user.uid);
+      this.buyerProfile = profile;
       if (!profile?.phone || !profile?.address) {
         this.showToastMessage('Please add phone and address before paying.', 'danger');
         this.router.navigate(['/tabs/account']);
@@ -394,7 +518,18 @@ export class PaymentPage implements OnInit, OnDestroy {
           paymentReference: this.paymentReference,
           paymentType: this.paymentType as 'purchase' | 'deposit',
           bookingId: this.bookingId || undefined,
-          status: response.status === 'paid' ? 'paid' : 'pending'
+          status: response.status === 'paid' ? 'paid' : 'pending',
+          deliveryMethod: this.deliveryMethod,
+          buyerNote: this.buyerNote || undefined,
+          timeline: [
+            {
+              status: 'pending',
+              label: 'Payment session created',
+              actor: 'customer',
+              note: this.deliveryMethod === 'home-delivery' ? 'Home delivery requested' : 'Showroom pickup selected',
+              createdAt: Timestamp.now()
+            }
+          ]
         });
       }
     } catch (error: any) {
@@ -434,6 +569,7 @@ export class PaymentPage implements OnInit, OnDestroy {
     }
 
     const profile = await this.firestoreService.getUserProfile(user.uid);
+    this.buyerProfile = profile;
     if (!profile?.phone || !profile?.address) {
       this.showToastMessage('Please add phone and address before paying.', 'danger');
       this.router.navigate(['/tabs/account']);
@@ -448,7 +584,7 @@ export class PaymentPage implements OnInit, OnDestroy {
     await this.createOrderForCardPayment();
     localStorage.removeItem('carsToCompare');
     setTimeout(() => {
-      this.router.navigate(['/tabs/home']);
+      this.router.navigate(['/payment-success'], { queryParams: { orderId: this.orderId } });
     }, 1500);
   }
 
@@ -568,11 +704,11 @@ export class PaymentPage implements OnInit, OnDestroy {
     this.showToastMessage('Payment confirmed successfully.', 'success');
     await this.createPaymentNotification('Payment confirmed', 'Your Bakong payment was confirmed.');
     if (this.orderId) {
-      await this.firestoreService.updateOrderStatus(this.orderId, 'paid');
+      await this.firestoreService.updateOrderStatus(this.orderId, 'paid', 'Bakong payment verified successfully.');
     }
 
     setTimeout(() => {
-      this.router.navigate(['/tabs/home']);
+      this.router.navigate(['/payment-success'], { queryParams: { orderId: this.orderId } });
     }, 1800);
   }
 
@@ -625,13 +761,29 @@ export class PaymentPage implements OnInit, OnDestroy {
         paymentReference: this.paymentReference,
         paymentType: this.paymentType as 'purchase' | 'deposit',
         bookingId: this.bookingId || undefined,
-        status: 'paid'
+        status: 'paid',
+        deliveryMethod: this.deliveryMethod,
+        buyerNote: this.buyerNote || undefined,
+        paidAt: Timestamp.now(),
+        timeline: [
+          {
+            status: 'paid',
+            label: 'Card payment completed',
+            actor: 'customer',
+            note: this.deliveryMethod === 'home-delivery' ? 'Home delivery requested' : 'Showroom pickup selected',
+            createdAt: Timestamp.now()
+          }
+        ]
       });
     }
   }
 
   goBack() {
     window.history.back();
+  }
+
+  openAccountProfile() {
+    this.router.navigate(['/tabs/account']);
   }
 
   showToastMessage(message: string, color: string) {

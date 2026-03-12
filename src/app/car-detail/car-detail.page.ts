@@ -9,9 +9,9 @@ import { addIcons } from 'ionicons';
 import {
   arrowBackOutline, heartOutline, heartSharp, shareOutline,
   callOutline, mailOutline, locationOutline, speedometerOutline,
-  gitCommitOutline, swapHorizontalOutline, peopleOutline, navigateOutline,
+  gitCommitOutline, peopleOutline, navigateOutline,
   colorPaletteOutline, carSportOutline, flashOutline, informationCircleOutline, checkmarkCircle, imagesOutline, cardOutline,
-  closeOutline, chevronBackOutline, chevronForwardOutline
+  closeOutline, chevronBackOutline, chevronForwardOutline, calendarOutline
 } from 'ionicons/icons';
 import { CarApiService } from '../services/car-api.service';
 import { FavoriteService } from '../services/favorite.service';
@@ -285,9 +285,9 @@ import { ContactDealerComponent } from '../shared/contact-dealer/contact-dealer.
           </section>
 
           <div class="action-bar">
-            <ion-button expand="block" fill="outline" (click)="addToCompare()">
-              <ion-icon slot="start" name="swap-horizontal-outline"></ion-icon>
-              Compare
+            <ion-button expand="block" color="tertiary" (click)="bookTestDrive()">
+              <ion-icon slot="start" name="calendar-outline"></ion-icon>
+              Book Test Drive
             </ion-button>
             <ion-button expand="block" color="success" (click)="buyNow()">
               <ion-icon slot="start" name="card-outline"></ion-icon>
@@ -828,8 +828,9 @@ import { ContactDealerComponent } from '../shared/contact-dealer/contact-dealer.
     .action-bar {
       position: sticky;
       bottom: 0;
+      z-index: 1000;
       display: grid;
-      grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+      grid-template-columns: repeat(2, 1fr);
       gap: 12px;
       padding: 12px;
       border-radius: 24px;
@@ -1030,9 +1031,9 @@ export class CarDetailPage implements OnInit {
     addIcons({
       arrowBackOutline, heartOutline, heartSharp, shareOutline,
       callOutline, mailOutline, locationOutline, speedometerOutline,
-      gitCommitOutline, swapHorizontalOutline, peopleOutline, navigateOutline,
+      gitCommitOutline, peopleOutline, navigateOutline,
       colorPaletteOutline, carSportOutline, flashOutline, informationCircleOutline, checkmarkCircle, imagesOutline, cardOutline,
-      closeOutline, chevronBackOutline, chevronForwardOutline
+      closeOutline, chevronBackOutline, chevronForwardOutline, calendarOutline
     });
   }
 
@@ -1120,27 +1121,6 @@ export class CarDetailPage implements OnInit {
     this.showFeedback('More financing options coming soon', 'medium');
   }
 
-  addToCompare() {
-    if (this.car) {
-      const stored = localStorage.getItem('carsToCompare');
-      const ids: string[] = stored ? JSON.parse(stored) : [];
-      
-      if (ids.includes(String(this.car.id))) {
-        this.showFeedback('Car already in compare list', 'warning');
-        return;
-      }
-      
-      if (ids.length >= 2) {
-        this.showFeedback('Maximum 2 cars can be compared', 'warning');
-        return;
-      }
-      
-      ids.push(String(this.car.id));
-      localStorage.setItem('carsToCompare', JSON.stringify(ids));
-      this.showFeedback('Added to compare');
-    }
-  }
-
   buyNow() {
     if (this.car) {
       const user = this.firestoreService.getCurrentUser();
@@ -1150,6 +1130,18 @@ export class CarDetailPage implements OnInit {
         return;
       }
       this.router.navigate(['/payment', this.car.id]);
+    }
+  }
+
+  bookTestDrive() {
+    if (this.car) {
+      const user = this.firestoreService.getCurrentUser();
+      if (!user) {
+        this.showFeedback('Please sign in to book a test drive', 'danger');
+        this.router.navigate(['/auth'], { queryParams: { redirect: `/car/${this.car.id}` } });
+        return;
+      }
+      this.router.navigate(['/booking', this.car.id]);
     }
   }
 
